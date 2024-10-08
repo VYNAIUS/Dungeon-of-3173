@@ -17,27 +17,53 @@ if os.path.exists(file_path):
         content = file.read()
 else:
     with open(file_path, 'w') as file:
-        file.write("TD_unlocks=[1100000]")
+        file.write('''TD_unlocks=[1100000]
+TD_high_scores=[0000000]''')
+    print("New save file has been created!")
 with open(file_path, 'r') as file:
     content = file.read()
 
 TD_area_unlocks = []
+TD_max_raids = []
 starting_symbol = 0
-for symbol in range(len(content)):
-    key_word = content[starting_symbol:symbol]
-    if key_word == "TD_unlocks":
-        area_counter = 0
-        for i in range(symbol, len(content)):
-            if content[i] == "]":
-                break
-            elif content[i] == "1":
-                TD_area_unlocks.append(True)
-                area_counter += 1
-            elif content[i] == "0":
-                TD_area_unlocks.append(False)
-                area_counter += 1
+for starting_symbol in range(len(content)):
+    for symbol in range(len(content)):
+        key_word = content[starting_symbol:symbol]
+        if key_word == "TD_unlocks":
+            print("Scanning Raid Mode areas unlocks")
+            area_counter = 0
+            for i in range(symbol, len(content)):
+                if content[i] == "]" or area_counter == 7:
+                    break
+                elif content[i] == "1":
+                    TD_area_unlocks.append(True)
+                    area_counter += 1
+                elif content[i] == "0":
+                    TD_area_unlocks.append(False)
+                    area_counter += 1
+        if key_word == "TD_high_scores":
+            print("Scanning Raid Mode high scores")
+            area_counter = 0
+            for i in range(symbol, len(content)):
+                if content[i] == "]" or area_counter == 7:
+                    break
+                elif content[i].isdigit():
+                    TD_max_raids.append(int(content[i]))
+                    area_counter += 1
 #print(TD_area_unlocks)
-
+fancy_percentage_save_file_thing = 0
+while len(TD_area_unlocks) < 7:
+    fancy_percentage_save_file_thing += 1
+    if len(TD_area_unlocks) < 2:
+        TD_area_unlocks.append(True)
+    else:
+        TD_area_unlocks.append(False)
+    print("Restoring a corrupt save file - ", round(fancy_percentage_save_file_thing / 14 * 100), "%", sep = "")
+while len(TD_max_raids) < 7:
+    fancy_percentage_save_file_thing += 1
+    TD_max_raids.append(0)
+    print("Restoring a corrupt save file - ", round(fancy_percentage_save_file_thing / 14 * 100), "%", sep = "")
+print("\n\n\n")
 def enable_ansi_escape_codes():
     try:
         # Run the PowerShell command to enable ANSI escape codes
@@ -45,17 +71,17 @@ def enable_ansi_escape_codes():
             ["powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\\Console' -Name 'VirtualTerminalLevel' -Value 1"],
             check=True
         )
-        print("ANSI escape codes enabled successfully.")
+        #print("ANSI escape codes enabled successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to enable ANSI escape codes: {e}")
 
 if __name__ == "__main__":
     enable_ansi_escape_codes()
 sys.set_int_max_str_digits(6969)
-print('''Please notify the developer if any of these symbols don't work:
-Pb•○×†$B⌂~ΛADE
+#print('''Please notify the developer if any of these symbols don't work:
+#Pb•○×†$B⌂~ΛADE
 
-''')
+#''')
 
 def enemy_name_color(enemy_id = 0):
     string = "\033[38;2"
@@ -80,7 +106,7 @@ def area_color(height = 5, affected_by_weather = False):
             if affected_by_weather and 5 in current_weather:
                 weather_colors.append(50)
             if affected_by_weather and (2 in current_weather or 4 in current_weather):
-                weather_colors.append(255)
+                weather_colors.append(200)
             if affected_by_weather and 9 in current_weather:
                 weather_colors.append(140)
             if len(weather_colors) > 0:
@@ -93,9 +119,9 @@ def area_color(height = 5, affected_by_weather = False):
                 weather_color_effect = areas_colors[area_id][i]
             color = (areas_colors[area_id][i] + weather_color_effect) // 2
             if area_id != 6:
-                color = color + (10 * height) - 50
+                color = color + (12 * height) - 60
             else:
-                color = color + (5 * height) - 25
+                color = color + (7 * height) - 35
             if color > 255:
                 color = 255
             elif color < 0:
@@ -289,6 +315,7 @@ def enemy_magic_hit(attacker = 0):
 
 def enemy_summon(summoner = 0):
     global enemys
+    global queue_amount
 
     print(enemy_name_color(enemys[summoner].en_id), end = "")
 
@@ -305,6 +332,7 @@ def enemy_summon(summoner = 0):
     print(" to their aid.")
 
     print("\033[0m", end = "")
+    queue_amount = 0
 
 def enemy_stall(quitter = 0):
     global enemys
@@ -417,7 +445,7 @@ def health_multiplier(enemy_id = 0):
                 hp_multi = int(hp_multi)
                 hp_multi += round(hp_multi // 100000000) + ((difficulty - 50) * 1000)
             else:
-                hp_multi *= 1.05 + uniform(0.0008 * difficulty + 0.01, 0.0008 * difficulty + 0.06)
+                hp_multi *= 1.05 + uniform(0.0006 * difficulty + 0.01, 0.0006 * difficulty + 0.06)
                 #hp_multi *= 1.05 + (randint(-50 + difficulty, -40 + difficulty) / 100)
                 hp_multi = round(hp_multi, 10)
     return hp_multi
@@ -589,6 +617,7 @@ def default_enemies():
     global enemy_actions
     global ally_actions
     global enemy_unconsumable
+    global enemy_unelite
     global bosses_for_areas
     global hunters_appeared
     global global_seed
@@ -642,7 +671,7 @@ def default_enemies():
                        0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0]
     enemys_base_immortality = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0,
                                0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0]
-    enemys_descriptions = ["That's a weird looking bush", "Boring plant, uses roots as its legs", "This plant usually accompanies other siblings",
+    enemys_descriptions = ["That's a weird looking bush", "Boring plant, uses roots as its legs", "This plant usually accompanies its other siblings",
                        "This tree moves surprisingly quickly for its size", "This spirit punishes those, who abuse altars' magic of innocence",
                        "It is ent but stronger", "This bandit is capable of killing dangerous foes", "This person is for some reason aggressive",
                        "This mage is able to pierce through regular armor", "This bandit is capable of killing really powerful foes",
@@ -661,7 +690,7 @@ def default_enemies():
                        "A bounty hunter who seems to specify in damage", "A bounty hunter who seems to be proficient in poison and spikes",
                        "This spirit punishes those, who abuse altars' magic of vitality", "This spirit punishes those, who abuse altars' magic of strength",
                        "This spirit punishes those, who abuse altars' magic of might", "This spirit punishes those, who abuse altars' magic of protection and magic protection",
-                       "You concentrate and attempt to remember yourself... You fail", "Thorny, venomous predator, that leaves its prey slowly dying",
+                       "Is that who you truly are?", "Thorny, venomous predator, that leaves its prey slowly dying",
                        "Empowered by corrupt crystals of the Stale Cave, they seek out powerful foes", "Crystals infused with life force of corrupt crystals",
                        "This snowman appears to be possessed... and has a freaking shotgun", "This mage is adept at healing arachnids",
                        "This rodent has sharp teeth, and what appears to be spiky fur", "A big bug that uses tumbleweed as a nest",
@@ -687,6 +716,7 @@ def default_enemies():
     enemy_actions = [enemy_hit, enemy_defend, enemy_magic_hit, enemy_summon, enemy_stall, enemy_heal, enemy_stun, enemy_berserk]
     ally_actions = [ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit]
     enemy_unconsumable = [4, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
+    enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
     bosses_for_areas = [[5, 58], [9], [14, 59], [19, 60], [24, 61], [28], [32, 62]]
     hunters_appeared = [False, False, False]
 
@@ -710,13 +740,14 @@ class Enemies:
             multiplier = round(protection_anger) - spirit_anger_reduction
         else:
             multiplier = 1
-
-        possible_elite_prefixes = ["Toxic ", "Impenetrable ", "Critical ", "Thorny ", "Tanky "]
+            
         elite_prefixes = []
-        for i in range(elite):
-            item = choice(possible_elite_prefixes)
-            possible_elite_prefixes.remove(item)
-            elite_prefixes.append(item)
+        if not enemy_id in enemy_unelite:
+            possible_elite_prefixes = ["Toxic ", "Impenetrable ", "Critical ", "Thorny ", "Tanky "]
+            for i in range(elite):
+                item = choice(possible_elite_prefixes)
+                possible_elite_prefixes.remove(item)
+                elite_prefixes.append(item)
 
         name_prefix = ""
         for i in elite_prefixes:
@@ -784,7 +815,7 @@ start_positions = [["ul", "ml", "dl"], ["ul", "um", "ur", "dl", "dm", "dr"], ["m
 remnants_spawns = [[0, 4, 3], [0, 2, 0], [0, 0, 0], [0, 1, 1], [0, 4, 0], [0, 6, 1], [0, 3, 0]] # first value - min, second value - max, third value - average
 snow_pile_spawns = [0, 0, 0.05, 0.1, 0, 0, 0]
 water_level = 0
-default_water_levels = [3, 2, 1, 2, 1, 0, 1.5]
+default_water_levels = [3, 2, 1, 2, 1, 0, 0.75]
 river_prob = [0, 0.75, 0, 0.75, 0, 1, 2]
 river_thickness = [1, 1, 1, 1, 1, 1, 1]
 escape_river_prob = [0, 0.45, 0.25, 0.65, 0, 0.25, 0.55]
@@ -832,8 +863,13 @@ max_power_level_increase = 0
 win = 0
 lost = 0
 forest_enemy_spawn = 0
+enough_destroyed = False
 is_boss_battle = False
 final_area = False
+
+queue_amount = 0
+queue_action = 0
+queue_action_enemy = 0
 
 global_seed = 0
 daily_seed = 0
@@ -891,7 +927,7 @@ player_regen = 0
 player_consume = 0
 player_travel = 0
 player_enemy_explotano = 0
-player_extra_life = 0
+player_extra_life = False
 player_spent_life = 0
 player_dodge_chance = 0
 player_dodge_count = 0
@@ -948,16 +984,17 @@ item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuf
                            "After drinking this tea, you will become stronger if snow enemies are there to witness it", "You will be so quick, that you have a chance to dodge stuff, pal",
                            "This potion heals all of your wounds, pal", "You become stronger and mightier when you drink this", "Bad guys will do nothing 3 times in a row"]
 consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion"]
-consumable_item_desc = ["It is literally nothing", "Heals 20% HP and adds 20% of base DEF on use (consumable)", "Clears any poison applied to you on use (consumable)",
-                        "Shapeshifts into a random consumable object on use (consumable)", "Heals 50% HP on use (consumable)", "Increases damage if snow-related enemies are present",
-                        "Heals 100% HP (consumable)", "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)"]
+consumable_item_desc = ["How in the world do you have a Nothing in your inventory?", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
+                        "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
+                        "Heals 50% HP on use (consumable)", "Increases damage if snow-related enemies are present", "Heals 100% HP (consumable)",
+                        "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)"]
 # SHOP ITEMS END
 
 # WEAPONS START
 weapon_names = ["Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe"]
 weapon_damage_ranges = [[80, 120], [50, 80], [95, 135], [90, 120], [5, 10]]
 weapon_descriptions = ["Your favourite weapon of all time. Damage ranges between 80%~120%. Crowd factor is 1; poison factor is 1.",
-                       "Extremely weak weapon, but provides 15 MGCDEF. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
+                       "Extremely weak weapon, but provides 150% MGCDEF. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
                        "Very sharp weapon, which makes deep cuts. Damage ranges between 95%~135%. Crowd factor is 0.5; poison factor is 1.7",
                        "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
                        "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4"]
@@ -1007,6 +1044,7 @@ def fight(enemy_ids = [0], ally_ids = []):
     global is_boss_battle
     global win
     global lost
+    global queue_amount, queue_action, queue_action_enemy
     global current_weather
     global fear_anger
     global vitality_anger
@@ -1018,6 +1056,9 @@ def fight(enemy_ids = [0], ally_ids = []):
     global player_def_penalty
     global player_damage_buff
     global player_crit_chance_buff
+    queue_amount = 0
+    queue_action = 0
+    queue_action_enemy = 0
     win = 0
     lost = 0
     money_gain = 0
@@ -1123,10 +1164,29 @@ def fight(enemy_ids = [0], ally_ids = []):
                 if enemys[i].imm > 0:
                     print("; Impenetrable for ", enemys[i].imm, " turns", sep = "", end = "")
                 print("\033[31;0m")
+            print()
             if player_stunned > 0:
                 print("You are stunned! You can't do anything!")
                 player_stunned -= 1
                 break
+            elif queue_amount > 0:
+                queue_amount -= 1
+                if queue_action == 1:
+                    player_hit(queue_action_enemy)
+                    break
+                elif queue_action == 2:
+                    if player_base_def < 10:
+                        player_extra_def += 1
+                    else:
+                        player_extra_def += player_base_def // 10
+                    print("\033[33;1mYou defended! Your defense has increased to", player_base_def + player_extra_def, "DEF!\033[0m")
+                    break
+                elif queue_action == 5:
+                    player_hit(-1)
+                    break
+                elif queue_action == 7:
+                    print("\033[33;1mYou decided to do absolutely nothing for this turn!\033[0m")
+                    break
             else:
                 print("What will you do?")
                 print("1. Hit")
@@ -1135,8 +1195,10 @@ def fight(enemy_ids = [0], ally_ids = []):
                 print("4. Self Inspect")
                 if len(enemys) > 1:
                     print("5. Broad Hit")
+                print("7. Do Nothing")
                 print("8. Items")
-                print("9. Do Nothing")
+                print("9. Queue actions")
+                print("10. End It All")
                 print("Type in the action")
                 action = input()
                 if action == '1' or action.lower() == "hit":
@@ -1154,10 +1216,10 @@ def fight(enemy_ids = [0], ally_ids = []):
                         player_hit(0)
                         break
                 elif action == '2' or action.lower() == "defend":
-                    if player_base_def < 5:
+                    if player_base_def < 10:
                         player_extra_def += 1
                     else:
-                        player_extra_def += player_base_def // 3
+                        player_extra_def += player_base_def // 10
                     print("\033[33;1mYou defended! Your defense has increased to", player_base_def + player_extra_def, "DEF!\033[0m")
                     break
                 elif action == '3' or action.lower() == "inspect":
@@ -1208,8 +1270,8 @@ def fight(enemy_ids = [0], ally_ids = []):
                         print("Enemies explode on death dealing ", player_enemy_explotano, "% of their HP", sep = "")
                     if player_consume > 0:
                         print("Your consume skill is at ", player_consume, "%", sep = "")
-                    if player_extra_life > 0:
-                        print("You have", player_extra_life + 1, "lives")
+                    if player_extra_life:
+                        print("You have 2 lives")
                     print("Your score is ", score, "\nYour power level is ", max_power_level, "\033[0m", sep = "")
                     print("\033[0m\nType anything to continue...")
                     action = input()
@@ -1218,6 +1280,9 @@ def fight(enemy_ids = [0], ally_ids = []):
                         player_hit(-1)
                     elif len(enemys) == 1:
                         player_hit(0)
+                    break
+                elif action == '7' or action.lower() == "do nothing":
+                    print("\033[33;1mYou decided to do absolutely nothing for this turn!\033[0m")
                     break
                 elif action == '8' or "item" in action.lower():
                     if len(player_items) > 0:
@@ -1248,9 +1313,65 @@ def fight(enemy_ids = [0], ally_ids = []):
                         print("You have no items!")
                     print("\033[0m\nType anything to continue...")
                     action = input()
-                elif action == '9' or action.lower() == "do nothing":
-                    print("\033[33;1mYou decided to do absolutely nothing for this turn!\033[0m")
-                    break
+                elif action == '9' or "queue" in action.lower() or "action" in action.lower():
+                    print("You will repeat the same action a certain amount of times.")
+                    print("Choose which action do you want to queue:")
+                    print("1. Hit")
+                    print("2. Defend")
+                    if len(enemys) > 1:
+                        print("5. Broad Hit")
+                    print("7. Do Nothing")
+                    action = input()
+                    if action == '1' or action.lower() == "hit":
+                        queue_action = 1
+                        if len(enemys) > 1:
+                            print("Choose enemy")
+                            for i in range(len(enemys)):
+                                print(i + 1, ". ", enemy_name_color(enemys[i].en_id) + enemys[i].name, "\033[0m", sep='')
+                            hit_action = input()
+                            if hit_action.isdigit():
+                                hit_action = int(hit_action)
+                                if hit_action > 0 and hit_action <= len(enemys):
+                                    queue_action_enemy = hit_action - 1
+                                else:
+                                    continue
+                            else:
+                                continue
+                        else:
+                            queue_action_enemy = 0
+                    elif action == '2' or action.lower() == "defend":
+                        queue_action = 2
+                    elif action == '5' or "broad" in action.lower():
+                        if len(enemys) > 1:
+                            queue_action = 5
+                        else:
+                            queue_action = 1
+                            queue_action_enemy = 0
+                    elif action == '7' or "nothing" in action.lower():
+                        queue_action = 7
+                    else:
+                        continue
+                    print("How many times do you want to repeat it?")
+                    action = input()
+                    if action.isdigit():
+                        action = int(action)
+                        if action > 0:
+                            queue_amount = action
+
+                elif action == '10' or "end" in action.lower():
+                    print("ARE YOU SURE YOU WANT TO END THE RUN?")
+                    print("> No")
+                    print("> Yes")
+                    action = input()
+                    if action.lower() == "yes":
+                        lost = 1
+                        player_spent_life = True
+                        player_extra_life = False
+                        player_current_hp = 0
+                        break
+
+        if lost == 1:
+            break
 
         if player_regen > 0:
             regen = round((player_regen / 100) * player_max_hp)
@@ -1324,6 +1445,7 @@ def fight(enemy_ids = [0], ally_ids = []):
                     enemys[i].hp = 0
                 print(enemy_name_color(enemys[i].en_id) + enemys[i].name, "suffered", enemys[i].psnd, "DMG from poison! They have", enemys[i].hp, "HP left!\033[0m")
             if enemys[i].hp <= 0:
+                queue_amount = 0
                 enemy_deletions.append(enemys[i])
             enemys[i].imm -= 1
         for i in enemy_deletions:
@@ -1357,13 +1479,13 @@ def fight(enemy_ids = [0], ally_ids = []):
         player_current_immortality -= 1
         enemy_deletions = []
         if player_current_hp == 0:
-            if is_boss_battle == False or player_extra_life == 0:
+            if is_boss_battle == False or player_extra_life == False:
                 lost = 1
                 break
             else:
                 player_current_hp = player_max_hp
-                player_extra_life -= 1
-                player_spent_life += 1
+                player_extra_life = False
+                player_spent_life = True
                 print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
         if len(enemys) == 0:
             win = 1
@@ -1405,6 +1527,7 @@ def player_hit(target = 0):
     global player_weapon
     global player_damage_buff
     global player_crit_chance_buff
+    global queue_amount
 
     enemys_deletion = []
     print("\033[33;1m", end = "")
@@ -1446,6 +1569,7 @@ def player_hit(target = 0):
                 enemys[target].psnd += dealt_poison
                 print("You have inflicted ", dealt_poison, " PSN to ", enemys[target].name, "! Their total poison is ", enemys[target].psnd, " PSN!", sep = "")
         else:
+            queue_amount = 0
             print("You hit", enemys[target].name, "for", dealt_damage, "DMG! You killed them!")
             if spike_damage > 0:
                 print(enemys[target].name, "'s spikes dealt ", spike_damage, " DMG to you! You have ", player_current_hp, " HP left!", sep = "")
@@ -1513,6 +1637,7 @@ def player_hit(target = 0):
         if player_poison > 0:
             print("Your hit was too inaccurate to inflict poison!")
     for i in enemys_deletion:
+        queue_amount = 0
         enemy_id = enemys.index(i)
         if i.spawner[0] == 1:
             spawn = 0
@@ -1585,7 +1710,7 @@ def item_use(item):
         if heal + player_current_hp > player_max_hp:
             heal = player_max_hp - player_current_hp
         for i in enemys:
-            if i.en_id in [15, 16, 17, 18, 19, 36, 39, 46, 52]:
+            if i.en_id in [15, 16, 17, 18, 19, 36, 39, 46, 52, 60]:
                 player_damage_buff += 20
         player_current_hp += heal
         print("You drank winter tea. You regenerated ", heal, " HP and your damage is increased by ", player_damage_buff, "%!", sep = "")
@@ -2083,7 +2208,7 @@ def cost(item, type = 0):
         cost = item_base_costs[item]
         for i in range(score + (item_bought[item] * 3)):
             if cost < 170000000000000000000000:
-                cost *= 1.05
+                cost *= 1.1
                 cost = round(cost)
             else:
                 cost += cost // 10000000000000
@@ -2091,7 +2216,7 @@ def cost(item, type = 0):
         cost = weapon_base_costs[item]
         for i in range(score):
             if cost < 170000000000000000000000:
-                cost *= 1.05
+                cost *= 1.1
                 cost = round(cost)
             else:
                 cost += cost // 10000000000000
@@ -2250,11 +2375,15 @@ def shop_grant(item):
         player_immortality += 1
         print("You feel impenetrability, coursing through your body. Your total impenetrability is", player_immortality)
     elif item == 6:
-        if player_regen < 25:
-            player_regen += 7
-        else:
+        if player_regen < 10:
             player_regen += 2
-        print("You feel marked by some curse. Your total regeneration is ", player_regen, "%!", sep = "")
+            print("You feel marked by some curse. Your total regeneration is ", player_regen, "%!", sep = "")
+        elif player_regen < 15:
+            player_regen += 1
+            print("You feel marked by some curse. Your total regeneration is ", player_regen, "%!", sep = "")
+        else:
+            player_lifesteal += 4
+            print("Despite consuming mark of the undead, you feel the essence of lifesteal. Your total lifesteal is ", player_lifesteal, "% now.", sep = "")
     elif item == 7:
         if player_consume < 7:
             player_consume += 1
@@ -2275,8 +2404,12 @@ def shop_grant(item):
             player_enemy_explotano += 10
         print("Your weapon gets enchanted by exploding magic. Killed enemies will explode dealing ", player_enemy_explotano, "% of their HP to other enemies!", sep = "")
     elif item == 10:
-        player_extra_life += 1
-        print("You feel some floatyness in your stomach. You have", player_extra_life + 1, "lives!")
+        if player_extra_life == False:
+            player_extra_life = True
+            print("You feel some floatyness in your stomach. You have 2 lives!")
+        else:
+            player_lifesteal += 20
+            print("Despite consuming Life's gift, you feel the essence of lifesteal. Your total life steal is ", player_lifesteal, "% now.", sep = "")
     elif item == 11:
         player_items.append(1)
         print("You got a cookie!")
@@ -2383,11 +2516,11 @@ def alchemist_shop():
 He presents you the goods.''')
         else:
             if alchemist_anger <= 0.3:
-                if game_time <= 6:
+                if game_time < 6:
                     print('''You came across a brewery. Half-sleeping \033[38;2;200;0;150malchemist\033[0m greets you,
 \033[38;2;200;0;150m"Guten morgen. Neet any potionz?"\033[0m
 He presents you the goods.''')
-                elif game_time <= 18:
+                elif game_time < 18:
                     print('''You came across a brewery. \033[38;2;200;0;150mThe alchemist\033[0m greets you,
 \033[38;2;200;0;150m"The zun is high, and I greet it. I meant, the zun is high, but my prices are low."\033[0m
 He presents you the goods.''')
@@ -2507,11 +2640,17 @@ def boss_upgrade():
         player_damage_range_boost += 15
         print("You deal ", player_damage_range_boost, "% more DMG!", sep = "")
     if canyon_reward:
-        player_poison_def += round(5 * ((player_poison_def / 5) + 1))
+        if game_mode in ["story", "infinite"]:
+            player_poison_def += round(15 * ((player_poison_def / 25) + 1))
+        elif game_mode in ["raid"]:
+            player_poison_def += round(3 * ((player_poison_def / 30) + 1))
         print("Your poison defense is now", player_poison_def, "PSNDEF!")
     if desert_reward:
-        player_spikes_armor_break += round(10 * ((player_spikes_armor_break / 5) + 1))
-        player_spikes += 1
+        if game_mode in ["story", "infinite"]:
+            player_spikes_armor_break += round(10 * ((player_spikes_armor_break / 50) + 1))
+        elif game_mode in ["raid"]:
+            player_spikes_armor_break += round(2 * ((player_spikes_armor_break / 25) + 1))
+        player_spikes += round((player_spikes / 20) + 1)
         print("You now have", player_spikes, "SPK, which break", player_spikes_armor_break, "of enemies' DEF.")
     if rot_reward:
         if player_crit_chance > 1:
@@ -2544,9 +2683,9 @@ def mimic_gamble():
     global mimic_given_items
     global item_rando
     global gamble_seed
-    change_cost = round(10 * (mimic_given_items / 2 + 1))
+    change_cost = round(10 * (mimic_given_items / 1.8 + 1))
     for i in range(score):
-        change_cost += change_cost // 10
+        change_cost += change_cost // 9
     if item_rando:
         common_items = [2, 4, 6, 8, 11, 13, 14, 15]
         uncommon_items = [1, 3, 5, 9, 12, 16]
@@ -2686,17 +2825,18 @@ def death_boat():
     sacrificed = 0
     price = 21
     for i in range(score):
-        price += round(price / 15)
+        price += round(price / 12)
     if death_encounters == 0:
         print('''You see a weird creature with four heads, each wearing a mask.
 You brace yourself, but the creature speaks,
 \033[38;2;100;100;100m"Hello, another one. I am no threat to you."\033[0m
 You lower your weapon. She continues,
-\033[38;2;100;100;100m"I can provide you a boat. But it only functions in this area."\033[0m
+\033[38;2;100;100;100m"I can provide you a boat. But it only functions in this area."\033[0m''')
+        while True:
+            print('''
 Do you accept a gift of a boat from this creature?
 1. Yes
 2. No''')
-        while True:
             action = input()
             if action == "1" or action.lower() == "yes":
                 print('''You grab the incredibly light boat. The creature speaks again,
@@ -2713,11 +2853,11 @@ She then crawls away.''')
     elif death_encounters == 1:
         print('''You see the masked creature again. She speaks,
 \033[38;2;100;100;100m"Hello again. The boat prices are growing, which is why I have to sell them now."\033[0m
-She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''coins."\033[0m
-Your balance is''', player_money, '''coins.
+She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''coins."\033[0m''')
+        while True:
+            print('''Your balance is''', player_money, '''coins.
 1. Pay''', price, '''
 2. Continue your journey''')
-        while True:
             action = input()
             if action == "1" or action.lower() == "pay":
                 if player_boat == True:
@@ -2725,7 +2865,7 @@ Your balance is''', player_money, '''coins.
 \033[38;2;100;100;100m"I do not take gratuity. But thank you?"\033[0m''')
                 elif player_money >= price:
                     print('''You offer your coins. The creature grabs them, and hands you the boat,
-\033[38;2;100;100;100m"I am surprised, that you actually decided to pay. Thank you?"\033[0m''')
+\033[38;2;100;100;100m"I am surprised, that you have actually decided to pay. Thank you?"\033[0m''')
                     player_money -= price
                     player_boat = True
                 else:
@@ -2741,13 +2881,13 @@ You take your money back.''')
 \033[38;2;100;100;100m"Hello, warrior. I thought of the inevitable that will come for you. And I am not talking about myself."\033[0m
 Slightly unsettled by this, you continue listening, \033[38;2;100;100;100m"Some spirits may come for you."\033[0m
 \033[38;2;100;100;100m"But I can provide some safety for you. It is not easy, which is why I ask for payment."\033[0m
-She continues, \033[38;2;100;100;100m"However, I do not need your coins. Instead, I need your strength."\033[0m
-Your balance is''', player_money, '''coins.
+She continues, \033[38;2;100;100;100m"However, I do not need your coins. Instead, I need your strength."\033[0m''')
+        while True:
+            print('''Your balance is''', player_money, '''coins.
 1. Pay''', price, '''for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
 4. Continue your journey''')
-        while True:
             action = input()
             if action == "1" or action.lower() == "pay":
                 if player_boat == True:
@@ -2755,7 +2895,7 @@ Your balance is''', player_money, '''coins.
 \033[38;2;100;100;100m"I do not take gratuity. But thank you for the offer?"\033[0m''')
                 elif player_money >= price:
                     print('''You offer your coins. The creature grabs them, and hands you the boat,
-\033[38;2;100;100;100m"I am surprised, that you actually decided to pay. Thank you?"\033[0m''')
+\033[38;2;100;100;100m"I am surprised, that you have actually decided to pay. Thank you?"\033[0m''')
                     player_money -= price
                     player_boat = True
                 else:
@@ -2803,12 +2943,12 @@ She quickly changes the topic, \033[38;2;100;100;100m"You probably need a boat h
         else:
             print('''You come across the masked creature again. She speaks,
 \033[38;2;100;100;100m"Do you need a boat here? Or help with spirits?"\033[0m''')
-        print('''Your balance is''', player_money, '''
+        while True:
+            print('''Your balance is''', player_money, '''
 1. Pay''', price, '''for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
 4. Continue your journey''')
-        while True:
             action = input()
             if action == "1" or action.lower() == "pay":
                 if player_boat == True:
@@ -3039,9 +3179,9 @@ def true_reset():
     global player_enemy_explotano
     player_enemy_explotano = 0
     global player_extra_life
-    player_extra_life = 0
+    player_extra_life = False
     global player_spent_life
-    player_spent_life = 0
+    player_spent_life = False
     global player_items
     player_items = []
     global debt
@@ -3072,6 +3212,7 @@ def true_reset():
     player_oxygen = 3
     global player_boat
     player_boat = False
+    default_water_levels[6] = 0.75
     global death_defeated
     death_defeated = False
     global change_encouters
@@ -3160,7 +3301,7 @@ def final_statistics():
     if player_regen > 0:
         print("Regeneration: +", player_regen, "%", sep = "")
     if player_dodge_chance > 0:
-        print(player_dodge_chance, "% DCH", sep = "")
+        print("Dodge chance: ", player_dodge_chance, "% DCH", sep = "")
     if player_consume > 0:
         print("Consume: ", player_consume, "%", sep = "")
     if player_travel > 0:
@@ -4478,11 +4619,11 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4510,11 +4651,11 @@ def map_movement():
             fight(bossfight_choose(), ally_choose())
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4542,11 +4683,11 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4563,11 +4704,11 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4589,8 +4730,8 @@ Type anything to continue''')
                 score -= 5
                 fight([51])
                 if lost == 1:
-                    player_spent_life += player_extra_life + 1
-                    player_extra_life = 0
+                    player_spent_life = True
+                    player_extra_life = False
                     break
                 else:
                     score += 5
@@ -4625,11 +4766,11 @@ Type anything to continue''')
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4646,11 +4787,11 @@ Type anything to continue''')
             time_events(2)
         elif event in [21, 22, 23]:
             fight(fight_choose(-0.3))
-            if lost == 1 and player_extra_life < 1:
+            if lost == 1 and player_extra_life == False:
                 break
-            elif lost == 1 and player_extra_life > 0:
-                player_spent_life += 1
-                player_extra_life -= 1
+            elif lost == 1 and player_extra_life:
+                player_spent_life = True
+                player_extra_life = False
                 score -= 2
                 score_increase += 2
                 player_money = 0
@@ -4737,7 +4878,6 @@ def time_events(num = 0):
     global current_weather
     global current_weather_duration
     global water_level
-    global raid_counter
     global area_id
     global eclipse
     global weather_seed
@@ -4758,96 +4898,7 @@ def time_events(num = 0):
             events[node] = 1
             forest_enemy_spawn += 1
 
-    if not (1 in events or 4 in events or 7 in events or 8 in events or 19 in events or 20 in events) and game_mode == "raid":
-        print("The raid is over. Another one begins!")
-        seed(map_seed)
-        map_seed = randint(0, 10000)
-        raid_counter += 1
-        for i in range(len(events)):
-            if events[i] in [15, 16, 17]:
-                events[i] = 0
-            if events[i] in [25, 27]:
-                events[i] = 1
-            if events[i] in [26, 28]:
-                events[i] = 2
-        min_remnant, max_remnant, avg_remnant = remnants_spawns[area_id][0], remnants_spawns[area_id][1], remnants_spawns[area_id][2]
-        remnant_events, remnant_weights = [], []
-        for i in range(min_remnant, max_remnant + 1):
-            if i == avg_remnant:
-                remnant_weights.append(3)
-            elif i == min_remnant or i == max_remnant:
-                remnant_weights.append(1)
-            else:
-                if i < avg_remnant:
-                    addition, amount = 2 / (avg_remnant - min_remnant), i - min_remnant
-                    remnant_weights.append(1 + (addition * amount))
-                else:
-                    addition, amount = 2 / (max_remnant - avg_remnant), max_remnant - i
-                    remnant_weights.append(1 + (addition * amount))
-            remnant_events.append(i)
-        remnant_events_amount = choices(remnant_events, remnant_weights)[0]
-        while remnant_events_amount > events.count(14):
-            event = choice(range(len(events)))
-            if events[event] == 2:
-                events[event] = 14
-        while not 4 in events or (area_id == 2 and not 15 in events):
-            event = choice(range(len(events)))
-            if events[event] in [1] and not 4 in events and chance(0.3):
-                events[event] = 4
-            elif area_id == 2 and events[event] == 0 and not 15 in events:
-                events[event] = 15
-        global mimic_got_item, mimic_given_items, player_travel, score, score_increase, player_xp
-        for i in range(len(hunters_appeared)):
-            hunters_appeared[i] = False
-        if player_travel > 0:
-            player_xp += round(xp_to_lvl_up() * player_travel / 100)
-            print("You gained\033[38;2;100;0;200m", round(xp_to_lvl_up() * player_travel / 100), "XP\033[0m for finishing a raid!")
-        level_up()
-        mimic_got_item = False
-        mimic_given_items = 0
-        score += int(score_increase)
-        if speedrunner:
-            speed_timer = round((events.count(1) * 2 + events.count(2)) * 0.95)
-        if area_id == 0:
-            if TD_area_unlocks[2] == False and raid_counter == 3:
-                TD_area_unlocks[2] = True
-                print("You have unlocked " + represented_area_color(2) + "the Cave!\033[0m")
-                save()
-        elif area_id == 1:
-            if TD_area_unlocks[2] == False and raid_counter == 2:
-                TD_area_unlocks[2] = True
-                print("You have unlocked " + represented_area_color(2) + "the Cave!\033[0m")
-                save()
-        elif area_id == 2:
-            if TD_area_unlocks[3] == False and raid_counter == 3:
-                TD_area_unlocks[3] = True
-                print("You have unlocked " + represented_area_color(3) + "the Tundra!\033[0m")
-                save()
-            if TD_area_unlocks[4] == False and raid_counter == 5:
-                TD_area_unlocks[4] = True
-                print("You have unlocked " + represented_area_color(4) + "the Canyon!\033[0m")
-                save()
-        elif area_id == 3:
-            if TD_area_unlocks[4] == False and raid_counter == 4:
-                TD_area_unlocks[4] = True
-                print("You have unlocked " + represented_area_color(4) + "the Canyon!\033[0m")
-                save()
-            if TD_area_unlocks[5] == False and raid_counter == 6:
-                TD_area_unlocks[5] = True
-                print("You have unlocked " + represented_area_color(5) + "the Desert!\033[0m")
-                save()
-        elif area_id == 4:
-            if TD_area_unlocks[5] == False and raid_counter == 4:
-                TD_area_unlocks[5] = True
-                print("You have unlocked " + represented_area_color(5) + "the Desert!\033[0m")
-                save()
-        elif area_id == 5:
-            if TD_area_unlocks[6] == False and raid_counter == 7:
-                TD_area_unlocks[6] = True
-                print("You have unlocked " + represented_area_color(6) + "the Rotten Forest!\033[0m")
-                save()
-        print('''Type anything to continue...''')
-        action = input()
+    raid_mode_reset()
 
     if 15 in events or 19 in events or 22 in events or 27 in events or 28 in events:
         for node_coordinates in events_coordinates:
@@ -4924,15 +4975,19 @@ def time_events(num = 0):
             shop_coord_y, boss_coord_y, player_coord_y = events_coordinates[events.index(3)][1], events_coordinates[events.index(4)][1], player_coordinates[1]
             if 5 in events:
                 mimic_coord_y = events_coordinates[events.index(5)][1]
-                if 11 in events:
-                    death_coord_y = events_coordinates[events.index(11)][1]
-                else:
-                    death_coord_y = 0
             else:
-                mimic_coord_y, death_coord_y = 0, 0
+                mimic_coord_y = 0
+            if 11 in events:
+                death_coord_y = events_coordinates[events.index(11)][1]
+            else:
+                death_coord_y = 0
+            if 24 in events:
+                alchemist_coord_y = events_coordinates[events.index(24)][1]
+            else:
+                alchemist_coord_y = 0
             event_deletions = []
             if not max_y() == player_coord_y:
-                if not max_y() in [mimic_coord_y, shop_coord_y, death_coord_y, boss_coord_y]:
+                if not max_y() in [mimic_coord_y, shop_coord_y, death_coord_y, boss_coord_y, alchemist_coord_y] or game_mode == "raid":
                     for i in range(len(events_coordinates)):
                         if events_coordinates[i][1] == max_y():
                             event_deletions.append(i)
@@ -4944,41 +4999,37 @@ def time_events(num = 0):
                         counter += 1
                 else:
                     enough_destroyed = True
+        default_water_levels[6] += 0.25
+
     seed(weather_seed)
-    for i in range(len(current_weather)):
-        if current_weather[i] == 0:
-            if chance(weather_chance[area_id]) and current_weather_duration[i] <= 0:
+    for r in range(len(current_weather)):
+        if current_weather[r] == 0:
+            if chance(weather_chance[area_id]) and current_weather_duration[r] <= 0:
                 if len(weathers[area_id]) > 0:
-                    current_weather[i] = choice(weathers[area_id])
-                    current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                    current_weather[r] = choice(weathers[area_id])
+                    current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
                 else:
-                    current_weather[i] = 0
-                    current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                    current_weather[r] = 0
+                    current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
+                current_weather_duration[r] -= num
             weather_seed = randint(0, 10000)
-        elif current_weather[i] == 1:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+        elif current_weather[r] == 1:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(weather_effects_seed)
                 for i in range(num):
                     node = randint(0, len(events) - 1)
                     if (events[node] == 0) and events_coordinates[node] != player_coordinates:
                         events[node] = 6
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
+                current_weather_duration[r] -= num
                 weather_effects_seed = randint(0, 10000)
-        elif current_weather[i] == 2:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+        elif current_weather[r] == 2:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(weather_effects_seed)
                 for i in range(num):
@@ -4997,14 +5048,11 @@ def time_events(num = 0):
                             node2 = randint(0, len(events) - 1)
                         events[node2] = 1
                 weather_effects_seed = randint(0, 10000)
-            try:
-                current_weather_duration[i] -= num
-            except:
-                num
-        elif current_weather[i] == 3:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 3:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(map_seed)
                 for i in range(num):
@@ -5069,14 +5117,11 @@ def time_events(num = 0):
                             events_heights.append(heights // (h_neighbors + v_neighbors + d_neighbors))
                         else:
                             events_heights.append(heights)
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
-        elif current_weather[i] == 4:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 4:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(weather_effects_seed)
                 for i in range(num):
@@ -5094,14 +5139,11 @@ def time_events(num = 0):
                             continue
                         break
                 weather_effects_seed = randint(0, 10000)
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
-        elif current_weather[i] == 5:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 5:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(map_seed)
                 for k in range(num * 4):
@@ -5143,59 +5185,50 @@ def time_events(num = 0):
                                             events[events_coordinates.index(new_coordinates)] = 1
                                             events[i] = 0
                                             break
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
-        elif current_weather[i] == 6:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 6:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
+            else:
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 7:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 try:
-                    current_weather_duration[i] -= num
+                    current_weather_duration[r] -= num
                 except:
                     num
-        elif current_weather[i] == 7:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
-            else:
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
-        elif current_weather[i] == 8:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+        elif current_weather[r] == 8:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 water_level += num / 4
                 if water_level > 5:
                     water_level = 5
-                current_weather_duration[i] -= num
-        elif current_weather[i] == 9:
-            if current_weather_duration[i] <= 0:
-                current_weather[i] = 0
-                current_weather_duration[i] = randint(weathers_durations[current_weather[i]][0], weathers_durations[current_weather[i]][1])
+                current_weather_duration[r] -= num
+        elif current_weather[r] == 9:
+            if current_weather_duration[r] <= 0:
+                current_weather[r] = 0
+                current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 water_level -= num / 5
                 if water_level > 0:
                     water_level = 0
-                try:
-                    current_weather_duration[i] -= num
-                except:
-                    num
+                current_weather_duration[r] -= num
 
     seed(weather_seed)
     if not 8 in current_weather and not 6 in current_weather and not 1 in current_weather:
         if water_level > default_water_levels[area_id]:
-            water_level -= randint(1, num) * 0.5
+            water_level -= randint(1, num + 1) * 0.5
             if water_level < default_water_levels[area_id]:
                 water_level = default_water_levels[area_id]
     if not 9 in current_weather:
         if water_level < default_water_levels[area_id]:
-            water_level += randint(1, num) * 0.5
+            water_level += randint(1, num + 1) * 0.5
             if water_level > default_water_levels[area_id]:
                 water_level = default_water_levels[area_id]
 
@@ -5231,6 +5264,7 @@ def infinite_mode():
     area_id = 0
     areas_visited = 0
     while True:
+        default_water_levels[6] = 0.75
         if areas_visited > 7:
             difficulty += 10
         for k in range(len(hunters_appeared)):
@@ -5305,6 +5339,7 @@ def story_mode():
     area_id = 0
     i = 0
     while i in range(8):
+        default_water_levels[6] = 0.75
         for k in range(len(hunters_appeared)):
             hunters_appeared[k] = False
         score += int(score_increase)
@@ -5358,8 +5393,8 @@ def raid_mode_area_choose():
         if TD_area_unlocks[k] == False:
             print("\033[0m" + str(k+1) + ". Locked")
         else:
-            print(represented_area_color(k) + str(k+1) + ". " + areas[k])
-    print("8. Unlocks")
+            print(represented_area_color(k) + str(k+1) + ". " + areas[k], "\033[0m- Survived", TD_max_raids[k], "raids.")
+    print("\033[0m8. Unlocks")
     print("9. Cancel")
     while True:
         print('''\033[0mType in the action...''')
@@ -5370,28 +5405,141 @@ def raid_mode_area_choose():
                 raid_mode(action)
                 break
             elif action == 7:
-                print("In order to unlock some of the next areas you can:")
-                if TD_area_unlocks[2] == False:
-                    print("Survive 2 raids in " + represented_area_color(1) + "the Deep Forest\033[0m.")
-                    print("Survive 3 raids in " + represented_area_color(0) + "the Garden\033[0m.")
-                if TD_area_unlocks[3] == False:
-                    if TD_area_unlocks[2]:
-                        print("Survive 3 raids in " + represented_area_color(2) + "the Cave\033[0m.")
-                if TD_area_unlocks[4] == False:
-                    if TD_area_unlocks[3]:
-                        print("Survive 4 raids in " + represented_area_color(3) + "the Tundra\033[0m.")
-                    if TD_area_unlocks[2]:
-                        print("Survive 5 raids in " + represented_area_color(2) + "the Cave\033[0m.")
-                if TD_area_unlocks[5] == False:
-                    if TD_area_unlocks[4]:
-                        print("Survive 4 raids in " + represented_area_color(4) + "the Canyon\033[0m.")
-                    if TD_area_unlocks[3]:
-                        print("Survive 6 raids in " + represented_area_color(3) + "the Tundra\033[0m.")
-                if TD_area_unlocks[6] == False:
-                    if TD_area_unlocks[5]:
-                        print("Survive 7 raids in " + represented_area_color(5) + "the Desert\033[0m.")
+                if False in TD_area_unlocks:
+                    print("In order to unlock some of the next areas you can:")
+                    if TD_area_unlocks[2] == False:
+                        print("Survive 2 raids in " + represented_area_color(1) + "the Deep Forest\033[0m.")
+                        print("Survive 3 raids in " + represented_area_color(0) + "the Garden\033[0m.")
+                    if TD_area_unlocks[3] == False:
+                        if TD_area_unlocks[2]:
+                            print("Survive 3 raids in " + represented_area_color(2) + "the Cave\033[0m.")
+                    if TD_area_unlocks[4] == False:
+                        if TD_area_unlocks[3]:
+                            print("Survive 4 raids in " + represented_area_color(3) + "the Tundra\033[0m.")
+                        if TD_area_unlocks[2]:
+                            print("Survive 5 raids in " + represented_area_color(2) + "the Cave\033[0m.")
+                    if TD_area_unlocks[5] == False:
+                        if TD_area_unlocks[4]:
+                            print("Survive 4 raids in " + represented_area_color(4) + "the Canyon\033[0m.")
+                        if TD_area_unlocks[3]:
+                            print("Survive 6 raids in " + represented_area_color(3) + "the Tundra\033[0m.")
+                    if TD_area_unlocks[6] == False:
+                        if TD_area_unlocks[5]:
+                            print("Survive 7 raids in " + represented_area_color(5) + "the Desert\033[0m.")
+                else:
+                    print("You have unlocked every single area for raids!")
             elif action == 8:
                 break
+
+def raid_mode_reset():
+    global map_seed, raid_counter, area_id, mimic_got_item, mimic_given_items, player_travel, score, score_increase, player_xp
+    if not (1 in events or 4 in events or 7 in events or 8 in events or 19 in events or 20 in events) and game_mode == "raid":
+        print("The raid is over. Another one begins!")
+        seed(map_seed)
+        map_seed = randint(0, 10000)
+        raid_counter += 1
+        for i in range(len(events)):
+            if events[i] in [15, 16, 17]:
+                events[i] = 0
+            if events[i] in [25, 27]:
+                events[i] = 1
+            if events[i] in [3, 5, 11, 14, 24, 26, 28]:
+                events[i] = 2
+        min_remnant, max_remnant, avg_remnant = remnants_spawns[area_id][0], remnants_spawns[area_id][1], remnants_spawns[area_id][2]
+        remnant_events, remnant_weights = [], []
+        for i in range(min_remnant, max_remnant + 1):
+            if i == avg_remnant:
+                remnant_weights.append(3)
+            elif i == min_remnant or i == max_remnant:
+                remnant_weights.append(1)
+            else:
+                if i < avg_remnant:
+                    addition, amount = 2 / (avg_remnant - min_remnant), i - min_remnant
+                    remnant_weights.append(1 + (addition * amount))
+                else:
+                    addition, amount = 2 / (max_remnant - avg_remnant), max_remnant - i
+                    remnant_weights.append(1 + (addition * amount))
+            remnant_events.append(i)
+        remnant_events_amount = choices(remnant_events, remnant_weights)[0]
+        while remnant_events_amount > events.count(14):
+            event = choice(range(len(events)))
+            if events[event] == 2:
+                events[event] = 14
+        if area_id == 0:
+            while not 3 in events:
+                event = choice(range(len(events)))
+                if events[event] in [2]:
+                    events[event] = 3
+        elif area_id == 1:
+            while not 3 in events or not 5 in events:
+                event = choice(range(len(events)))
+                if events[event] in [2]:
+                    if not 3 in events:
+                        events[event] = 3
+                    elif not 5 in events:
+                        events[event] = 5
+        else:
+            while not 3 in events or not 5 in events or not 24 in events:
+                event = choice(range(len(events)))
+                if events[event] in [2]:
+                    if not 3 in events:
+                        events[event] = 3
+                    elif not 5 in events:
+                        events[event] = 5
+                    elif not 24 in events:
+                        events[event] = 24
+        while not 4 in events or (area_id == 2 and not 15 in events):
+            event = choice(range(len(events)))
+            if events[event] in [1] and not 4 in events and chance(0.3):
+                events[event] = 4
+            elif area_id == 2 and events[event] == 0 and not 15 in events:
+                events[event] = 15
+        for i in range(len(hunters_appeared)):
+            hunters_appeared[i] = False
+        if player_travel > 0:
+            player_xp += round(xp_to_lvl_up() * player_travel / 100)
+            print("You gained\033[38;2;100;0;200m", round(xp_to_lvl_up() * player_travel / 100), "XP\033[0m for finishing a raid!")
+        level_up()
+        mimic_got_item = False
+        mimic_given_items = 0
+        score += int(score_increase)
+        if speedrunner:
+            speed_timer = round((events.count(1) * 2 + events.count(2)) * 0.95)
+        if raid_counter > TD_max_raids[area_id]:
+            TD_max_raids[area_id] = raid_counter
+        if area_id == 0:
+            if TD_area_unlocks[2] == False and raid_counter == 3:
+                TD_area_unlocks[2] = True
+                print("You have unlocked " + represented_area_color(2) + "the Cave!\033[0m")
+        elif area_id == 1:
+            if TD_area_unlocks[2] == False and raid_counter == 2:
+                TD_area_unlocks[2] = True
+                print("You have unlocked " + represented_area_color(2) + "the Cave!\033[0m")
+        elif area_id == 2:
+            if TD_area_unlocks[3] == False and raid_counter == 3:
+                TD_area_unlocks[3] = True
+                print("You have unlocked " + represented_area_color(3) + "the Tundra!\033[0m")
+            if TD_area_unlocks[4] == False and raid_counter == 5:
+                TD_area_unlocks[4] = True
+                print("You have unlocked " + represented_area_color(4) + "the Canyon!\033[0m")
+        elif area_id == 3:
+            if TD_area_unlocks[4] == False and raid_counter == 4:
+                TD_area_unlocks[4] = True
+                print("You have unlocked " + represented_area_color(4) + "the Canyon!\033[0m")
+            if TD_area_unlocks[5] == False and raid_counter == 6:
+                TD_area_unlocks[5] = True
+                print("You have unlocked " + represented_area_color(5) + "the Desert!\033[0m")
+        elif area_id == 4:
+            if TD_area_unlocks[5] == False and raid_counter == 4:
+                TD_area_unlocks[5] = True
+                print("You have unlocked " + represented_area_color(5) + "the Desert!\033[0m")
+        elif area_id == 5:
+            if TD_area_unlocks[6] == False and raid_counter == 7:
+                TD_area_unlocks[6] = True
+                print("You have unlocked " + represented_area_color(6) + "the Rotten Forest!\033[0m")
+        save()
+        print('''Type anything to continue...''')
+        action = input()
 
 def raid_mode(starting_area = 0):
     global area
@@ -5402,6 +5550,7 @@ def raid_mode(starting_area = 0):
     global weather_amount
     global mimic_got_item
     global mimic_given_items
+    default_water_levels[6] = 0.75
     game_mode = "raid"
     area_id = starting_area
     area = areas[area_id]
@@ -5428,7 +5577,7 @@ def evolve():
     for i in range(len(enemys_name)):
         if len(enemys_name) >= 1000:
             break
-        if i in [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54]:
+        if i in [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]:
             continue
         if chance(0.25):
             evo_counter += 1
@@ -5733,6 +5882,11 @@ def save():
         else:
             text = text + "0"
     text = text + "]"
+    text = text + '''
+TD_high_scores=['''
+    for i in TD_max_raids:
+        text = text + str(i)
+    text = text + "]"
     with open(file_path, 'w') as file:
         file.write(text)
     print("The game was saved.")
@@ -5821,4 +5975,5 @@ Type in the action...''')
                 retry = 0
                 break
 
+save()
 game()
