@@ -4,7 +4,6 @@ import sys
 import subprocess
 import time
 import math
-from turtle import speed
 
 # Gets the current user's LocalLow directory
 save_directory_path = os.path.join(os.getenv('USERPROFILE'), 'AppData', 'Local', 'DungeonOf3173')
@@ -823,7 +822,8 @@ pond_prob = [1, 0.1, 0.5, 0, 0, 0, 0]
 pond_radius = [4, 4, 4, 0, 0, 1, 0]
 weathers = [[0], [0, 1, 2, 7, 8, 9], [0, 3, 8], [0, 2, 4, 7, 8], [0, 1, 2, 3, 7, 9], [0, 1, 5, 8, 9], [0, 2, 6, 8, 9]] # 0 - nothing, 1 - rain, 2 - thick fog, 3 - earth quake, 4 - blizzard, 5 - sandstorm, 6 - acid rain, 7 - hail, 8 - flood, 9 - drought
 weather_chance = [0, 1, 0.5, 0.4, 0.7, 0.5, 0.9]
-weathers_durations = [[0, 5], [10, 30], [6, 12], [5, 7], [5, 15], [6, 24], [4, 12], [6, 18], [4, 8], [7, 14]]
+weathers_durations = [[0, 5], [10, 30], [6, 12], [5, 7], [8, 16], [6, 24], [4, 12], [6, 18], [4, 8], [7, 14]]
+base_vision_ranges = [-1, 12, 6, 16, -1, 18, 8]
 current_weather = [0]
 current_weather_duration = [0]
 events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile, 9 - non-existent snow pile,
@@ -838,7 +838,9 @@ events_heights = []
 player_coordinates = [0, 0]
 map_complexity = 0
 game_time = 0
+vision_range = 0 # -1 - entire map is visible
 escaped = False
+earth_cannot_generate_tiles = False
 
 player_hp_penalty = 0
 player_def_penalty = 0
@@ -1080,7 +1082,7 @@ def fight(enemy_ids = [0], ally_ids = []):
     original_enemy_count = 0
     for i in enemy_ids:
         elite_counter = 0
-        while chance(0.1 * (difficulty / 55)):
+        while chance(0.05 * (difficulty / 40)):
             elite_counter += 1
             if elite_counter >= 5:
                 break
@@ -1632,6 +1634,8 @@ def player_hit(target = 0):
             spike_damage += i.spk
         print("!")
         player_current_hp -= spike_damage
+        if player_current_hp < 0:
+            player_current_hp = 0
         if spike_damage > 0:
             print("Some of the enemies you've hit had spikes and dealt", spike_damage, "DMG to you! You have", player_current_hp, "HP left!")
         if player_poison > 0:
@@ -2141,6 +2145,8 @@ def shop_items_define():
         alchemist_anger -= 0.5
         if alchemist_anger < 0:
             alchemist_anger = 0
+    alchemist_visited = False
+    bought_from_alchemist = False
     #print(alchemist_anger)
 
 def peaceful_shop():
@@ -2685,7 +2691,7 @@ def mimic_gamble():
     global gamble_seed
     change_cost = round(10 * (mimic_given_items / 1.8 + 1))
     for i in range(score):
-        change_cost += change_cost // 9
+        change_cost += change_cost // 10
     if item_rando:
         common_items = [2, 4, 6, 8, 11, 13, 14, 15]
         uncommon_items = [1, 3, 5, 9, 12, 16]
@@ -2825,7 +2831,7 @@ def death_boat():
     sacrificed = 0
     price = 21
     for i in range(score):
-        price += round(price / 12)
+        price += round(price / 11)
     if death_encounters == 0:
         print('''You see a weird creature with four heads, each wearing a mask.
 You brace yourself, but the creature speaks,
@@ -3192,6 +3198,14 @@ def true_reset():
     shopkeeper_deaths = 0
     global cur_shopkeeper_dead
     cur_shopkeeper_dead = False
+    global alchemist_anger
+    alchemist_anger = 0
+    global alchemist_visited
+    alchemist_visited = False
+    global bought_from_alchemist
+    bought_from_alchemist = False
+    global brewery_encouters
+    brewery_encouters = 0
     global vitality_anger
     vitality_anger = 0
     global strength_anger
@@ -3213,6 +3227,8 @@ def true_reset():
     global player_boat
     player_boat = False
     default_water_levels[6] = 0.75
+    global earth_cannot_generate_tiles
+    earth_cannot_generate_tiles = False
     global death_defeated
     death_defeated = False
     global change_encouters
@@ -3236,6 +3252,8 @@ def settings_reset():
     speedrunner = False
     global item_rando
     item_rando = False
+    global eclipse
+    eclipse = False
 
 def final_statistics():
     global player_max_hp
@@ -3315,7 +3333,7 @@ def final_statistics():
     if game_mode == "raid":
         print("Raids survived: ", raid_counter, sep = "")
     print("Max power level: ", max_power_level, sep = "")
-    if shopkeeper_deaths > 0 or shopkeeper_sus > 0:
+    if shopkeeper_deaths + shopkeeper_sus + alchemist_anger + alchemist_defeated + death_defeated > 0:
         print("\nReputation:")
     if shopkeeper_sus > 0:
         print("Shopkeeper's sus meter: ", shopkeeper_sus, sep = "")
@@ -4264,6 +4282,7 @@ def map_generation():
 
 def map_print():
     global game_time
+    global vision_range
     global speedrunner
     global speed_timer
     global eclipse
@@ -4341,7 +4360,7 @@ def map_print():
                 print("\033[33;1mP" + area_color(), end = "")
             elif [x, y] == player_coordinates and player_boat == True:
                 print("\033[33;1mb" + area_color(), end = "")
-            elif not [x, y] in events_coordinates:
+            elif not [x, y] in events_coordinates or (vision_range != -1 and (((player_coordinates[0] - x) ** 2 + (player_coordinates[1] - y) ** 2) ** 0.5) > vision_range + 0.25):
                 print(" ", end = "")
             else:
                 event = events[events_coordinates.index([x, y])]
@@ -4356,136 +4375,70 @@ def map_print():
                     else:
                         print(area_color(event_height, True) + "○", end = "")
                 elif event == 1:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "×", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "×", end = "")
-                        else:
-                            print(area_color(event_height, True) + "×", end = "")
+                        print(area_color(event_height, True) + "×", end = "")
                 elif event == 2:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "†", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "†", end = "")
-                        else:
-                            print(area_color(event_height, True) + "†", end = "")
+                        print(area_color(event_height, True) + "†", end = "")
                 elif event == 3:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "$", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "$", end = "")
-                        else:
-                            print(area_color(event_height, True) + "$", end = "")
+                        print(area_color(event_height, True) + "$", end = "")
                 elif event == 4:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "B", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "B", end = "")
-                        else:
-                            print(area_color(event_height, True) + "B", end = "")
+                        print(area_color(event_height, True) + "B", end = "")
                 elif event == 5:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "⌂", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "⌂", end = "")
-                        else:
-                            print(area_color(event_height, True) + "⌂", end = "")
+                        print(area_color(event_height, True) + "⌂", end = "")
                 elif event == 6:
                     if water_level > event_height:
                         print(water_color() + "~", end = "")
                     else:
                         print(area_color(event_height, True) + "~", end = "")
                 elif event == 7:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "Λ", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "Λ", end = "")
-                        else:
-                            print(area_color(event_height, True) + "Λ", end = "")
+                        print(area_color(event_height, True) + "Λ", end = "")
                 elif event == 8:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "A", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "A", end = "")
-                        else:
-                            print(area_color(event_height, True) + "A", end = "")
+                        print(area_color(event_height, True) + "A", end = "")
                 elif event == 10:
                     if water_level > event_height:
                         print(water_color(1) + "~", end = "")
                     else:
                         print(" ", end = "")
                 elif event == 11:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "D", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "D", end = "")
-                        else:
-                            print(area_color(event_height, True) + "D", end = "")
+                        print(area_color(event_height, True) + "D", end = "")
                 elif event == 12:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "E", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "E", end = "")
-                        else:
-                            print(area_color(event_height, True) + "E", end = "")
+                        print(area_color(event_height, True) + "E", end = "")
                 elif event == 13:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "C", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "C", end = "")
-                        else:
-                            print(area_color(event_height, True) + "C", end = "")
+                        print(area_color(event_height, True) + "C", end = "")
                 elif event == 14:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "P", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "P", end = "")
-                        else:
-                            print(area_color(event_height, True) + "P", end = "")
+                        print(area_color(event_height, True) + "P", end = "")
                 elif event == 15:
                     if water_level > event_height:
                         print("\033[38;2;255;50;255m~", end = "")
@@ -4497,32 +4450,14 @@ def map_print():
                     else:
                         print("\033[38;2;200;0;200m•", end = "")
                 elif event in [18, 19, 20]:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
-                    else:
-                        print("\033[38;2;255;50;255mΛ", end = "")
+                    print("\033[38;2;255;50;255mΛ", end = "")
                 elif event in [21, 22, 23]:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
-                    else:
-                        print("\033[38;2;255;50;255m†", end = "")
+                    print("\033[38;2;255;50;255m†", end = "")
                 elif event == 24:
-                    if 2 in current_weather:
-                        if water_level > event_height:
-                            print(water_color() + "?", end = "")
-                        else:
-                            print(area_color(event_height, True) + "?", end = "")
+                    if water_level > event_height:
+                        print(water_color() + "a", end = "")
                     else:
-                        if water_level > event_height:
-                            print(water_color() + "a", end = "")
-                        else:
-                            print(area_color(event_height, True) + "a", end = "")
+                        print(area_color(event_height, True) + "a", end = "")
 
         print("\n" + water_color(), end = "")
     for x in range(min_x(), max_x() + 1):
@@ -4873,10 +4808,12 @@ Type in the action
 
 def time_events(num = 0):
     global game_time
+    global vision_range
     global forest_enemy_spawn
     global enough_destroyed
     global current_weather
     global current_weather_duration
+    global earth_cannot_generate_tiles
     global water_level
     global area_id
     global eclipse
@@ -4887,7 +4824,6 @@ def time_events(num = 0):
     global speed_timer
     global difficulty
     game_time += num
-    too_much = False
     if speedrunner:
         speed_timer -= num
         if speed_timer <= 0:
@@ -5031,23 +4967,12 @@ def time_events(num = 0):
                 current_weather[r] = 0
                 current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
-                seed(weather_effects_seed)
-                for i in range(num):
-                    if 1 in events:
-                        node1 = 0
-                        while events[node1] != 1:
-                            node1 = randint(0, len(events) - 1)
-                        events[node1] = 2
-                        swapped = 1
-                    else:
-                        swapped = 0
-                        node1 = 0
-                    if events.count(2) > swapped:
-                        node2 = 0
-                        while events[node2] != 2 or node2 == node1:
-                            node2 = randint(0, len(events) - 1)
-                        events[node2] = 1
-                weather_effects_seed = randint(0, 10000)
+                if vision_range == -1:
+                    vision_range = 20 - ((num - 1) * 0.5)
+                else:
+                    vision_range -= (num * 0.5)
+                if vision_range != -1 and vision_range < 1.5:
+                    vision_range = 1.5
                 current_weather_duration[r] -= num
         elif current_weather[r] == 3:
             if current_weather_duration[r] <= 0:
@@ -5060,8 +4985,8 @@ def time_events(num = 0):
                     while True:
                         iteration += 1
                         if iteration > 999:
-                            too_much = True
-                        if too_much:
+                            earth_cannot_generate_tiles = True
+                        if earth_cannot_generate_tiles:
                             break
                         x = randint(min_x(), max_x())
                         y = randint(min_y(), max_y())
@@ -5124,6 +5049,12 @@ def time_events(num = 0):
                 current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(weather_effects_seed)
+                if vision_range == -1:
+                    vision_range = 18 - ((num - 1) * 0.75)
+                else:
+                    vision_range -= (num * 0.75)
+                if vision_range != -1 and vision_range < 1.5:
+                    vision_range = 1.5
                 for i in range(num):
                     iteration = 0
                     while True:
@@ -5146,6 +5077,12 @@ def time_events(num = 0):
                 current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
             else:
                 seed(map_seed)
+                if vision_range == -1:
+                    vision_range = 18 - ((num - 1) * 0.75)
+                else:
+                    vision_range -= (num * 0.75)
+                if vision_range != -1 and vision_range < 1.5:
+                    vision_range = 1.5
                 for k in range(num * 4):
                     for i in range(len(events)):
                         if events[i] == 1:
@@ -5231,6 +5168,22 @@ def time_events(num = 0):
             water_level += randint(1, num + 1) * 0.5
             if water_level > default_water_levels[area_id]:
                 water_level = default_water_levels[area_id]
+    if not 2 in current_weather and not 5 in current_weather:
+        if vision_range != base_vision_ranges[area_id]:
+            if base_vision_ranges[area_id] == -1:
+                if vision_range < 20:
+                    vision_range += num * 0.75
+                if vision_range >= 20:
+                    vision_range = -1
+            else:
+                if vision_range < base_vision_ranges[area_id]:
+                    vision_range += num * 0.75
+                    if vision_range > base_vision_ranges[area_id]:
+                        vision_range = base_vision_ranges[area_id]
+                elif vision_range > base_vision_ranges[area_id]:
+                    vision_range -= num * 0.75
+                    if vision_range < base_vision_ranges[area_id]:
+                        vision_range = base_vision_ranges[area_id]
 
 def infinite_mode():
     global area
@@ -5244,6 +5197,7 @@ def infinite_mode():
     global score
     global difficulty
     global water_level
+    global earth_cannot_generate_tiles
     global map_complexity
     global max_power_level
     global player_extra_life
@@ -5251,6 +5205,7 @@ def infinite_mode():
     global evolution
     global mimic_got_item
     global game_time
+    global vision_range
     global forest_enemy_spawn
     global enough_destroyed
     global weather_amount
@@ -5265,6 +5220,8 @@ def infinite_mode():
     areas_visited = 0
     while True:
         default_water_levels[6] = 0.75
+        earth_cannot_generate_tiles = False
+        vision_range = base_vision_ranges[area_id]
         if areas_visited > 7:
             difficulty += 10
         for k in range(len(hunters_appeared)):
@@ -5317,6 +5274,7 @@ def story_mode():
     global score_increase
     global score
     global difficulty
+    global earth_cannot_generate_tiles
     global water_level
     global map_complexity
     global max_power_level
@@ -5325,6 +5283,7 @@ def story_mode():
     global evolution
     global mimic_got_item
     global game_time
+    global vision_range
     global forest_enemy_spawn
     global enough_destroyed
     global weather_amount
@@ -5340,6 +5299,8 @@ def story_mode():
     i = 0
     while i in range(8):
         default_water_levels[6] = 0.75
+        earth_cannot_generate_tiles = False
+        vision_range = base_vision_ranges[area_id]
         for k in range(len(hunters_appeared)):
             hunters_appeared[k] = False
         score += int(score_increase)
@@ -5432,7 +5393,7 @@ def raid_mode_area_choose():
                 break
 
 def raid_mode_reset():
-    global map_seed, raid_counter, area_id, mimic_got_item, mimic_given_items, player_travel, score, score_increase, player_xp
+    global map_seed, raid_counter, area_id, mimic_got_item, mimic_given_items, player_travel, score, score_increase, player_xp, speedrunner, speed_timer
     if not (1 in events or 4 in events or 7 in events or 8 in events or 19 in events or 20 in events) and game_mode == "raid":
         print("The raid is over. Another one begins!")
         seed(map_seed)
@@ -5461,36 +5422,61 @@ def raid_mode_reset():
                     remnant_weights.append(1 + (addition * amount))
             remnant_events.append(i)
         remnant_events_amount = choices(remnant_events, remnant_weights)[0]
+        if remnant_events_amount > events.count(2):
+            remnant_events_amount = events.count(2)
         while remnant_events_amount > events.count(14):
             event = choice(range(len(events)))
             if events[event] == 2:
                 events[event] = 14
         if area_id == 0:
-            while not 3 in events:
-                event = choice(range(len(events)))
-                if events[event] in [2]:
-                    events[event] = 3
+            if events.count(2) + events.count(14) > 2:
+                while not 3 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        events[event] = 3
         elif area_id == 1:
-            while not 3 in events or not 5 in events:
-                event = choice(range(len(events)))
-                if events[event] in [2]:
-                    if not 3 in events:
+            if events.count(2) + events.count(14) > 4:
+                while not 3 in events or not 5 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+            elif events.count(2) + events.count(14) > 2:
+                while not 3 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
                         events[event] = 3
-                    elif not 5 in events:
-                        events[event] = 5
         else:
-            while not 3 in events or not 5 in events or not 24 in events:
-                event = choice(range(len(events)))
-                if events[event] in [2]:
-                    if not 3 in events:
+            if events.count(2) + events.count(14) > 6:
+                while not 3 in events or not 5 in events or not 24 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+                        elif not 24 in events:
+                            events[event] = 24
+            elif events.count(2) + events.count(14) > 4:
+                while not 3 in events or not 5 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+            elif events.count(2) + events.count(14) > 2:
+                while not 3 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
                         events[event] = 3
-                    elif not 5 in events:
-                        events[event] = 5
-                    elif not 24 in events:
-                        events[event] = 24
         while not 4 in events or (area_id == 2 and not 15 in events):
             event = choice(range(len(events)))
             if events[event] in [1] and not 4 in events and chance(0.3):
+                events[event] = 4
+            elif events.count(1) < 2 and events[event] == [0] and not 4 in events:
                 events[event] = 4
             elif area_id == 2 and events[event] == 0 and not 15 in events:
                 events[event] = 15
@@ -5547,12 +5533,16 @@ def raid_mode(starting_area = 0):
     global game_mode
     global map_complexity
     global game_time
+    global vision_range
     global weather_amount
+    global current_weather
+    global current_weather_duration
     global mimic_got_item
     global mimic_given_items
     default_water_levels[6] = 0.75
     game_mode = "raid"
     area_id = starting_area
+    vision_range = base_vision_ranges[area_id]
     area = areas[area_id]
     game_time = 0
     mimic_got_item = False
@@ -5670,12 +5660,14 @@ def daily_run():
     seed(daily_seed)
     difficulty = randint(50, 70)
     original_difficulty = difficulty
+    mutator_factor = difficulty * (-0.05) + 4.5
     weather_amount = randint(1, 6)
-    evolution = chance(0.4)
-    overkill = chance(0.2)
-    speedrunner = chance(0.4)
-    item_rando = chance(0.3)
-    eclipse = chance(0.3)
+    mutator_factor = mutator_factor + (weather_amount * (-0.1) + 0.6)
+    evolution = chance(0.4 * mutator_factor)
+    overkill = chance(0.2 * mutator_factor)
+    speedrunner = chance(0.4 * mutator_factor)
+    item_rando = chance(0.3 * mutator_factor)
+    eclipse = chance(0.3 * mutator_factor)
     global_seed = randint(0, 10000)
     map_seed, weather_seed, weather_effects_seed, altar_seed, shop_seed, gamble_seed, remnant_seed, enemy_encouter_seed, evolution_seed = global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed
     mode = choice(["story", "infinite"])
@@ -5733,12 +5725,14 @@ def daily_run_retry():
     seed(daily_seed)
     difficulty = randint(50, 70)
     original_difficulty = difficulty
+    mutator_factor = difficulty * (-0.05) + 4.5
     weather_amount = randint(1, 6)
-    evolution = chance(0.4)
-    overkill = chance(0.2)
-    speedrunner = chance(0.4)
-    item_rando = chance(0.3)
-    eclipse = chance(0.3)
+    mutator_factor = mutator_factor + (weather_amount * (-0.1) + 0.6)
+    evolution = chance(0.4 * mutator_factor)
+    overkill = chance(0.2 * mutator_factor)
+    speedrunner = chance(0.4 * mutator_factor)
+    item_rando = chance(0.3 * mutator_factor)
+    eclipse = chance(0.3 * mutator_factor)
     global_seed = randint(0, 10000)
     map_seed, weather_seed, weather_effects_seed, altar_seed, shop_seed, gamble_seed, remnant_seed, enemy_encouter_seed, evolution_seed = global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed
     mode = choice(["story", "infinite"])
@@ -5977,3 +5971,4 @@ Type in the action...''')
 
 save()
 game()
+
