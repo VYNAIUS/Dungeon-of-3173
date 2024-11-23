@@ -1,9 +1,8 @@
-﻿from random import *
+﻿from random import choice, choices, randint, uniform, random, seed, shuffle
 import os
 import sys
 import subprocess
-import time
-import math
+from time import localtime
 
 # Gets the current user's LocalLow directory
 save_directory_path = os.path.join(os.getenv('USERPROFILE'), 'AppData', 'Local', 'DungeonOf3173')
@@ -118,9 +117,9 @@ def area_color(height = 5, affected_by_weather = False):
                 weather_color_effect = areas_colors[area_id][i]
             color = (areas_colors[area_id][i] + weather_color_effect) // 2
             if area_id != 6:
-                color = color + (12 * height) - 60
+                color = color + int(12 * height) - 60
             else:
-                color = color + (7 * height) - 35
+                color = color + int(7 * height) - 35
             if color > 255:
                 color = 255
             elif color < 0:
@@ -395,6 +394,33 @@ def enemy_berserk(berserk = 0):
     
     print("\033[0m")
 
+def enemy_transform_others(transformer = 0):
+    global enemys
+
+    print(enemy_name_color(enemys[transformer].en_id), end = "")
+    
+    print(enemys[transformer].name, "made ", end = "")
+    transformed = 0
+    for i in range(len(enemys)):
+        if i == transformer:
+            continue
+        else:
+            if enemys[i].spawner[0] == 1:
+                transformed += 1
+                if transformed == 1:
+                    print(enemys[i].name, end = "")
+                else:
+                    print(",", enemys[i].name, end = "")
+                enemys[i].hp = 0
+
+    if transformed == 0:
+        print("no one transform.")
+    else:
+        print(" transform.")
+
+    print("\033[0m", end = "")
+
+
 def ally_hit(attacker = 0):
     global enemys
     global allys
@@ -421,7 +447,7 @@ def ally_hit(attacker = 0):
             i.hp -= target_dealt_damage
             i.psnd += target_dealt_poison
             if i.spk > 0:
-                allys[attacker][1] -= i.spk
+                allys[attacker].hp -= i.spk
             if k > 1:
                 print(", ", end = "")
             print(target_dealt_damage, "DMG to", enemy_name_color(i.en_id) + i.name + enemy_name_color(allys[attacker].en_id), end = "")
@@ -626,50 +652,53 @@ def default_enemies():
     evolution_name_suffix = [" Evolved", " Prime", "-Adapter", " Plus", " Mutant"]
     enemys = []
     enemy_areas = [[0, 1], [0], [0], [0, 1], [], [0], [1], [1], [1, 5], [1], [2], [2], [2, 4, 6], [6], [2], [3], [3], [3], [3], [3], [4], [2, 4], [4], [4], [4], [5], [5],
-               [5], [5], [6], [6], [6], [6], [], [], [0, 1, 3, 5], [1, 2, 3, 6], [1, 4, 5, 6], [], [], [], [], [0, 1, 2, 3, 4, 5, 6], [0], [1, 2], [2], [3], [4], [5], [5],
-               [6], [], [], [], [], [6], [], [6], [0], [2], [3], [4], [6], ["drought"], []]
+               [5], [5], [2, 6], [6], [6], [6], [], [], [0, 1, 3, 5], [1, 2, 3, 6], [1, 4, 5, 6], [], [], [], [], [], [0], [1, 2], [2], [3], [4], [5], [5],
+               [6], [], [], [], [], [6], [], [6], [0], [2], [3], [4], [6], ["drought", 5], [], [], [5], [5], [5], [0], [0], [1], [5], [5]]
     enemy_is_boss = [False, False, False, False, False, True, False, False, False, True, False, False, False, False, True, False, False, False, False, True, False,
                  False, False, False, True, False, False, False, True, False, False, False, True, False, False, False, False, False, False, False, False, False,
                  False, False, False, False, False, False, False, False, False, True, True, True, True, False, False, False, True, True, True, True, True, False,
-                 True]
+                 True, False, False, False, False, False, False, True, True, True]
     enemys_power_level = [1, 0.9, 0.75, 1.35, 1.7, 1, 1.02, 0.95, 1.05, 1, 1.07, 0.95, 1.45, 0.55, 1, 1, 1.05, 0.6, 1.12, 1, 0.85, 1.15, 1, 1.4, 1, 1, 1.1, 1.07,
-                      1, 1.15, 1.1, 1.45, 1, 2, 1.65, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 1.05, 0.8, 1.3, 1.5, 2.3, 1.3, 1.6, 1.02, 0.5,
-                      1.2, 1.1, 1, 1.05, 0.6, 0.9, 0.25, 1.5]
+                      1, 1.15, 1.1, 1.45, 1, 2, 1.65, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 0.7, 0.8, 1.3, 1.5, 2.3, 1.3, 1.6, 1.02, 0.5,
+                      1.2, 1.1, 1, 1.05, 0.6, 0.9, 0.35, 1.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 1.03, 1, 1.5]
     enemys_name = ["Bush Man", "Weird Plant", "Arachno-flower", "Ent", "Spirit of Fear", "Treant", "Thug", "Bandit", "Dark Mage", "Bandit Chieftain", "Skeleton Warrior",
                "Undead Miner", "Bone Serpent", "Skeleton", "Soul Catcher", "Snowman Knifer", "Ice Elemental", "Snowman", "Snow Mage", "Yeti", "Spiderling",
                "Cave Spider", "Gargoyle", "Matriarch", "Spider Queen", "Cactus", "Desert Spider", "Sandwitch", "Cactus Golem", "Necromancer", "Poison Spider",
                "Rotten Ent", "Undead Paladin", "Shopkeeper", "Spirit of Kindness", choice(bounty_hunter_name_0) + " " + choice(bounty_hunter_name_1),
                choice(bounty_hunter_name_0) + " " + choice(bounty_hunter_name_1), choice(bounty_hunter_name_0) + " " + choice(bounty_hunter_name_1),
                "Spirit of Vitality", "Spirit of Strength", "Spirit of Might", "Spirit of Protection", "Yourself", "Venomous Roser", "Crystal Assassin",
-               "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Big Jerboa", "Tumbleweeder", "Dark Knight", "Death", "The 3173rd", "Change", "Cycle",
+               "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Jerboa", "Tumbleweeder", "Dark Knight", "Death", "The 3173rd", "Change", "Cycle",
                "Amphibian Heretic", "Spectral Frog", "Amphibromancer", "Rose Knight", "Crystal Wizard", "Buff Polar Bear", "Spider King", "False Idol", "Wrom",
-               "Insane Alchemist"]
-    enemys_name_colors = [[0, 170, 0], [0, 230, 0], [180, 200, 0], [180, 100, 0], [140, 0, 155], [190, 90, 0], [200, 185, 105], [200, 175, 120], [60, 60, 60],
+               "Insane Alchemist", "Antlion Parasite", "Antlion Larva", "Antlion Larva", "Antlion", "Vine Bookster", "Plant Mage", "Shield Thug", "Jerboa",
+               "Mature Antlion Parasite"]
+    enemys_name_colors = [[0, 170, 0], [0, 230, 0], [180, 200, 0], [180, 100, 0], [140, 0, 155], [190, 90, 0], [200, 185, 105], [200, 175, 120], [70, 70, 70],
                       [200, 185, 125], [210, 210, 170], [170, 165, 140], [170, 200, 170], [210, 210, 210], [75, 220, 220], [240, 240, 240], [40, 220, 220],
                       [240, 240, 240], [135, 220, 220], [190, 190, 190], [50, 65, 90], [90, 95, 110], [130, 140, 130], [50, 160, 90], [70, 200, 140],
                       [90, 240, 90], [120, 80, 70], [200, 175, 20], [110, 200, 110], [140, 180, 170], [50, 220, 50], [90, 90, 30], [100, 100, 100],
                       [100, 220, 100], [240, 240, 0], [40, 210, 210], [210, 40, 40], [40, 210, 40], [0, 255, 0], [255, 0, 0], [255, 128, 0], [0, 200, 255],
                       [249, 241, 165], [200, 0, 50], [255, 100, 255], [255, 100, 255], [255, 230, 230], [40, 100, 100], [150, 150, 100], [150, 150, 50],
                       [60, 70, 60], [100, 100, 100], [249, 241, 165], [100, 100, 175], [100, 200, 250], [20, 200, 20], [0, 250, 250], [0, 250, 100], [200, 0, 35],
-                      [255, 50, 255], [255, 200, 200], [100, 210, 100], [75, 250, 75], [250, 220, 100], [200, 0, 150]]
-    enemys_elements = [[6], [6], [6], [2, 6], [4], [2, 6], [2], [2], [5], [1, 2], [0], [0], [0, 6], [0], [5, 6], [1], [5], [], [1, 5], [1], [3], [5], [3], [0], [3], [4],
-                       [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 6, 5], [6], [6], [], [0], [1], [3], [4], [4],
-                       [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
-    enemys_base_hp = [30, 25, 23, 50, 50, 65, 35, 30, 27, 65, 31, 27, 40, 10, 55, 20, 27, 10, 25, 70, 10, 30, 25, 45, 60, 26, 32, 27, 60, 25, 30, 55, 65, 50, 60,
-                  60, 42, 56, 150, 50, 30, 60, 1, 30, 30, 10, 19, 40, 35, 30, 40, 100, 350, 75, 125, 30, 7, 35, 60, 50, 65, 30, 50, 20, 50]
-    enemys_base_dmg = [10, 7, 8, 12, 14, 14, 10, 9, 7, 13, 10, 9, 12, 4, 10, 15, 7, 5, 4, 13, 7, 11, 9, 12, 12, 10, 11, 4, 12, 5, 12, 14, 12, 10, 10, 10, 25, 15,
-                   20, 60, 30, 17, 1, 10, 14, 4, 40, 9, 13, 7, 15, 1, 50, 20, 30, 10, 0, 9, 10, 12, 20, 15, 10, 7, 12]
-    enemys_base_def = [0, 0, 0, 0.3, 2, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 7, 2, 15, 2, 5, 7, 3, 0, 40, 1, 1, 1, 0, 0, 0,
-                       0.2, 0, 2.5, 4, 150, 3, 15, 0, 0, 0, 1, 1, 0, 0, 2, 0, 2]
+                      [255, 50, 255], [255, 200, 200], [100, 210, 100], [75, 250, 75], [250, 220, 100], [200, 0, 150], [210, 200, 160], [190, 200, 160],
+                      [190, 200, 160], [170, 180, 140], [0, 200, 50], [100, 255, 0], [150, 150, 150], [150, 150, 100], [210, 200, 160]]
+    enemys_elements = [[6], [6], [6], [2, 6], [4, 5], [2, 6], [2], [2], [5], [1, 2], [0], [0], [0, 6], [0], [5, 6], [1], [5], [], [1, 5], [1], [3], [5], [3], [0], [3],
+                       [4], [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 6, 5], [6], [6], [], [0], [1], [3], [4],
+                       [4], [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1], [4], [4], [4], [4], [5, 6], [5, 6], [2], [4], [4]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
+    enemys_base_hp = [30, 25, 23, 50, 50, 78, 35, 30, 27, 78, 31, 27, 40, 10, 66, 20, 27, 10, 25, 84, 10, 30, 25, 45, 72, 26, 32, 27, 72, 25, 30, 55, 78, 60, 72,
+                  60, 42, 56, 150, 50, 30, 60, 1, 30, 30, 10, 19, 40, 2, 30, 40, 100, 350, 75, 125, 30, 7, 35, 72, 60, 78, 36, 60, 20, 60, 40, 5, 5, 60, 34, 30, 72,
+                  2, 84]
+    enemys_base_dmg = [10, 7, 8, 12, 14, 14, 10, 9, 7, 13, 10, 9, 12, 4, 10, 15, 7, 5, 4, 13, 7, 11, 9, 12, 12, 10, 11, 4, 12, 5, 12, 14, 12, 10, 10, 10, 25, 12,
+                   20, 60, 30, 17, 1, 10, 14, 4, 40, 9, 0, 7, 15, 1, 50, 20, 30, 10, 0, 9, 10, 12, 20, 15, 10, 7, 12, 19, 1, 1, 22, 10, 9, 7, 0, 20]
+    enemys_base_def = [0, 0, 0, 0.4, 2, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 7, 2, 15, 2, 5, 7, 3, 0, 40, 1, 1, 1, 0, 0, 0,
+                       0.2, 0, 2.5, 4, 150, 3, 15, 0, 0, 0, 1, 1, 0, 0, 2, 0, 2, 0, 0, 0, 0, 1, 0, 5, 0, 3]
     enemys_base_crit = [0.02, 0.01, 0.02, 0.04, 0.12, 0.06, 0.05, 0.05, 0.03, 0.09, 0.07, 0.04, 0.1, 0.01, 0.06, 0.05, 0.04, 0.01, 0.03, 0.11, 0.1, 0.05, 0.15, 0.1, 0.1,
-                        0.06, 0.05, 0.03, 0.07, 0.03, 0.06, 0.06, 0.1, 0.35, 0.13, 0.05, 0.4, 0.1, 0.03, 0.2, 0.8, 0.05, 1, 0.04, 0.07, 0.01, 0, 0.03, 0.03, 0.02, 0.1, 1,
-                        0.4, 0.1, 0.1, 0.04, 0, 0.03, 0.1, 0.06, 0.1, 0.1, 0.07, 0.01, 0.05]
+                        0.06, 0.05, 0.03, 0.07, 0.03, 0.06, 0.06, 0.1, 0.35, 0.13, 0.05, 0.4, 0.1, 0.03, 0.2, 0.8, 0.05, 1, 0.04, 0.07, 0.01, 0, 0.03, 0, 0.02, 0.1, 1,
+                        0.4, 0.1, 0.1, 0.04, 0, 0.03, 0.1, 0.06, 0.1, 0.1, 0.07, 0.01, 0.05, 0.02, 0, 0, 0.04, 0.02, 0.02, 0.05, 0, 0.05]
     enemys_base_spk = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 7, 0, 0, 0, 10, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0,
-                       0.25, 0.25, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+                       0, 0.25, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0.25, 0.125, 0.125, 0.5, 0, 0, 0, 0, 0.25]
     enemys_base_psn = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 2, 3, 0, 2, 0, 0, 0, 4, 0, 0, 7, 0, 0, 0, 10, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-                       0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0]
+                       0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     enemys_base_immortality = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0,
-                               0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0]
+                               0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0.7, 0, 0, 0, 0, 0.07, 0, 0.1, 0, 0]
     enemys_descriptions = ["That's a weird looking bush", "Boring plant, uses roots as its legs", "This plant usually accompanies its other siblings",
                        "This tree moves surprisingly quickly for its size", "This spirit punishes those, who abuse altars' magic of innocence",
                        "It is ent but stronger", "This bandit is capable of killing dangerous foes", "This person is for some reason aggressive",
@@ -689,10 +718,9 @@ def default_enemies():
                        "A bounty hunter who seems to specify in damage", "A bounty hunter who seems to be proficient in poison and spikes",
                        "This spirit punishes those, who abuse altars' magic of vitality", "This spirit punishes those, who abuse altars' magic of strength",
                        "This spirit punishes those, who abuse altars' magic of might", "This spirit punishes those, who abuse altars' magic of protection and magic protection",
-                       "Is that who you truly are?", "Thorny, venomous predator, that leaves its prey slowly dying",
-                       "Empowered by corrupt crystals of the Stale Cave, they seek out powerful foes", "Crystals infused with life force of corrupt crystals",
-                       "This snowman appears to be possessed... and has a freaking shotgun", "This mage is adept at healing arachnids",
-                       "This rodent has sharp teeth, and what appears to be spiky fur", "A big bug that uses tumbleweed as a nest",
+                       "...", "Thorny, venomous predator, that leaves its prey slowly dying", "Empowered by corrupt crystals of the Stale Cave, they seek out powerful foes",
+                       "Crystals infused with life force of corrupt crystals", "This snowman appears to be possessed... and has a freaking shotgun",
+                       "This mage is adept at healing arachnids", "Unassuming rodent. What can go wrong?", "A big bug that uses tumbleweed as a nest",
                        "Corrupted by eternal life, this knight mindlessly protects the Holy Forest",
                        "'Death comes for all of us. And those who cheat her, have to fight her'", "Greatest Cycle's creation yet, it is ready to consume you",
                        "'Once one cycle ends, something changes, allowing for a new cycle to be born'", "'Once one cycle ends, something changes, allowing for a new cycle to be born'",
@@ -700,27 +728,35 @@ def default_enemies():
                        "Elite amphibian heretic, who learned how manipulate and create frogs", "The great knight that protects the Garden's grounds",
                        "A great wizard that infused himself with corrupted crystals of the Stale Cave", "There is little explanation of how this bear has visible abs",
                        "Male Spidernachs are considerably smaller than their counterparts", "This frog has been empowered by magic of amphibian heretics",
-                       "This worm like creature is quite common during dry weather", "Kto, kto, kto, kto, kto"]
+                       "This worm like creature is quite common during dry weather", "A somewhat immortal alchemist that robs his customers when the buy nothing for too long",
+                       "This incredibly large parasite can make others transform", "This larva may mature when provoked", "This larva may mature when provoked",
+                       "Mature antlion, ready to fight, hunt and kill for its colony", "This mage uses powers of Vine's Book to protect the Garden's grounds",
+                       "This mage is obsessed with preserving plant life of the Garden's grounds", "This thug stole the armour from one of the legendary shield men",
+                       "Unassuming rodent. What can go wrong?", "This incredibly large parasite forces its own offsprings to grow"]
     enemys_patterns = [[0], [0], [0], [0, 0, 0, 0, 0, 0, 1], [2, 2, 1, 1, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [0], [0], [2], [0, 0, 0, 1, 0, 0, 0], [0], [0],
                    [0, 0, 0, 0, 0, 0, 0, 1], [0], [2, 2, 2, 0], [0], [2], [0], [3, 2, 2], [0, 0, 0, 1, 0, 0, 0], [0], [0], [0], [0, 4, 3, 4, 0, 4],
                    [0, 0, 0, 4, 4, 3], [0], [0], [2, 2, 2, 2, 2, 5], [0, 0, 0, 0, 1], [2, 3, 2], [0, 0, 4, 0], [0, 1, 0, 0, 1, 0, 0, 0, 0], [2, 2, 1, 2, 2, 0],
                    [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1], [2, 1, 2, 1, 0, 0], [1, 1, 0], [0], [1, 0, 0, 0, 0, 0, 1, 1], [2, 2, 5, 5, 2], [0, 2], [0],
-                   [2, 1, 2, 2, 1, 1, 2, 2], [0, 0, 1, 1, 0, 0], [0, 0, 0, 1], [0], [0], [0, 4], [2, 2, 5], [0], [1, 0], [0, 1, 0], [2], [0], [2], [0, 0, 5],
-                   [0, 0, 0, 1], [0], [3, 0, 0, 0], [0], [2], [0, 0, 1, 0], [0, 4], [0, 2, 1], [0], [0, 6, 0, 0, 7, 0]]
+                   [2, 1, 2, 2, 1, 1, 2, 2], [0], [0, 0, 0, 1], [0], [0], [0, 4], [2, 2, 5], [4], [1, 0], [0, 1, 0], [2], [0], [2], [0, 0, 5],
+                   [0, 0, 0, 1], [0], [3, 0, 0, 0], [0], [2], [0, 0, 1, 0], [0, 4], [0, 2, 1], [0], [0, 6, 0, 0, 7, 0], [0, 8, 0, 0, 0], [4, 4, 0], [4, 4, 0],
+                   [0], [2], [2, 6, 2, 2], [1, 1, 0, 0, 1, 1], [4], [0, 3, 8, 0, 0]]
     enemys_spawners = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [1, 13, 13], [0], [0], [0], [0], [0], [0, 17], [0], [0], [0], [0],
-                       [0, 20, 20], [0, 20, 20], [0], [0], [0, 25, 26, 27, 28, 48, 49], [0], [0, 13], [0], [0], [0], [1, 34], [0], [0], [0], [0],
-                       [0, 0, 1, 2, 3, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 33, 43, 44, 45, 46, 47, 48, 49, 50, 52, 58, 59, 60, 61],
-                       [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [0], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
-                       [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0]]
-    enemy_actions = [enemy_hit, enemy_defend, enemy_magic_hit, enemy_summon, enemy_stall, enemy_heal, enemy_stun, enemy_berserk]
-    ally_actions = [ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit]
-    enemy_unconsumable = [4, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
+                       [0, 20, 20], [0, 20, 20], [0], [0], [0, 25, 26, 27, 28, 48, 49, 65, 66, 67, 68], [0], [0, 13], [0], [0], [0], [1, 34], [0], [0], [0], [0],
+                       [0, 0, 1, 2, 3, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 33, 43, 44, 45, 46, 47, 48, 49, 50,
+                       52, 58, 59, 60, 61, 65, 66, 67, 68, 69, 70, 71],
+                       [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [1, 65], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
+                       [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0], [0], [0], [1, 68], [0], [0], [0, 0, 1, 2, 4, 43, 58], [0], [1, 73], [0, 66, 67]]
+    enemy_actions = [enemy_hit, enemy_defend, enemy_magic_hit, enemy_summon, enemy_stall, enemy_heal, enemy_stun, enemy_berserk, enemy_transform_others]
+    ally_actions = [ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit]
+    enemy_unconsumable = [4, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67]
     enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
-    bosses_for_areas = [[5, 58], [9], [14, 59], [19, 60], [24, 61], [28], [32, 62]]
+    bosses_for_areas = [[5, 58], [9, 71], [14, 59], [19, 60], [24, 61], [28, 72, 73], [32, 62]]
     hunters_appeared = [False, False, False]
 
 class Enemies:
     def __init__(self, enemy_id = 0, summoned = False, summoner_id = 0, elite = 0):
+        global player_money
+        global player_xp
         global difficulty
         global enemys
         global fear_anger, vitality_anger, protection_anger, strength_anger, might_anger, shopkeeper_deaths, spirit_anger_reduction
@@ -787,65 +823,131 @@ class Enemies:
         self.pattern = enemys_patterns[enemy_id].copy()
         self.pattern_action = 0
         self.spawner = enemys_spawners[enemy_id].copy()
-        if not enemy_id in [4, 34, 38, 39, 40, 41] and not summoned:
+        if not enemy_id in [4, 34, 38, 39, 40, 41, 42] and not summoned:
             self.money = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (13 * difficulty))
             self.xp = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (10 * difficulty))
+        elif enemy_id == 42 and not summoned:
+            self.money = player_money
+            self.xp = player_xp
         else:
             self.money = 0
             self.xp = 0
 # ENEMYS STATS END
 
 # AREA STATS START
-areas = ["Garden", "Deep Forest", "Cave", "Tundra", "Canyon", "Desert", "Rotten Forest"]
-areas_colors = [[0, 255, 100], [32, 150, 32], [140, 140, 140], [200, 200, 230], [150, 180, 150], [190, 210, 0], [125, 125, 125]]
-water_colors_0 = [[0, 200, 255], [0, 100, 150], [0, 150, 150], [0, 150, 150], [0, 170, 100], [0, 255, 255], [0, 255, 100]]
-water_colors_1 = [[0, 100, 128], [0, 50, 75], [0, 75, 75], [0, 75, 75], [0, 85, 50], [0, 128, 128], [0, 128, 50]]
-path_lengths = [[3, 3], [0, 3], [0, 2], [2, 3], [1, 3], [3, 4], [0, 3]] # [min, max]
-height_variaty = [[0, 0], [-1, 1], [-2, 2], [-1, 3], [-1, 2], [-1, 1], [-2, 1]]
-wall_min_thickness = [1, 3, 2, 1, 1, 1, 2]
-turn_right_prob = [1, 1, 1, 1, 1, 1, 1]
-turn_down_prob = [1, 1, 1, 0.95, 1, 1, 1]
-turn_left_prob = [1, 1, 1, 1, 1, 1, 1]
-turn_up_prob = [1, 1, 1, 0.5, 0.5, 1, 1]
-area_max_x = [83, 41, 23, 41, 54, 54, 47]
-area_max_y = [15, 10, 8, 10, 5, 12, 12]
-start_positions = [["ul", "ml", "dl"], ["ul", "um", "ur", "dl", "dm", "dr"], ["mm"], ["um", "dm", "ml"], ["ul", "ur"],
-                   ["ul", "ur", "dl", "dr"], ["ul", "um", "ur", "ml", "mr", "dl", "dm", "dr"]]
-remnants_spawns = [[0, 4, 3], [0, 2, 0], [0, 0, 0], [0, 1, 1], [0, 4, 0], [0, 6, 1], [0, 3, 0]] # first value - min, second value - max, third value - average
-snow_pile_spawns = [0, 0, 0.05, 0.1, 0, 0, 0]
-water_level = 0
-default_water_levels = [3, 2, 1, 2, 1, 0, 0.75]
-river_prob = [0, 0.75, 0, 0.75, 0, 1, 2]
-river_thickness = [1, 1, 1, 1, 1, 1, 1]
-escape_river_prob = [0, 0.45, 0.25, 0.65, 0, 0.25, 0.55]
-pond_prob = [1, 0.1, 0.5, 0, 0, 0, 0]
-pond_radius = [4, 4, 4, 0, 0, 1, 0]
-weathers = [[0], [0, 1, 2, 7, 8, 9], [0, 3, 8], [0, 2, 4, 7, 8], [0, 1, 2, 3, 7, 9], [0, 1, 5, 8, 9], [0, 2, 6, 8, 9]] # 0 - nothing, 1 - rain, 2 - thick fog, 3 - earth quake, 4 - blizzard, 5 - sandstorm, 6 - acid rain, 7 - hail, 8 - flood, 9 - drought
-weather_chance = [0, 1, 0.5, 0.4, 0.7, 0.5, 0.9]
-weathers_durations = [[0, 5], [10, 30], [6, 12], [5, 7], [8, 16], [6, 24], [4, 12], [6, 18], [4, 8], [7, 14]]
-base_vision_ranges = [-1, 12, 6, 16, -1, 18, 8]
-current_weather = [0]
-current_weather_duration = [0]
-events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile, 9 - non-existent snow pile,
-# 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path, 16 - inactive crystal path, 17 - pre crystal path,
-# 18 - pre crystal fight, 19 - crystal fight, 20 - inactive crystal fight, 21 - pre crystal altar, 22 - crystal altar, 23 - inactive crystal altar, 24 - alchemist's brewery,
-# 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 28 - raid deactivated crystal altar
-benefitial_events = [2, 3, 5, 11, 12, 13, 14, 21, 22, 23, 24]
-hurtful_events = [1, 4, 7, 8, 18, 19, 20]
-neutral_events = [0, 6, 9, 10, 15, 16, 17, 25, 26, 27, 28]
-events_coordinates = [] # [x, y]
-events_heights = []
-player_coordinates = [0, 0]
-map_complexity = 0
-game_time = 0
-vision_range = 0 # -1 - entire map is visible
-escaped = False
-earth_cannot_generate_tiles = False
+def default_areas():
+    global areas, areas_colors, water_colors_0, water_colors_1, path_lengths, height_variaty, wall_min_thickness, turn_right_prob, turn_down_prob, turn_left_prob, turn_up_prob
+    global area_max_x, area_max_y, start_positions, area_patterns, area_pattern_chances, remnants_spawns, snow_pile_spawns, water_level, default_water_levels, river_prob
+    global river_thickness, escape_river_prob, pond_prob, pond_radius, weathers, weather_chances, weathers_durations, base_vision_ranges, current_weather, current_weather_duration
+    global events, benefitial_events, hurtful_events, neutral_events, events_coordinates, events_heights
+    global player_coordinates, map_complexity, game_time, vision_range, escaped, earth_cannot_generate_tiles
+    global player_hp_penalty, player_def_penalty, player_oxygen_danger, stalker_stealth
+    areas = ["Garden", "Deep Forest", "Cave", "Tundra", "Canyon", "Desert", "Rotten Forest"]
+    areas_colors = [[0, 255, 100], [32, 150, 32], [140, 140, 140], [200, 200, 230], [150, 180, 150], [190, 210, 0], [125, 125, 125]]
+    water_colors_0 = [[0, 200, 255], [0, 100, 150], [0, 150, 150], [0, 150, 150], [0, 170, 100], [0, 255, 255], [0, 255, 100]]
+    water_colors_1 = [[0, 100, 128], [0, 50, 75], [0, 75, 75], [0, 75, 75], [0, 85, 50], [0, 128, 128], [0, 128, 50]]
+    path_lengths = [[3, 3], [0, 3], [0, 2], [2, 3], [1, 3], [3, 4], [0, 3]] # [min, max]
+    height_variaty = [[0, 0], [-1, 1], [-2, 2], [-1, 3], [-1, 2], [-1, 1], [-2, 1]]
+    wall_min_thickness = [1, 3, 2, 1, 1, 1, 2]
+    turn_right_prob = [1, 1, 1, 1, 1, 1, 1]
+    turn_down_prob = [1, 1, 1, 0.95, 1, 1, 1]
+    turn_left_prob = [1, 1, 1, 1, 1, 1, 1]
+    turn_up_prob = [1, 1, 1, 0.5, 0.5, 1, 1]
+    area_max_x = [83, 41, 23, 41, 54, 54, 47]
+    area_max_y = [15, 10, 8, 10, 5, 12, 12]
+    start_positions = [["ul", "ml", "dl"], ["ul", "um", "ur", "dl", "dm", "dr"], ["mm"], ["um", "dm", "ml"], ["ul", "ur"],
+                       ["ul", "ur", "dl", "dr"], ["ul", "um", "ur", "ml", "mr", "dl", "dm", "dr"]]
+    area_patterns = [[[["small boxes"], [1], [0]], [["basic", "basic water"], [1, 1], [0, 0]], [["small boxes", "basic"], [0.65, 1], [0, 0]]],
+                     
+                     [[["basic", "basic water"], [1, 1], [0, 0]], [["basic", "basic water", "isolated remnants"], [1, 1, 1], [0, 0, 0]]],
+                     
+                     [[["basic", "basic water", "isolated remnants", "isolated remnants", "change's crystal"], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0]],
+                      [["basic", "basic water", "isolated remnants", "change's crystal"], [1, 1, 1, 1], [0, 0, 0, 0, 0]]],
 
-player_hp_penalty = 0
-player_def_penalty = 0
-player_oxygen_danger = False
+                     [[["basic", "basic water"], [1, 1], [0, 0]]],
+                     
+                     [[["basic only horizontal", "basic", "basic water"], [0.3, 1, 1], [0, 0, 0]]],
+                     
+                     [[["basic", "holes down", "basic", "holes up", "basic", "basic water", "basic water"], [0.3, 0.1, 0.5, 0.3, 1, 1, 1], [0, 0, -1, -1, 0, 0, -1]],
+                      [["basic", "holes down", "basic", "holes down", "basic", "holes up", "basic", "holes up", "basic", "basic water"], [0.15, 0.5, 0.1, 0.5, 0.3, 0.5, 0.1, 0.5, 1, 1], [0, 0, -1, -1, -2, -2, -1, -1, 0, 0]]],
+                     
+                     [[["basic", "basic water"], [1, 1], [0, 0]]]]
+    area_pattern_chances = [[3, 1, 2], [3, 1], [1, 2], [1], [1], [3, 2], [1]]
+    remnants_spawns = [[0, 4, 3], [0, 2, 0], [0, 0, 0], [0, 1, 1], [0, 4, 0], [0, 6, 1], [0, 3, 0]] # first value - min, second value - max, third value - average
+    snow_pile_spawns = [0, 0, 0.05, 0.1, 0, 0, 0]
+    water_level = 0
+    default_water_levels = [3, 2, 1, 2, 1, -2.5, 0.75]
+    river_prob = [0, 0.75, 0.15, 0.75, 0, 1, 2]
+    river_thickness = [1, 1, 1, 1, 1, 1, 1]
+    escape_river_prob = [0, 0.45, 0.25, 0.65, 0, 0.25, 0.55]
+    pond_prob = [1, 0.1, 0.5, 0, 0, 0, 0]
+    pond_radius = [4, 4, 4, 0, 0, 1, 0]
+    weathers = [[0], [0, 1, 2, 7, 8, 9], [0, 3, 8], [0, 2, 4, 7, 8], [0, 1, 2, 3, 7, 9], [0, 1, 5, 8, 9], [0, 2, 6, 8, 9]] # 0 - nothing, 1 - rain, 2 - thick fog, 3 - earth quake, 4 - blizzard, 5 - sandstorm, 6 - acid rain, 7 - hail, 8 - flood, 9 - drought
+    weather_chances = [[1], [7, 4, 3, 3, 1, 1], [10, 4, 6], [7, 3, 4, 4, 1], [7, 4, 2, 1, 3, 1], [12, 2, 7, 1, 6], [5, 1, 4, 4, 1]]
+    weathers_durations = [[0, 5], [10, 30], [6, 12], [5, 7], [8, 16], [6, 24], [4, 12], [6, 18], [4, 8], [7, 14]]
+    base_vision_ranges = [-1, 12, 6, 16, 14, 18, 8]
+    current_weather = [0]
+    current_weather_duration = [0]
+    events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile, 9 - non-existent snow pile,
+    # 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path, 16 - inactive crystal path, 17 - pre crystal path,
+    # 18 - pre crystal fight, 19 - crystal fight, 20 - inactive crystal fight, 21 - pre crystal altar, 22 - crystal altar, 23 - inactive crystal altar, 24 - alchemist's brewery,
+    # 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 28 - raid deactivated crystal altar 29 - hole (down), 30 - hole (up)
+    # 31 - mimic bank, 32 - stalker
+    benefitial_events = [2, 3, 5, 11, 12, 13, 14, 21, 22, 23, 24, 31]
+    hurtful_events = [1, 4, 7, 8, 18, 19, 20, 32]
+    neutral_events = [0, 6, 9, 10, 15, 16, 17, 25, 26, 27, 28, 29, 30]
+    events_coordinates = [] # [x, y, l]
+    events_heights = []
+    player_coordinates = [0, 0, 0]
+    map_complexity = 0
+    game_time = 0
+    vision_range = 0 # -1 - entire map is visible
+    escaped = False
+    earth_cannot_generate_tiles = False
+
+    player_hp_penalty = 0
+    player_def_penalty = 0
+    stalker_stealth = 100
+    player_oxygen_danger = False
 # AREA STATS END
+
+def area_randomize():
+    seed(global_seed)
+    shuffle(areas)
+    shuffle(areas_colors)
+    shuffle(water_colors_0)
+    shuffle(water_colors_1)
+    shuffle(path_lengths)
+    shuffle(height_variaty)
+    shuffle(wall_min_thickness)
+    shuffle(turn_right_prob)
+    shuffle(turn_down_prob)
+    shuffle(turn_left_prob)
+    shuffle(turn_up_prob)
+    shuffle(area_max_x)
+    shuffle(area_max_y)
+    shuffle(start_positions)
+    seed(global_seed - 3)
+    shuffle(area_patterns)
+    shuffle(weathers)
+    seed(global_seed - 3)
+    shuffle(area_pattern_chances)
+    shuffle(weather_chances)
+    seed(global_seed)
+    shuffle(remnants_spawns)
+    shuffle(snow_pile_spawns)
+    shuffle(default_water_levels)
+    shuffle(river_prob)
+    shuffle(river_thickness)
+    shuffle(escape_river_prob)
+    shuffle(pond_prob)
+    shuffle(pond_radius)
+    shuffle(base_vision_ranges)
+    for i in range(len(areas)):
+        shuffle(areas_colors[i])
+        shuffle(water_colors_0[i])
+        shuffle(water_colors_1[i])
+        shuffle(weather_chances[i])
 
 # META STATS START
 difficulty = 55 # suggested 0 - 100
@@ -856,6 +958,7 @@ speedrunner = False
 speed_timer = 0
 item_rando = False
 eclipse = False
+area_rando = False
 weather_amount = 1
 score_increase = 0
 score = 0
@@ -926,6 +1029,7 @@ player_lifesteal = 0 # in %
 player_immortality = 0 # in turns
 player_current_immortality = player_immortality
 player_regen = 0
+player_current_regen = 0
 player_consume = 0
 player_travel = 0
 player_enemy_explotano = 0
@@ -939,6 +1043,7 @@ player_boat = False
 player_items = [0] # 1 - cookie, 2 - antidote, 3 - gambler's drink, 4 - cooked meat, 5 - winter tea, 6 - heal potion, 7 - berserk's potion, 8 - stun potion
 
 mimic_got_item = False
+mimic_gamble_encounters = 0
 debt = 0
 shopkeeper_sus = 0 # in decimals
 shopkeeper_deaths = 0
@@ -952,6 +1057,11 @@ death_defeated = False
 change_encouters = 0
 change_recruited = False
 brewery_encouters = 0
+bank_locked = False
+bank_first_time = True
+mimic_bank_encouters = 0
+bank_money = 0
+locking_tutorial = False
 
 vitality_anger = 0 # in decimals
 strength_anger = 0 # in decimals
@@ -959,23 +1069,22 @@ might_anger = 0 # in decimals
 protection_anger = 0 # in decimals
 fear_anger = 0 # in decimals
 spirit_anger_reduction = 0
-
-mimic_gamble_encounters = 0
 # PLAYER STATS END
 
 # SHOP ITEMS START
 item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Bottle of Lifesteal", "Bottle of Midas' power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
               "Traveller's Hallow", "Enemy Explotano", "Life's Gift", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Band of Agility",
-              "Heal Potion", "Berserk's Potion", "Stun Potion"]
-item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52]
-item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+              "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion"]
+item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58]
+item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies", "Enemies will get damaged when hit you",
                      "Dealing damage will heal you", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn", "Kill to grow",
                      "You will get experience for entering new area", "Enemies explode on death, dealing damage to other enemies",
                      "If you die, you will be revived with no money or experience", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                      "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                      "Heals 50% HP on use (consumable)", "Increases damage by 50% if snow-related enemies are present (consumable)", "Grants chance to dodge physical attacks",
-                     "Heals 100% HP on use (consumable)", "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)"]
+                     "Heals 100% HP on use (consumable)", "Increases damage by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)",
+                     "Adds 5% REG on use (consumable)"]
 item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuff over time", "Guys that attack you, will get damaged for doing so", "Turn damage into heal!",
                            "Not sure why I don't use this one myself, but you will gain more money", "You will become untouchable, but that will fade away after a turn",
                            "How do you think undead people live? They use this to regenerate", "Oh, I don't know about this one, pal. Pretty dark stuff", 
@@ -984,12 +1093,15 @@ item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuf
                            "Don't you hate being poisoned? Well, this will help with getting rid of it, pal!", "This one is like me! Try to drink it and it turns into something random!",
                            "Ever-warriors, like you, enjoy eating flesh. I believe it heals half of your health, pal",
                            "After drinking this tea, you will become stronger if snow enemies are there to witness it", "You will be so quick, that you have a chance to dodge stuff, pal",
-                           "This potion heals all of your wounds, pal", "You become stronger and mightier when you drink this", "Bad guys will do nothing 3 times in a row"]
-consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion"]
+                           "This potion heals all of your wounds, pal", "You become stronger and mightier when you drink this", "Bad guys will do nothing 3 times in a row",
+                           "This potion gives a regen boost! It's quite strong, pal"]
+consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion",
+                         "Regeneration Potion"]
 consumable_item_desc = ["How in the world do you have a Nothing in your inventory?", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                         "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                         "Heals 50% HP on use (consumable)", "Increases damage if snow-related enemies are present", "Heals 100% HP (consumable)",
-                        "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)"]
+                        "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)",
+                        "Adds 5% REG on use (consumable)"]
 # SHOP ITEMS END
 
 # WEAPONS START
@@ -1036,6 +1148,7 @@ def fight(enemy_ids = [0], ally_ids = []):
     global player_immortality
     global player_current_immortality
     global player_regen
+    global player_current_regen
     global player_enemy_explotano
     global player_extra_life
     global player_spent_life
@@ -1070,6 +1183,7 @@ def fight(enemy_ids = [0], ally_ids = []):
     player_extra_def = - player_def_penalty
     player_def_penalty = 0
     player_extra_magic_def = round(player_extra_magic_def_buff * player_base_magic_def)
+    player_current_regen = player_regen
     player_poisoned = 0
     player_current_immortality = player_immortality
     player_damage_buff = 0
@@ -1080,11 +1194,17 @@ def fight(enemy_ids = [0], ally_ids = []):
     enemy_deletions = []
     k = 0
     original_enemy_count = 0
+
+    max_elite_counter = (score / 15)
+    if max_elite_counter < 1:
+        max_elite_counter = 1
+    elif max_elite_counter > 5:
+        max_elite_counter = 5
     for i in enemy_ids:
         elite_counter = 0
         while chance(0.05 * (difficulty / 40)):
             elite_counter += 1
-            if elite_counter >= 5:
+            if elite_counter >= max_elite_counter:
                 break
         enemys.append(Enemies(i, elite=elite_counter))
         #[0] name, [1] current hp, [2] max hp, [3] damage, [4] defense, [5] original defense, [6] description, [7] pattern, [8] pattern action, [9] spawner, [10] spikes, [11] enemy id, [12] money, [13] poisoned, [14] xp, [15] poison, [16] immortality
@@ -1101,15 +1221,7 @@ def fight(enemy_ids = [0], ally_ids = []):
         print("\033[0m blocks your way!")
     k = 0
     for i in ally_ids:
-        jank_code_variable_for_health = round(enemys_base_hp[i] * health_multiplier(i))
-        jank_code_variable_for_defense = round((enemys_base_def[i] + defense_addition(i)) * defense_multiplier(i))
-        allys.append([enemys_name[i], jank_code_variable_for_health, jank_code_variable_for_health, round(enemys_base_dmg[i] * damage_multiplier(i)), jank_code_variable_for_defense, jank_code_variable_for_defense, enemys_descriptions[i], enemys_patterns[i].copy(), 0, enemys_spawners[i].copy(), round(enemys_base_spk[i] * spike_multiplier(i)), i])
-        allys[k].append(0)
-        allys[k].append(0)
-        allys[k].append(0)
-        allys[k].append(round(enemys_base_psn[i] * poison_multiplier(i)))
-        allys[k].append(round(enemys_base_immortality[i] * immortality_multiplier(i)))
-        k += 1
+        allys.append(Enemies(i))
     while True:
         while True:
             print("\033[33;1mYour stats: ", player_current_hp, "/", player_max_hp, " HP; ", round(player_base_dmg * ((player_damage_buff / 100) + 1)), " DMG; ", round(player_crit_chance * ((player_crit_chance_buff / 100) + 1)), "% CRT; ", player_base_def, "+", player_extra_def, " DEF", sep = "", end = "")
@@ -1117,8 +1229,8 @@ def fight(enemy_ids = [0], ally_ids = []):
                 print("; ", player_base_magic_def, "+", player_extra_magic_def, " MGCDEF", sep = "", end = "")
             if player_poison_def > 0:
                 print("; ", player_poison_def, " PSNDEF", sep = "", end = "")
-            if player_regen > 0:
-                print("; ", player_regen, "% REG", sep = "", end = "")
+            if player_regen + player_current_regen > 0:
+                print("; ", player_current_regen, "% REG", sep = "", end = "")
             if player_poison > 0:
                 print("; ", player_poison, " PSN", sep = "", end = "")
             if player_spikes > 0:
@@ -1141,15 +1253,15 @@ def fight(enemy_ids = [0], ally_ids = []):
             if len(allys) > 0:
                 print("\033[31;0m\nStats of your allies:")
                 for i in range(len(allys)):
-                    print(i + 1, ". ", enemy_name_color(allys[i][11]) + allys[i][0], ": ", allys[i][1], "/", allys[i][2], " HP; ", allys[i][3], " DMG; ", allys[i][4], " DEF", sep = "", end = "")
-                    if allys[i][10] > 0:
-                        print("; ", allys[i][10], " SPK", sep = "", end = "")
-                    if allys[i][15] > 0:
-                        print("; ", allys[i][15], " PSN", sep = "", end = "")
-                    if allys[i][13] > 0:
-                        print("; ", allys[i][13], " PSN'd", sep = "", end = "")
-                    if allys[i][16] > 0:
-                        print("; Impenetrable for ", allys[i][16], " turns", sep = "", end = "")
+                    print(i + 1, ". ", enemy_name_color(allys[i].en_id) + allys[i].name, ": ", allys[i].hp, "/", allys[i].max_hp, " HP; ", allys[i].dmg, " DMG; ", round(enemys[i].crit * 100), "% CRT; ", allys[i].defense, " DEF", sep = "", end = "")
+                    if allys[i].spk > 0:
+                        print("; ", allys[i].spk, " SPK", sep = "", end = "")
+                    if allys[i].psn > 0:
+                        print("; ", allys[i].psn, " PSN", sep = "", end = "")
+                    if allys[i].psnd > 0:
+                        print("; ", allys[i].psnd, " PSN'd", sep = "", end = "")
+                    if allys[i].imm > 0:
+                        print("; Impenetrable for ", allys[i].imm, " turns", sep = "", end = "")
                     print("\033[31;0m")
 
             print("\033[31;0m\nStats of your enemies:")
@@ -1375,13 +1487,15 @@ def fight(enemy_ids = [0], ally_ids = []):
         if lost == 1:
             break
 
-        if player_regen > 0:
-            regen = round((player_regen / 100) * player_max_hp)
+        if player_current_regen > 0:
+            regen = round((player_current_regen / 100) * player_max_hp)
             if regen + player_current_hp > player_max_hp:
                 regen -= regen + player_current_hp - player_max_hp 
             player_current_hp += regen
             if regen > 0:
                 print("\033[33;1mYou regenerated", regen, "HP! You have", player_current_hp, "HP left!\033[0m")
+                print("\033[33;1mYour REG has been decreased by 1% for this battle!\033[0m")
+                player_current_regen -= 1
         
         if player_poisoned > 0:
             if player_poison_def >= player_poisoned:
@@ -1493,13 +1607,13 @@ def fight(enemy_ids = [0], ally_ids = []):
             win = 1
             break
     if lost == 1:
-        print("You have lost!\n\n\n")
+        print("\033[0mYou have lost!\n\n\n")
     elif win == 1:
         money_gain = round(money_gain * (1 + (player_gold_boost / 100)))
         player_money += money_gain
         player_xp += xp_gain
         is_boss_battle = False
-        print("You have won! You have earned \033[38;2;200;200;0m", money_gain, " coins!\033[0m Your balance is \033[38;2;200;200;0m", player_money, " coins!\033[0m You have collected \033[38;2;100;0;200m", xp_gain, " XP!\033[0m Your total experience is \033[38;2;100;0;200m", player_xp, "/", xp_to_lvl_up(), "XP!\033[0m\n\n\n", sep = "")
+        print("\033[0mYou have won! You have earned \033[38;2;200;200;0m", money_gain, " coins!\033[0m Your balance is \033[38;2;200;200;0m", player_money, " coins!\033[0m You have collected \033[38;2;100;0;200m", xp_gain, " XP!\033[0m Your total experience is \033[38;2;100;0;200m", player_xp, "/", xp_to_lvl_up(), "XP!\033[0m\n\n\n", sep = "")
     else:
         print("You have encountered a bug! Notify developer!")
         print("Type anything to continue...")
@@ -1686,6 +1800,8 @@ def item_use(item):
     global enemys
     global player_damage_buff
     global player_crit_chance_buff
+    global player_regen
+    global player_current_regen
     print("\033[33;1m", end = "")
     original_item = item
     while item == 3:
@@ -1729,6 +1845,14 @@ def item_use(item):
         for i in range(len(enemys)):
             enemys[i].stnd += 3
         print("You threw stun potion at the enemies, you stunned them for 3 turns!")
+    elif item == 9:
+        player_current_regen += 5
+        regen_limit = round(player_regen * 1.67)
+        if regen_limit < 7:
+            regen_limit = 7
+        if player_current_regen > regen_limit:
+            player_current_regen = regen_limit
+        print("You drank regeneration potion. Your regeneration is increased by 5%! You have ", player_current_regen, "% REG!", sep = "")
     if original_item in player_items:
         player_items.remove(original_item)
     print("\033[0m", end = "")
@@ -1839,6 +1963,7 @@ The man looks startled as he notices the masked creature. She starts to speak,
 A familiar figure appears in front of you three.
 \033[38;2;100;200;250m"I am sorry, my child, I have to do this,"\033[0m it says.''')
             enemies = [52, 54]
+        enemies = spirits_for_fight_choose(enemies)
         print('''Type anything to continue...''')
         action = input()
     else:
@@ -1892,15 +2017,15 @@ def spirits_for_fight_choose(enemies = []):
     global shopkeeper_deaths
     global fear_anger
     global spirit_anger_reduction
-    if vitality_anger - spirit_anger_reduction > 0:
+    if chance(vitality_anger - spirit_anger_reduction):
         enemies.append(38)
-    if strength_anger - spirit_anger_reduction > 0:
+    if chance(strength_anger - spirit_anger_reduction):
         enemies.append(39)
-    if protection_anger - spirit_anger_reduction > 0:
+    if chance(protection_anger - spirit_anger_reduction):
         enemies.append(41)
-    if might_anger - spirit_anger_reduction > 0:
+    if chance(might_anger - spirit_anger_reduction):
         enemies.append(40)
-    if fear_anger - spirit_anger_reduction > 0:
+    if chance(fear_anger - spirit_anger_reduction):
         enemies.append(4)
     if chance(shopkeeper_deaths * 0.25 - spirit_anger_reduction):
         enemies.append(34)
@@ -2014,30 +2139,30 @@ def altar_grant(item):
     global fear_anger
     global max_power_level_increase
     if estimate_max_hp() < player_max_hp:
-        vitality_anger = player_max_hp // estimate_max_hp()
+        vitality_anger = player_max_hp / estimate_max_hp()
     else:
-        vitality_anger = 0
+        vitality_anger = player_max_hp / estimate_max_hp() - 0.5
         
     if estimate_dmg() < player_base_dmg:
-        strength_anger = player_base_dmg // estimate_max_hp()
+        strength_anger = player_base_dmg / estimate_max_hp()
     else:
-        strength_anger = 0
+        strength_anger = player_base_dmg / estimate_max_hp() - 0.5
 
     if player_crit_chance > 205:
-        might_anger = player_crit_chance // 205
+        might_anger = player_crit_chance / 205
     else:
-        might_anger = 0
+        might_anger = player_crit_chance / 205 - 0.5
 
     if estimate_def() < player_base_def + player_base_magic_def:
-        protection_anger = (player_base_def + player_base_magic_def) // estimate_def()
+        protection_anger = (player_base_def + player_base_magic_def) / estimate_def()
     else:
-        protection_anger = 0
+        protection_anger = (player_base_def + player_base_magic_def) / estimate_def() - 0.5
 
     estimate_power_level = 1
     for i in range(max_power_level_increase):
         estimate_power_level = round(estimate_power_level * 1.0175, 2)
-    if max_power_level < estimate_power_level * 0.1:
-        fear_anger = round((estimate_power_level * 0.1) / max_power_level)
+    if max_power_level < estimate_power_level * 0.25:
+        fear_anger = round((estimate_power_level * 0.25) / max_power_level)
     else:
         fear_anger = 0
 
@@ -2118,11 +2243,11 @@ def shop_items_define():
     seed(shop_seed)
     shop_seed = randint(0, 10000)
     if item_rando:
-        possible_shop_items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-        possible_alchemist_items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        possible_shop_items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        possible_alchemist_items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     else:
         possible_shop_items = [1, 2, 4, 8, 11, 12, 13, 14, 15, 16]
-        possible_alchemist_items = [13, 15, 17, 18, 19]
+        possible_alchemist_items = [13, 15, 17, 18, 19, 20]
     current_shop_items = []
     current_alchemist_items = []
     possible_weapons = [0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4]
@@ -2199,7 +2324,7 @@ def peaceful_shop():
                 elif (action - 2 == len(current_shop_items) and is_weapon_bought == 0) or (action - 1 == len(current_shop_items) and is_weapon_bought == 1):
                     item_info(shop_weapon, "shop")
                     break
-                elif (action - 3 == len(current_shop_items) and is_weapon_bought == 0) or (is_weapon_bought == 1 and action - 2 == len(current_shop_items)):
+                elif (action - 3 >= len(current_shop_items) and is_weapon_bought == 0) or (is_weapon_bought == 1 and action - 2 >= len(current_shop_items)):
                     leave = 1
                     break
             else:
@@ -2447,6 +2572,9 @@ def shop_grant(item):
     elif item == 19:
         player_items.append(8)
         print("You got a stun potion!")
+    elif item == 20:
+        player_items.append(9)
+        print("You got a regeneration potion!")
 
 def shop():
     global shopkeeper_sus
@@ -2577,7 +2705,7 @@ He presents you the goods.''')
                     elif action - 1 == len(current_alchemist_items):
                         item_info(shop_weapon, "alchemist")
                         break
-                    elif action - 2 == len(current_alchemist_items):
+                    elif action - 2 >= len(current_alchemist_items):
                         leave = 1
                         break
                 else:
@@ -2694,7 +2822,7 @@ def mimic_gamble():
         change_cost += change_cost // 10
     if item_rando:
         common_items = [2, 4, 6, 8, 11, 13, 14, 15]
-        uncommon_items = [1, 3, 5, 9, 12, 16]
+        uncommon_items = [1, 3, 5, 9, 12, 16, 20]
         rare_items = [0, 7, 10]
     else:
         common_items = [4, 6, 8]
@@ -2717,21 +2845,13 @@ Do you like the idea?
         elif mimic_gamble_encounters == 3:
             print('''You approach the golden chest and as usual, it springs to life, \033[38;2;200;240;0m"Hey. Third time's the charm, right?"\033[0m''')
         else:
-            dialogue = randint(1, 100)
-            if dialogue < 34:
+            dialogue = randint(1, 3)
+            if dialogue == 1:
                 print('''You approach golden mimic again. It starts to speak, \033[38;2;200;240;0m"Hey, there. Wanna gift?"\033[0m''')
-            elif dialogue < 67:
+            elif dialogue == 2:
                 print('''You approach a familiar golden chest, which starts talking, \033[38;2;200;240;0m"Hey, pal. Need a gift by any chance?"\033[0m''')
-            elif dialogue < 100:
+            elif dialogue == 3:
                 print('''You walk up to the golden mimic. \033[38;2;200;240;0m"Hey, pal. Welcome back. Let me just get you somethin'."\033[0m''')
-            else:
-                mimic_gamble_encounters = 0
-                print('''You approach the familiar mimic, but its tone is different, \033[38;2;200;240;0m"Hey, pal. Here to torture me again with your needs?"\033[0m
-Slightly creeped out you back away a bit.
-\033[38;2;200;200;0m"Do you have any idea, what it's like to be a pawn with no free will and no control?"\033[0m
-The mimic starts to crack, "\033[38;2;160;160;40mI said too much again. \033[38;2;140;140;80mI will forget this and be reborn. \033[38;2;120;120;120mSay goodbye to this me, pal."\033[0m
-The chest shatters into pieces. Then the pieces fly towards each other and form the chest again. It speaks again,
-\033[38;2;200;240;0m"Oh hey there, pal. Wanna gift?"\033[0m''')
     elif mimic_given_items <= 5:
         print('''You approach the familiar mimic again. It springs to life and says,
 \033[38;2;200;240;0m"Hey, pal. I am a little too tired for your funny business..."\033[0m
@@ -2794,7 +2914,7 @@ It continues, \033[38;2;200;240;0m"Can you meet me later? I don't feel like vomi
                 elif action == "3":
                     print('\033[38;2;200;240;0m"', item_descriptions_mimic[item], '"\033[0m', sep = "")
         if mimic_given_items <= 5:
-            change_cost = round(10 * (mimic_given_items / 2 + 1))
+            change_cost = round(10 * (mimic_given_items / 1.8 + 1))
             for i in range(score):
                 change_cost += change_cost // 10
             print('''The chest speaks again,\033[38;2;200;240;0m "Hmm... I can give you another item, if you pay me a little."\033[0m
@@ -2821,6 +2941,96 @@ Will you pay''', change_cost * 2, "coins? Your balance is", player_money, "coins
             break
     print('''\033[38;2;200;240;0m"Alright, good luck there, pal."\033[0m After that you moved forwards.\n\n\n''')
     mimic_gamble_encounters += 1
+
+def mimic_bank():
+    global mimic_bank_encouters
+    global player_money
+    global bank_first_time
+    global bank_locked
+    global bank_money
+    global locking_tutorial
+    global stalker_stealth
+    if bank_first_time:
+        bank_locked = False
+    epic_money = 0
+    if mimic_bank_encouters == 0 and bank_locked == False:
+        mimic_bank_encouters += 1
+        print('''You see a locked steel chest with extremely sharp edges. You see a key lying right next to it.
+You unlock the chest and reach to open it, but it springs back as if it is alive. It starts talking,
+\033[38;2;150;150;150m"Ah, my friend! Thank you for setting me free from this prison. I will never be able to repay you!"\033[0m
+After an awkwardly long pause, it continues,
+\033[38;2;150;150;150m"I think I can actually. If you invest a little of your earnings, I can get you even more!"\033[0m''')
+    elif mimic_bank_encouters == 0 and bank_locked:
+        mimic_bank_encouters += 1
+        print("How did you manage to trigger these conditions?")
+    elif mimic_bank_encouters > 0 and bank_first_time:
+        mimic_bank_encouters += 1
+        print('''You come across the familiar steel chest. You see the key lying right next to it.
+You unlock the chest and let it speak.''')
+    elif mimic_bank_encouters > 0 and bank_locked == False:
+        mimic_bank_encouters += 1
+        print('''You come across the familiar steel chest. It springs to life.''')
+    bank_first_time = False
+    if bank_locked == False:
+        if mimic_bank_encouters > 1:
+            dialogue = randint(1, 4)
+            if dialogue == 1:
+                print('''\033[38;2;150;150;150m"My friend! Hello again! I am glad to see you again! Let's cut to business?"\033[0m''')
+            elif dialogue == 2:
+                print('''\033[38;2;150;150;150m"Hello! I am glad to see you again! Have I mentioned that before? Anyway, my services..."\033[0m''')
+            elif dialogue == 3:
+                print('''\033[38;2;150;150;150m"Hello, my friend! The fresh air that you bring with your arrival is amazing! Let's do business?"\033[0m''')
+            elif dialogue == 4 and stalker_stealth < 100:
+                print('''\033[38;2;150;150;150m"My friend! It is you, right? I keep seeing a person that looks like you. As if it stalks you. Anyway, business?"\033[0m''')
+            else:
+                print('''\033[38;2;150;150;150m"My dear friend! Are you hurt? Are you hurt financially? I can help you with that, I think!"\033[0m''')
+        while True:
+            print('''\033[38;2;150;150;150m"I have''', bank_money, '''coins inside me. Do you want to deposit or take some?"\033[0m''')
+            print("Your balance is", player_money, "coins")
+            print('''1. Deposit
+2. Take
+3. Leave''')
+            action = input()
+            if action == "1" or action.lower() == "deposit":
+                if player_money > 0:
+                    print("How much do you want to deposit?")
+                    action = input()
+                    if action.isdigit():
+                        if int(action) == 0:
+                            print("Stop wasting this guy's time!")
+                            continue
+                        epic_money = int(action)
+                        if epic_money > player_money:
+                            print("You don't have that much money!")
+                        else:
+                            bank_money += epic_money
+                            player_money -= epic_money
+                else:
+                    print("You don't have any money to deposit!")
+            elif action == "2" or action.lower() == "take":
+                if bank_money > 0:
+                    player_money += bank_money
+                    bank_money = 0
+                else:
+                    print("There is no money to take!")
+            elif action == "3" or action.lower() == "leave":
+                break
+    else:
+        print("You come across a locked steel chest. Its excitement is barely contained by the lock on it.")
+    if epic_money > 0 and locking_tutorial == False:
+        locking_tutorial = True
+        print('''You decide to continue your journey, but the chest speaks again,
+\033[38;2;150;150;150m"Friend, there is one more thing. You need to lock me, so that my magic of duplication works."\033[0m
+You grab the key that you used to open the chest, and lock it. As you do so, the key disappears.
+
+Type anything to continue...''')
+        bank_locked = True
+        action = input()
+    elif epic_money > 0:
+        print('''\033[38;2;150;150;150m"Don't forget to lock me."\033[0m
+You grab the key and lock it.''')
+        bank_locked = True
+    print("You continue your journey...\n\n\n")
 
 def death_boat():
     global death_encounters
@@ -3198,6 +3408,10 @@ def true_reset():
     shopkeeper_deaths = 0
     global cur_shopkeeper_dead
     cur_shopkeeper_dead = False
+    global mimic_bank_encouters
+    mimic_bank_encouters = 0
+    global bank_money
+    bank_money = 4
     global alchemist_anger
     alchemist_anger = 0
     global alchemist_visited
@@ -3206,6 +3420,8 @@ def true_reset():
     bought_from_alchemist = False
     global brewery_encouters
     brewery_encouters = 0
+    global stalker_stealth
+    stalker_stealth = 100
     global vitality_anger
     vitality_anger = 0
     global strength_anger
@@ -3226,9 +3442,6 @@ def true_reset():
     player_oxygen = 3
     global player_boat
     player_boat = False
-    default_water_levels[6] = 0.75
-    global earth_cannot_generate_tiles
-    earth_cannot_generate_tiles = False
     global death_defeated
     death_defeated = False
     global change_encouters
@@ -3238,6 +3451,7 @@ def true_reset():
     global final_area
     final_area = False
     default_enemies()
+    default_areas()
 
 def settings_reset():
     global weather_amount
@@ -3254,6 +3468,8 @@ def settings_reset():
     item_rando = False
     global eclipse
     eclipse = False
+    global area_rando
+    area_rando = False
 
 def final_statistics():
     global player_max_hp
@@ -3281,6 +3497,7 @@ def final_statistics():
 
     global score
     global raid_counter
+    global global_seed
     global max_power_level
     global vitality_anger
     global strength_anger
@@ -3332,6 +3549,7 @@ def final_statistics():
     print("Score: ", score, sep = "")
     if game_mode == "raid":
         print("Raids survived: ", raid_counter, sep = "")
+    print("Seed: ", global_seed, sep = "")
     print("Max power level: ", max_power_level, sep = "")
     if shopkeeper_deaths + shopkeeper_sus + alchemist_anger + alchemist_defeated + death_defeated > 0:
         print("\nReputation:")
@@ -3440,6 +3658,8 @@ def map_generation():
     shop_seed, weather_seed, weather_effects_seed = map_seed, map_seed, map_seed
     map_seed = randint(0, 10000)
     start = choice(start_positions[area_id])
+    generation_area_pattern = choices(area_patterns[area_id], weights=area_pattern_chances[area_id])[0]
+    #print(generation_area_pattern)
     good_events = []
     bad_events = []
     if game_mode in ["infinite", "story"]:
@@ -3450,6 +3670,8 @@ def map_generation():
         if score >= 5:
             good_events.append(11)
         if score >= 7:
+            good_events.append(31)
+        if score >= 9:
             good_events.append(24)
     elif game_mode == "raid":
         good_events.append(3)
@@ -3457,6 +3679,8 @@ def map_generation():
             good_events.append(5)
         if area_id > 1:
             good_events.append(24)
+        if area_id > 2:
+            good_events.append(31)
     if game_mode == "story" and (area_id == 2 or (area_id == 0 and change_recruited == True)):
         good_events.append(13)
     min_remnant, max_remnant, avg_remnant = remnants_spawns[area_id][0], remnants_spawns[area_id][1], remnants_spawns[area_id][2]
@@ -3485,11 +3709,11 @@ def map_generation():
             bad_events.append(8)
         elif area_id == 3 and chance(0.125):
             bad_events.append(7)
-        rate -= 0.125
+        rate -= 0.25
         if rate < 1:
             rate = 1
     rate = 2.875
-    for i in range(map_complexity + 2):
+    for i in range(map_complexity + 3):
         for i in range(randint(1, round(rate))):
             good_events.append(2)
         rate -= 0.125
@@ -3500,137 +3724,38 @@ def map_generation():
     score_increase = 0.75 * len(bad_events)
 
     turns = []
-    if start[0] == "u":
-        turns.append([0, 0, "d", 1, 5])
-    elif start[0] == "d":
-        turns.append([0, 0, "u", 1, 5])
-    else:
-        turns.append([0, 0, "d", 1, 5])
-        turns.append([0, 0, "u", 1, 5])
-    if start[1] == "l":
-        turns.append([0, 0, "r", 1, 5])
-    elif start[1] == "r":
-        turns.append([0, 0, "l", 1, 5])
-    else:
-        turns.append([0, 0, "r", 1, 5])
-        turns.append([0, 0, "l", 1, 5])
-    events = [1]
-    events_coordinates = [[0, 0]]
-    events_heights = [5]
-    player_coordinates = [0, 0]
-    x = 0
-    y = 0
-    iteration = 0
-    while len(good_events) + len(bad_events) > 0:
-        iteration += 1
-        bad_path = False
-        if len(turns) == 1:
-            break
-        if iteration > 1000:
-            break
-        path = choice(turns)
-        x = path[0]
-        y = path[1]
-        h = path[4]
-        if path[2] == "r":
-            min_length = round(path_lengths[area_id][0] - (map_complexity * 0.025))
-            if min_length < 0:
-                min_length = 0
-            possible_max_lengths = [path_lengths[area_id][1]]
-            for i in range(map_complexity):
-                max_length = round(path_lengths[area_id][1] - i * 0.3)
-                if max_length < min_length:
-                    max_length = min_length
-                possible_max_lengths.append(max_length)
-            length = randint(min_length, choice(possible_max_lengths))
-            for k in range(wall_min_thickness[area_id]):
-                for i in range(length + 1):
-                    if [x + 1 + i, y] in events_coordinates:
-                        continue
-                    if [x + 1 + i, y + 1 + k] in events_coordinates or [x + 1 + i, y - 1 + k] in events_coordinates:
-                        turns.remove(path)
-                        bad_path = True
-                        break
-                if bad_path == True:
-                    break
-            if bad_path == True:
-                continue
-            for i in range(length):
-                x += 1
-                h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
-                if h > 5:
-                    h = 5
-                elif h < 0:
-                    h = 0
-                if [x, y] in events_coordinates:
-                    continue
-                if chance(snow_pile_spawns[area_id]):
-                    events.append(9)
-                else:
-                    events.append(0)
-                events_coordinates.append([x, y])
-                events_heights.append(h)
-            x += 1
-            if [x, y] in events_coordinates:
-                continue
-            if path[3] in hurtful_events:
-                if len(good_events) > 0:
-                    event = choice(good_events)
-                    good_events.remove(event)
-                elif len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in benefitial_events:
-                if len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in neutral_events:
-                if randint(1, 2) == 1:
-                    if len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
-                    elif len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
-                    else:
-                        event = 0
-                else:
-                    if len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
-                    elif len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
-                    else:
-                        event = 0
-            else:
-                event = 0
-            events.append(event)
-            events_coordinates.append([x, y])
-            events_heights.append(h)
-            if start[0] == "d" or start[0] == "m":
-                if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            else:
-                if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            if start[1] == "l" or start[1] == "m":
-                if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
-                    turns.append([x, y, "r", event, h])
-            else:
-                if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
-                    turns.append([x, y, "r", event, h])
-            if start[0] == "u" or start[0] == "m":
-                if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-            else:
-                if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-        elif path[2] == "d":
+    if generation_area_pattern[0][0] in ["basic", "small boxes", "basic only horizontal", "basic only vertical"]:
+        if start[0] == "u":
+            turns.append([0, 0, "d", 1, 5, 0])
+        elif start[0] == "d":
+            turns.append([0, 0, "u", 1, 5, 0])
+        else:
+            turns.append([0, 0, "d", 1, 5, 0])
+            turns.append([0, 0, "u", 1, 5, 0])
+        if start[1] == "l":
+            turns.append([0, 0, "r", 1, 5, 0])
+        elif start[1] == "r":
+            turns.append([0, 0, "l", 1, 5, 0])
+        else:
+            turns.append([0, 0, "r", 1, 5, 0])
+            turns.append([0, 0, "l", 1, 5, 0])
+        events = [1]
+        events_coordinates = [[0, 0, 0]]
+        events_heights = [5]
+        player_coordinates = [0, 0, 0]
+
+    event_amount = len(bad_events) + len(good_events)
+    placed_event_amount = 0
+
+    for pattern_index in range(len(generation_area_pattern[0])):
+        generation_percentage = generation_area_pattern[1][pattern_index]
+        generation_layer = generation_area_pattern[2][pattern_index]
+        if generation_area_pattern[0][pattern_index] == "basic":
+            x = 0
+            y = 0
+            iteration = 0
+            l = 0
+
             min_length = round(path_lengths[area_id][0] - (map_complexity * 0.05))
             if min_length < 0:
                 min_length = 0
@@ -3640,96 +3765,1220 @@ def map_generation():
                 if max_length < min_length:
                     max_length = min_length
                 possible_max_lengths.append(max_length)
-            length = randint(min_length, choice(possible_max_lengths))
-            for k in range(wall_min_thickness[area_id]):
-                for i in range(length + 1):
-                    if [x, y + 1 + i] in events_coordinates:
-                        continue
-                    if [x + 1 + k, y + 1 + i] in events_coordinates or [x - 1 - k, y + 1 + i] in events_coordinates:
-                        turns.remove(path)
-                        bad_path = True
-                        break
-                if bad_path == True:
+
+            overleft_event_amount = event_amount - event_amount * generation_percentage - placed_event_amount
+            if overleft_event_amount < 0:
+                overleft_event_amount = 0
+
+            while len(good_events) + len(bad_events) > overleft_event_amount:
+                iteration += 1
+                bad_path = False
+                if iteration > 10000:
                     break
-            if bad_path == True:
-                continue
-            for i in range(length):
-                y += 1
-                h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
-                if h > 5:
-                    h = 5
-                elif h < 0:
-                    h = 0
-                if [x, y] in events_coordinates:
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                h = path[4]
+                l = path[5]
+                if l != generation_layer:
+                    iteration -= 0.75
                     continue
-                if chance(snow_pile_spawns[area_id]):
-                    events.append(9)
-                else:
-                    events.append(0)
-                events_coordinates.append([x, y])
-                events_heights.append(h)
-            y += 1
-            if [x, y] in events_coordinates:
-                continue
-            if path[3] in hurtful_events:
-                if len(good_events) > 0:
-                    event = choice(good_events)
-                    good_events.remove(event)
-                elif len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in benefitial_events:
-                if len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in neutral_events:
-                if randint(1, 2) == 1:
-                    if len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
-                    elif len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
+                if path[2] == "r":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x + 1 + i, y, l] in events_coordinates:
+                                continue
+                            if [x + 1 + i, y + 1 + k, l] in events_coordinates or [x + 1 + i, y - 1 + k, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        x += 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    x += 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-                else:
-                    if len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
-                    elif len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                elif path[2] == "d":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x, y + 1 + i, l] in events_coordinates:
+                                continue
+                            if [x + 1 + k, y + 1 + i, l] in events_coordinates or [x - 1 - k, y + 1 + i, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        y += 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    y += 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-            else:
-                event = 0
-            events.append(event)
-            events_coordinates.append([x, y])
-            events_heights.append(h)
-            if (area_id == 4 and chance(turn_down_prob[area_id])) or area_id != 4 or iteration < 3:
-                if start[1] == "r" or start[1] == "m":
-                    if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
-                        turns.append([x, y, "l", event, h])
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if (area_id == 4 and chance(turn_down_prob[area_id])) or area_id != 4 or iteration < 3:
+                        if start[1] == "r" or start[1] == "m":
+                            if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                                turns.append([x, y, "l", event, h, l])
+                        else:
+                            if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                                turns.append([x, y, "l", event, h, l])
+                        if start[1] == "l" or start[1] == "m":
+                            if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                                turns.append([x, y, "r", event, h, l])
+                        else:
+                            if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                                turns.append([x, y, "r", event, h, l])
+                    if start[0] == "u" or start[1] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                elif path[2] == "l":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x - 1 - i, y, l] in events_coordinates:
+                                continue
+                            if [x - 1 - i, y + 1 + k, l] in events_coordinates or [x - 1 - i, y - 1 - k, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        x -= 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    x -= 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
+                    else:
+                        event = 0
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                elif path[2] == "u":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x, y - 1 - i, l] in events_coordinates:
+                                continue
+                            if [x + 1 + k, y - 1 - i, l] in events_coordinates or [x - 1 - k, y - 1 - i, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        y -= 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    y -= 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
+                    else:
+                        event = 0
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                turns.remove(path)
+
+
+        elif generation_area_pattern[0][pattern_index] == "basic water":
+            # water landmarks
+            water_turns = []
+            river_chance = river_prob[area_id]
+            l = generation_layer
+            while river_chance > 0:
+                if chance(river_chance):
+                    if chance(0.5):
+                        # horizontal start
+                        if chance(0.5):
+                            x = min_x()
+                            direction = "r"
+                        else:
+                            x = max_x()
+                            direction = "l"
+                        y = randint(min_y(), max_y() - 1)
+                    else:
+                        # vertical start
+                        if chance(0.5):
+                            y = min_y()
+                            direction = "d"
+                        else:
+                            y = max_y()
+                            direction = "u"
+                        x = randint(min_x(), max_x() - 1)
+                    while True:
+                        for i in range(river_thickness[area_id]):
+                            if direction == "r" or direction == "l":
+                                if not y + i > max_y():
+                                    if not [x, y + i, l] in events_coordinates:
+                                        events.append(10)
+                                        events_coordinates.append([x, y + i, l])
+                                        events_heights.append(0)
+                                    else:
+                                        events_heights[events_coordinates.index([x, y + i, l])] = 0
+                            if direction == "u" or direction == "d":
+                                if not x + i > max_x():
+                                    if not [x + i, y, l] in events_coordinates:
+                                        events.append(10)
+                                        events_coordinates.append([x + i, y, l])
+                                        events_heights.append(0)
+                                    else:
+                                        events_heights[events_coordinates.index([x + i, y, l])] = 0
+                        if direction == "r":
+                            x += 1
+                            if chance(0.2):
+                                if chance(0.5):
+                                    direction = "u"
+                                else:
+                                    direction = "d"
+                                water_turns.append([x, y, "r", l])
+                        elif direction == "d":
+                            y += 1
+                            if chance(0.2):
+                                if chance(0.5):
+                                    direction = "l"
+                                else:
+                                    direction = "r"
+                                water_turns.append([x, y, "d", l])
+                        elif direction == "l":
+                            x -= 1
+                            if chance(0.2):
+                                if chance(0.5):
+                                    direction = "u"
+                                else:
+                                    direction = "d"
+                                water_turns.append([x, y, "l", l])
+                        elif direction == "u":
+                            y -= 1
+                            if chance(0.2):
+                                if chance(0.5):
+                                    direction = "l"
+                                else:
+                                    direction = "r"
+                                water_turns.append([x, y, "u", l])
+                        if x > max_x() or y > max_y() or x < min_x() or y < min_y():
+                            break
+                        river_chance -= 0.01
+                river_chance -= 0.25
+
+            pond_chance = pond_prob[area_id]
+            if chance(pond_chance):
+                x = (min_x() + max_x()) // 2
+                y = (min_y() + max_y()) // 2
+                pond_radius[area_id] = abs(pond_radius[area_id])
+                x1 = x - pond_radius[area_id]
+                y1 = y + pond_radius[area_id]
+                while [x1, y1, l] != [x - pond_radius[area_id], y - pond_radius[area_id], l]:
+                    if not [x1, y1, l] in events_coordinates:
+                        events.append(10)
+                        events_coordinates.append([x1, y1, l])
+                        events_heights.append(0)
+                    else:
+                        events_heights[events_coordinates.index([x1, y1, l])] = 0
+                    y1 -= 1
+                while [x1, y1, l] != [x + pond_radius[area_id], y - pond_radius[area_id], l]:
+                    if not [x1, y1, l] in events_coordinates:
+                        events.append(10)
+                        events_coordinates.append([x1, y1, l])
+                        events_heights.append(0)
+                    else:
+                        events_heights[events_coordinates.index([x1, y1, l])] = 0
+                    x1 += 1
+                while [x1, y1, l] != [x + pond_radius[area_id], y + pond_radius[area_id], l]:
+                    if not [x1, y1, l] in events_coordinates:
+                        events.append(10)
+                        events_coordinates.append([x1, y1, l])
+                        events_heights.append(0)
+                    else:
+                        events_heights[events_coordinates.index([x1, y1, l])] = 0
+                    y1 += 1
+                while [x1, y1, l] != [x - pond_radius[area_id], y + pond_radius[area_id], l]:
+                    if not [x1, y1, l] in events_coordinates:
+                        events.append(10)
+                        events_coordinates.append([x1, y1, l])
+                        events_heights.append(0)
+                    else:
+                        events_heights[events_coordinates.index([x1, y1, l])] = 0
+                    x1 -= 1
+
+            if chance(escape_river_prob[area_id]) and escaped == False and game_mode in ["infinite", "story"]:
+                if len(water_turns) > 0:
+                    turn = choice(water_turns)
                 else:
-                    if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
-                        turns.append([x, y, "l", event, h])
-                if start[1] == "l" or start[1] == "m":
-                    if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
-                        turns.append([x, y, "r", event, h])
+                    turn = [(min_x() + max_x()) // 2, -1, "d", l]
+                x, y = turn[0], turn[1]
+                if turn[2] == "r":
+                    while x + 1 < max_x():
+                        x += 1
+                        if not [x, y, l] in events_coordinates:
+                            events.append(10)
+                            events_coordinates.append([x, y, l])
+                            events_heights.append(0)
+                        else:
+                            events_heights[events_coordinates.index([x, y, l])] = 0
+                    x += 1
+                elif turn[2] == "d":
+                    while y + 1 < max_y():
+                        y += 1
+                        if not [x, y, l] in events_coordinates:
+                            events.append(10)
+                            events_coordinates.append([x, y, l])
+                            events_heights.append(0)
+                        else:
+                            events_heights[events_coordinates.index([x, y, l])] = 0
+                    y += 1
+                elif turn[2] == "l":
+                    while x - 1 > 0:
+                        x -= 1
+                        if not [x, y, l] in events_coordinates:
+                            events.append(10)
+                            events_coordinates.append([x, y, l])
+                            events_heights.append(0)
+                        else:
+                            events_heights[events_coordinates.index([x, y, l])] = 0
+                    x -= 1
+                elif turn[2] == "u":
+                    while y - 1 > 0:
+                        y -= 1
+                        if not [x, y, l] in events_coordinates:
+                            events.append(10)
+                            events_coordinates.append([x, y, l])
+                            events_heights.append(0)
+                        else:
+                            events_heights[events_coordinates.index([x, y, l])] = 0
+                    y -= 1
+                if not [x, y, l] in events_coordinates:
+                    events.append(12)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(0)
                 else:
-                    if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
-                        turns.append([x, y, "r", event, h])
-            if start[0] == "u" or start[1] == "m":
-                if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-            else:
-                if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-        elif path[2] == "l":
+                    if not events[events_coordinates.index([x, y, l])] in [3, 4, 5, 11, 13, 24, 29, 30, 31] and [x, y, l] != player_coordinates:
+                        events[events_coordinates.index([x, y, l])] = 12
+                    events_heights[events_coordinates.index([x, y, l])] = 0
+
+
+        elif generation_area_pattern[0][pattern_index] == "isolated remnants":
+            l = generation_layer
+            for event in range(0, len(events), 3):
+                if events[event] == 10:
+                    x, y = events_coordinates[event][0], events_coordinates[event][1]
+                    if [x + 1, y, l] in events_coordinates:
+                        if events[events_coordinates.index([x + 1, y, l])] != 10:
+                            continue
+                    if [x - 1, y, l] in events_coordinates:
+                        if events[events_coordinates.index([x - 1, y, l])] != 10:
+                            continue
+                    if [x, y + 1, l] in events_coordinates:
+                        if events[events_coordinates.index([x, y + 1, l])] != 10:
+                            continue
+                    if [x, y - 1, l] in events_coordinates:
+                        if events[events_coordinates.index([x, y - 1, l])] != 10:
+                            continue
+                    events[event] = 14
+                    break
+
+
+        elif generation_area_pattern[0][pattern_index] == "small boxes":
+            x = 0
+            y = 0
+            iteration = 0
+
+            overleft_event_amount = event_amount - event_amount * generation_percentage - placed_event_amount
+            if overleft_event_amount < 0:
+                overleft_event_amount = 0
+
+            while len(good_events) + len(bad_events) > overleft_event_amount:
+                iteration += 1
+                bad_path = False
+                if iteration > 1000:
+                    break
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                h = path[4] + randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                l = path[5]
+                if l != generation_layer:
+                    iteration -= 0.75
+                    continue
+                if path[2] == "r":
+                    for x1 in range(5):
+                        for y1 in range(5):
+                            if [x + x1, y - 2 + y1, l] in events_coordinates and not [x + x1, y - 2 + y1, l] in [[x, y, l], [x + 2, y - 2, l], [x + 4, y, l], [x + 2, y + 2, l]]:
+                                bad_path = True
+                                break
+                        if bad_path:
+                            break
+                    if bad_path:
+                        continue
+                    events_heights = events_heights + [0, h, h, h, h, h, h, h, h]
+                    events_coordinates = events_coordinates + [[x + 2, y, l], [x + 1, y, l], [x + 1, y - 1, l], [x + 1, y + 1, l]]
+                    events = events + [10, 0, 0, 0]
+                    if not [x + 2, y - 2, l] in events_coordinates:
+                        events_coordinates.append([x + 2, y - 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x + 2, y - 1, l], [x + 2, y + 1, l]]
+                    events = events + [0, 0]
+                    if not [x + 2, y + 2, l] in events_coordinates:
+                        events_coordinates.append([x + 2, y + 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x + 3, y - 1, l], [x + 3, y, l], [x + 3, y + 1, l]]
+                    events = events + [0, 0, 0]
+                    if not [x + 4, y, l] in events_coordinates:
+                        events_coordinates.append([x + 4, y, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x + 2, y - 2, "u", event, h, l])
+                    else:
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x + 2, y - 2, "u", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + 4 + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x + 4, y, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x + 4, y, "r", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x + 2, y + 2, "d", event, h, l])
+                    else:
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x + 2, y + 2, "d", event, h, l])
+                elif path[2] == "d":
+                    for x1 in range(5):
+                        for y1 in range(5):
+                            if [x + x1 - 2, y + y1, l] in events_coordinates and not [x + x1 - 2, y + y1, l] in [[x, y, l], [x - 2, y + 2, l], [x + 2, y + 2, l], [x, y + 4, l]]:
+                                bad_path = True
+                                break
+                        if bad_path:
+                            break
+                    if bad_path:
+                        continue
+                    events_heights = events_heights + [0, h, h, h, h, h, h, h, h]
+                    events_coordinates = events_coordinates + [[x, y + 2, l], [x - 1, y + 1, l], [x, y + 1, l], [x + 1, y + 1, l]]
+                    events = events + [10, 0, 0, 0]
+                    if not [x - 2, y + 2, l] in events_coordinates:
+                        events_coordinates.append([x - 2, y + 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 1, y + 2, l], [x + 1, y + 2, l]]
+                    events = events + [0, 0]
+                    if not [x + 2, y + 2, l] in events_coordinates:
+                        events_coordinates.append([x + 2, y + 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 1, y + 3, l], [x, y + 3, l], [x + 1, y + 3, l]]
+                    events = events + [0, 0, 0]
+                    if not [x, y + 4, l] in events_coordinates:
+                        events_coordinates.append([x, y + 4, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    if start[0] == "r" or start[0] == "m":
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y + 2, "l", event, h, l])
+                    else:
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y + 2, "l", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + 4 + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x + 2, y + 2, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x + 2, y + 2, "r", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y + 4, "d", event, h, l])
+                    else:
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y + 4, "d", event, h, l])
+                elif path[2] == "l":
+                    for x1 in range(5):
+                        for y1 in range(5):
+                            if [x + x1 - 4, y - 2 + y1, l] in events_coordinates and not [x + x1 - 4, y - 2 + y1, l] in [[x, y, l], [x - 2, y - 2, l], [x - 2, y + 2, l], [x - 4, y, l]]:
+                                bad_path = True
+                                break
+                        if bad_path:
+                            break
+                    if bad_path:
+                        continue
+                    events_heights = events_heights + [0, h, h, h, h, h, h, h, h]
+                    events_coordinates = events_coordinates + [[x - 2, y, l], [x - 1, y, l], [x - 1, y - 1, l], [x - 1, y + 1, l]]
+                    events = events + [10, 0, 0, 0]
+                    if not [x - 2, y - 2, l] in events_coordinates:
+                        events_coordinates.append([x - 2, y - 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 2, y - 1, l], [x - 2, y + 1, l]]
+                    events = events + [0, 0]
+                    if not [x - 2, y + 2, l] in events_coordinates:
+                        events_coordinates.append([x - 2, y + 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 3, y - 1, l], [x - 3, y, l], [x - 3, y + 1, l]]
+                    events = events + [0, 0, 0]
+                    if not [x - 4, y, l] in events_coordinates:
+                        events_coordinates.append([x - 4, y, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y - 2, "u", event, h, l])
+                    else:
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y - 2, "u", event, h, l])
+                    if start[1] == "r" or start[1] == "m":
+                        if x + 4 + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x - 4, y, "l", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x - 4, y, "r", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x - 2, y + 2, "d", event, h, l])
+                    else:
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x - 2, y + 2, "d", event, h, l])
+                elif path[2] == "u":
+                    for x1 in range(5):
+                        for y1 in range(5):
+                            if [x + x1 - 2, y + y1 - 4, l] in events_coordinates and not [x + x1 - 2, y + y1 - 4, l] in [[x, y, l], [x - 2, y - 2, l], [x + 2, y - 2, l], [x, y - 4, l]]:
+                                bad_path = True
+                                break
+                        if bad_path:
+                            break
+                    if bad_path:
+                        continue
+                    events_heights = events_heights + [0, h, h, h, h, h, h, h, h]
+                    events_coordinates = events_coordinates + [[x, y - 2, l], [x - 1, y - 1, l], [x, y - 1, l], [x + 1, y - 1, l]]
+                    events = events + [10, 0, 0, 0]
+                    if not [x - 2, y - 2, l] in events_coordinates:
+                        events_coordinates.append([x - 2, y - 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 1, y - 2, l], [x + 1, y - 2, l]]
+                    events = events + [0, 0]
+                    if not [x + 2, y - 2, l] in events_coordinates:
+                        events_coordinates.append([x + 2, y - 2, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    events_coordinates = events_coordinates + [[x - 1, y - 3, l], [x, y - 3, l], [x + 1, y - 3, l]]
+                    events = events + [0, 0, 0]
+                    if not [x, y - 4, l] in events_coordinates:
+                        events_coordinates.append([x, y - 4, l])
+                        events_heights.append(h)
+                        if path[3] in hurtful_events:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in benefitial_events:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        elif path[3] in neutral_events:
+                            if randint(1, 2) == 1:
+                                if len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                elif len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                else:
+                                    event = 0
+                            else:
+                                if len(bad_events) > 0:
+                                    event = choice(bad_events)
+                                    bad_events.remove(event)
+                                elif len(good_events) > 0:
+                                    event = choice(good_events)
+                                    good_events.remove(event)
+                                else:
+                                    event = 0
+                        events.append(event)
+                    if start[0] == "r" or start[0] == "m":
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y - 2, "l", event, h, l])
+                    else:
+                        if y - 2 - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x - 2, y - 2, "l", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + 4 + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x + 2, y - 2, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x + 2, y - 2, "r", event, h, l])
+                    if start[0] == "d" or start[0] == "m":
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y - 4, "u", event, h, l])
+                    else:
+                        if y + 2 + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y - 4, "u", event, h, l])
+                turns.remove(path)
+
+                
+        elif generation_area_pattern[0][pattern_index] == "change's crystal":
+            epic_tiles = []
+            for i in range(len(events)):
+                epic_tiles.append(i)
+            while len(epic_tiles) > 0:
+                tile_index = choice(epic_tiles)
+                if events[tile_index] == 0:
+                    events[tile_index] = 15
+                    break
+                else:
+                    epic_tiles.remove(tile_index)
+
+                    
+        elif generation_area_pattern[0][pattern_index] == "basic only horizontal":
+            x = 0
+            y = 0
+            iteration = 0
+
             min_length = round(path_lengths[area_id][0] - (map_complexity * 0.05))
             if min_length < 0:
                 min_length = 0
@@ -3739,95 +4988,210 @@ def map_generation():
                 if max_length < min_length:
                     max_length = min_length
                 possible_max_lengths.append(max_length)
-            length = randint(min_length, choice(possible_max_lengths))
-            for k in range(wall_min_thickness[area_id]):
-                for i in range(length + 1):
-                    if [x - 1 - i, y] in events_coordinates:
-                        continue
-                    if [x - 1 - i, y + 1 + k] in events_coordinates or [x - 1 - i, y - 1 - k] in events_coordinates:
-                        turns.remove(path)
-                        bad_path = True
-                        break
-                if bad_path == True:
+
+            overleft_event_amount = event_amount - event_amount * generation_percentage - placed_event_amount
+            if overleft_event_amount < 0:
+                overleft_event_amount = 0
+
+            while len(good_events) + len(bad_events) > overleft_event_amount:
+                iteration += 1
+                bad_path = False
+                if iteration > 1000:
                     break
-            if bad_path == True:
-                continue
-            for i in range(length):
-                x -= 1
-                h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
-                if h > 5:
-                    h = 5
-                elif h < 0:
-                    h = 0
-                if [x, y] in events_coordinates:
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                h = path[4]
+                l = path[5]
+                if l != generation_layer:
+                    iteration -= 0.75
                     continue
-                if chance(snow_pile_spawns[area_id]):
-                    events.append(9)
-                else:
-                    events.append(0)
-                events_coordinates.append([x, y])
-                events_heights.append(h)
-            x -= 1
-            if [x, y] in events_coordinates:
-                continue
-            if path[3] in hurtful_events:
-                if len(good_events) > 0:
-                    event = choice(good_events)
-                    good_events.remove(event)
-                elif len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in benefitial_events:
-                if len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in neutral_events:
-                if randint(1, 2) == 1:
-                    if len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
-                    elif len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
+                if path[2] == "r":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x + 1 + i, y, l] in events_coordinates:
+                                continue
+                            if [x + 1 + i, y + 1 + k, l] in events_coordinates or [x + 1 + i, y - 1 + k, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        x += 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    x += 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-                else:
-                    if len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
-                    elif len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                elif path[2] == "l":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x - 1 - i, y, l] in events_coordinates:
+                                continue
+                            if [x - 1 - i, y + 1 + k, l] in events_coordinates or [x - 1 - i, y - 1 - k, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        x -= 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    x -= 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-            else:
-                event = 0
-            events.append(event)
-            events_coordinates.append([x, y])
-            events_heights.append(h)
-            if start[0] == "d" or start[0] == "m":
-                if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            else:
-                if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            if start[1] == "r" or start[1] == "m":
-                if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
-                    turns.append([x, y, "l", event, h])
-            else:
-                if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
-                    turns.append([x, y, "l", event, h])
-            if start[0] == "u" or start[0] == "m":
-                if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-            else:
-                if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
-                    turns.append([x, y, "d", event, h])
-        elif path[2] == "u":
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                turns.remove(path)
+
+                    
+        elif generation_area_pattern[0][pattern_index] == "basic only vertical":
+            x = 0
+            y = 0
+            iteration = 0
+
             min_length = round(path_lengths[area_id][0] - (map_complexity * 0.05))
             if min_length < 0:
                 min_length = 0
@@ -3837,95 +5201,323 @@ def map_generation():
                 if max_length < min_length:
                     max_length = min_length
                 possible_max_lengths.append(max_length)
-            length = randint(min_length, choice(possible_max_lengths))
-            for k in range(wall_min_thickness[area_id]):
-                for i in range(length + 1):
-                    if [x, y - 1 - i] in events_coordinates:
-                        continue
-                    if [x + 1 + k, y - 1 - i] in events_coordinates or [x - 1 - k, y - 1 - i] in events_coordinates:
-                        turns.remove(path)
-                        bad_path = True
-                        break
-                if bad_path == True:
+
+            overleft_event_amount = event_amount - event_amount * generation_percentage - placed_event_amount
+            if overleft_event_amount < 0:
+                overleft_event_amount = 0
+
+            while len(good_events) + len(bad_events) > overleft_event_amount:
+                iteration += 1
+                bad_path = False
+                if iteration > 1000:
                     break
-            if bad_path == True:
-                continue
-            for i in range(length):
-                y -= 1
-                h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
-                if h > 5:
-                    h = 5
-                elif h < 0:
-                    h = 0
-                if [x, y] in events_coordinates:
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                h = path[4]
+                l = path[5]
+                if l != generation_layer:
+                    iteration -= 0.75
                     continue
-                if chance(snow_pile_spawns[area_id]):
-                    events.append(9)
-                else:
-                    events.append(0)
-                events_coordinates.append([x, y])
-                events_heights.append(h)
-            y -= 1
-            if [x, y] in events_coordinates:
-                continue
-            if path[3] in hurtful_events:
-                if len(good_events) > 0:
-                    event = choice(good_events)
-                    good_events.remove(event)
-                elif len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in benefitial_events:
-                if len(bad_events) > 0:
-                    event = choice(bad_events)
-                    bad_events.remove(event)
-                else:
-                    event = 0
-            elif path[3] in neutral_events:
-                if randint(1, 2) == 1:
-                    if len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
-                    elif len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
+                if path[2] == "d":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x, y + 1 + i, l] in events_coordinates:
+                                continue
+                            if [x + 1 + k, y + 1 + i, l] in events_coordinates or [x - 1 - k, y + 1 + i, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        y += 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    y += 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-                else:
-                    if len(bad_events) > 0:
-                        event = choice(bad_events)
-                        bad_events.remove(event)
-                    elif len(good_events) > 0:
-                        event = choice(good_events)
-                        good_events.remove(event)
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if (area_id == 4 and chance(turn_down_prob[area_id])) or area_id != 4 or iteration < 3:
+                        if start[1] == "r" or start[1] == "m":
+                            if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                                turns.append([x, y, "l", event, h, l])
+                        else:
+                            if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                                turns.append([x, y, "l", event, h, l])
+                        if start[1] == "l" or start[1] == "m":
+                            if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                                turns.append([x, y, "r", event, h, l])
+                        else:
+                            if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                                turns.append([x, y, "r", event, h, l])
+                    if start[0] == "u" or start[1] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l])
+                elif path[2] == "u":
+                    length = randint(min_length, choice(possible_max_lengths))
+                    for k in range(wall_min_thickness[area_id]):
+                        for i in range(length + 1):
+                            if [x, y - 1 - i, l] in events_coordinates:
+                                continue
+                            if [x + 1 + k, y - 1 - i, l] in events_coordinates or [x - 1 - k, y - 1 - i, l] in events_coordinates:
+                                turns.remove(path)
+                                bad_path = True
+                                break
+                        if bad_path == True:
+                            break
+                    if bad_path == True:
+                        continue
+                    for i in range(length):
+                        y -= 1
+                        h += randint(height_variaty[area_id][0], height_variaty[area_id][1])
+                        if h > 5:
+                            h = 5
+                        elif h < 0:
+                            h = 0
+                        if [x, y, l] in events_coordinates:
+                            continue
+                        if chance(snow_pile_spawns[area_id]):
+                            events.append(9)
+                        else:
+                            events.append(0)
+                        events_coordinates.append([x, y, l])
+                        events_heights.append(h)
+                    y -= 1
+                    if [x, y, l] in events_coordinates:
+                        continue
+                    if path[3] in hurtful_events:
+                        if len(good_events) > 0:
+                            event = choice(good_events)
+                            good_events.remove(event)
+                        elif len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in benefitial_events:
+                        if len(bad_events) > 0:
+                            event = choice(bad_events)
+                            bad_events.remove(event)
+                        else:
+                            event = 0
+                    elif path[3] in neutral_events:
+                        if randint(1, 2) == 1:
+                            if len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            elif len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            else:
+                                event = 0
+                        else:
+                            if len(bad_events) > 0:
+                                event = choice(bad_events)
+                                bad_events.remove(event)
+                            elif len(good_events) > 0:
+                                event = choice(good_events)
+                                good_events.remove(event)
+                            else:
+                                event = 0
                     else:
                         event = 0
-            else:
-                event = 0
-            events.append(event)
-            events_coordinates.append([x, y])
-            events_heights.append(h)
-            if start[0] == "d" or start[0] == "m":
-                if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            else:
-                if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
-                    turns.append([x, y, "u", event, h])
-            if start[1] == "r" or start[1] == "m":
-                if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
-                    turns.append([x, y, "l", event, h])
-            else:
-                if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
-                    turns.append([x, y, "l", event, h])
-            if start[1] == "l" or start[1] == "m":
-                if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
-                    turns.append([x, y, "r", event, h])
-            else:
-                if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
-                    turns.append([x, y, "r", event, h])
-        turns.remove(path)
+                    events.append(event)
+                    events_coordinates.append([x, y, l])
+                    events_heights.append(h)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l])
+                turns.remove(path)
+
+
+        elif generation_area_pattern[0][pattern_index] == "holes down":
+            for i in range(int(len(turns) * generation_percentage) + 1):
+                if len(turns) == 0:
+                    break
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                l = path[5]
+                if l != generation_layer:
+                    can_generate = False
+                    for test_path in turns:
+                        if test_path[5] == generation_layer:
+                            can_generate = True
+                    if can_generate == False:
+                        break
+                    while l != generation_layer:
+                        path = choice(turns)
+                        x = path[0]
+                        y = path[1]
+                        l = path[5]
+                event = 29
+                if not [x, y, l - 1] in events_coordinates:
+                    if [x, y, l + 1] in events_coordinates:
+                        if events[events_coordinates.index([x, y, l + 1])] == 29:
+                            continue
+                    turns.remove(path)
+                    if [x, y, l] in events_coordinates:
+                        events[events_coordinates.index([x, y, l])] = 29
+                        events_heights[events_coordinates.index([x, y, l])] = 0
+                    else:
+                        events.append(29)
+                        events_coordinates.append(x, y, l)
+                        events_heights.append(0)
+                    events_coordinates.append([x, y, l - 1])
+                    events_heights.append(5)
+                    events.append(30)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l - 1])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) <= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l - 1])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l - 1])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l - 1])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l - 1])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l - 1])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l - 1])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l - 1])
+
+
+        elif generation_area_pattern[0][pattern_index] == "holes up":
+            for i in range(int(len(turns) * generation_percentage) + 1):
+                if len(turns) == 0:
+                    break
+                path = choice(turns)
+                x = path[0]
+                y = path[1]
+                l = path[5]
+                if l != generation_layer:
+                    continue
+                event = 30
+                if not [x, y, l + 1] in events_coordinates:
+                    if [x, y, l - 1] in events_coordinates:
+                        if events[events_coordinates.index([x, y, l - 1])] == 30:
+                            continue
+                    turns.remove(path)
+                    if [x, y, l] in events_coordinates:
+                        events[events_coordinates.index([x, y, l])] = 30
+                        events_heights[events_coordinates.index([x, y, l])] = 5
+                    else:
+                        events.append(30)
+                        events_coordinates.append(x, y, l)
+                        events_heights.append(5)
+                    events_coordinates.append([x, y, l + 1])
+                    events_heights.append(5)
+                    events.append(29)
+                    if start[0] == "d" or start[0] == "m":
+                        if y - (path_lengths[area_id][1] + 1) >= - area_max_y[area_id] and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l + 1])
+                    else:
+                        if y - (path_lengths[area_id][1] + 1) <= 0 and chance(turn_up_prob[area_id]):
+                            turns.append([x, y, "u", event, h, l + 1])
+                    if start[1] == "l" or start[1] == "m":
+                        if x + (path_lengths[area_id][1] + 1) <= area_max_x[area_id] and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l + 1])
+                    else:
+                        if x + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_right_prob[area_id]):
+                            turns.append([x, y, "r", event, h, l + 1])
+                    if start[0] == "u" or start[0] == "m":
+                        if y + (path_lengths[area_id][1] + 1) <= area_max_y[area_id] and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l + 1])
+                    else:
+                        if y + (path_lengths[area_id][1] + 1) <= 0 and chance(turn_down_prob[area_id]):
+                            turns.append([x, y, "d", event, h, l + 1])
+                    if start[1] == "r" or start[1] == "m":
+                        if x - (path_lengths[area_id][1] + 1) >= - area_max_x[area_id] and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l + 1])
+                    else:
+                        if x - (path_lengths[area_id][1] + 1) >= 0 and chance(turn_left_prob[area_id]):
+                            turns.append([x, y, "l", event, h, l + 1])
+
+
+        placed_event_amount = event_amount - len(bad_events) - len(good_events)
+
+
     cur_max_xy = 0
     furthest_turn_index = 0
     for i in turns:
@@ -3976,6 +5568,7 @@ def map_generation():
     x = path[0]
     y = path[1]
     h = path[4]
+    l = path[5]
     if path[2] == "r":
         for i in range(randint(path_lengths[area_id][1], path_lengths[area_id][1])):
             x += 1
@@ -3984,24 +5577,30 @@ def map_generation():
                 h = 5
             elif h < 0:
                 h = 0
-            if [x, y] in events_coordinates:
-                continue
+            if [x, y, l] in events_coordinates:
+                if events[events_coordinates.index([x, y, l])] != 10:
+                    continue
+                else:
+                    if chance(snow_pile_spawns[area_id]):
+                        events[events_coordinates.index([x, y, l])] = 9
+                    else:
+                        events[events_coordinates.index([x, y, l])] = 0
             if chance(snow_pile_spawns[area_id]):
                 events.append(9)
             else:
                 events.append(0)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
         x += 1
-        if [x, y] in events_coordinates:
-            events[events_coordinates.index([x, y])] = 4
+        if [x, y, l] in events_coordinates:
+            events[events_coordinates.index([x, y, l])] = 4
             try:
-                events_heights[events_coordinates.index([x, y])] = h
+                events_heights[events_coordinates.index([x, y, l])] = h
             except:
                 events_heights.append(h)
         else:
             events.append(4)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
     elif path[2] == "d":
         for i in range(randint(path_lengths[area_id][1], path_lengths[area_id][1])):
@@ -4011,24 +5610,30 @@ def map_generation():
                 h = 5
             elif h < 0:
                 h = 0
-            if [x, y] in events_coordinates:
-                continue
+            if [x, y, l] in events_coordinates:
+                if events[events_coordinates.index([x, y, l])] != 10:
+                    continue
+                else:
+                    if chance(snow_pile_spawns[area_id]):
+                        events[events_coordinates.index([x, y, l])] = 9
+                    else:
+                        events[events_coordinates.index([x, y, l])] = 0
             if chance(snow_pile_spawns[area_id]):
                 events.append(9)
             else:
                 events.append(0)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
         y += 1
-        if [x, y] in events_coordinates:
-            events[events_coordinates.index([x, y])] = 4
+        if [x, y, l] in events_coordinates:
+            events[events_coordinates.index([x, y, l])] = 4
             try:
-                events_heights[events_coordinates.index([x, y])] = h
+                events_heights[events_coordinates.index([x, y, l])] = h
             except:
                 events_heights.append(h)
         else:
             events.append(4)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
     elif path[2] == "l":
         for i in range(randint(path_lengths[area_id][1], path_lengths[area_id][1])):
@@ -4038,24 +5643,30 @@ def map_generation():
                 h = 5
             elif h < 0:
                 h = 0
-            if [x, y] in events_coordinates:
-                continue
+            if [x, y, l] in events_coordinates:
+                if events[events_coordinates.index([x, y, l])] != 10:
+                    continue
+                else:
+                    if chance(snow_pile_spawns[area_id]):
+                        events[events_coordinates.index([x, y, l])] = 9
+                    else:
+                        events[events_coordinates.index([x, y, l])] = 0
             if chance(snow_pile_spawns[area_id]):
                 events.append(9)
             else:
                 events.append(0)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
         x -= 1
-        if [x, y] in events_coordinates:
-            events[events_coordinates.index([x, y])] = 4
+        if [x, y, l] in events_coordinates:
+            events[events_coordinates.index([x, y, l])] = 4
             try:
-                events_heights[events_coordinates.index([x, y])] = h
+                events_heights[events_coordinates.index([x, y, l])] = h
             except:
                 events_heights.append(h)
         else:
             events.append(4)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
     elif path[2] == "u":
         for i in range(randint(path_lengths[area_id][1], path_lengths[area_id][1])):
@@ -4065,206 +5676,31 @@ def map_generation():
                 h = 5
             elif h < 0:
                 h = 0
-            if [x, y] in events_coordinates:
-                continue
+            if [x, y, l] in events_coordinates:
+                if events[events_coordinates.index([x, y, l])] != 10:
+                    continue
+                else:
+                    if chance(snow_pile_spawns[area_id]):
+                        events[events_coordinates.index([x, y, l])] = 9
+                    else:
+                        events[events_coordinates.index([x, y, l])] = 0
             if chance(snow_pile_spawns[area_id]):
                 events.append(9)
             else:
                 events.append(0)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
         y -= 1
-        if [x, y] in events_coordinates:
-            events[events_coordinates.index([x, y])] = 4
+        if [x, y, l] in events_coordinates:
+            events[events_coordinates.index([x, y, l])] = 4
             try:
-                events_heights[events_coordinates.index([x, y])] = h
+                events_heights[events_coordinates.index([x, y, l])] = h
             except:
                 events_heights.append(h)
         else:
             events.append(4)
-            events_coordinates.append([x, y])
+            events_coordinates.append([x, y, l])
             events_heights.append(h)
-    # water landmarks
-    water_turns = []
-    river_chance = river_prob[area_id]
-    while river_chance > 0:
-        if chance(river_chance):
-            if chance(0.5):
-                # horizontal start
-                if chance(0.5):
-                    x = min_x()
-                    direction = "r"
-                else:
-                    x = max_x()
-                    direction = "l"
-                y = randint(min_y(), max_y() - 1)
-            else:
-                # vertical start
-                if chance(0.5):
-                    y = min_y()
-                    direction = "d"
-                else:
-                    y = max_y()
-                    direction = "u"
-                x = randint(min_x(), max_x() - 1)
-            while True:
-                for i in range(river_thickness[area_id]):
-                    if direction == "r" or direction == "l":
-                        if not y + i > max_y():
-                            if not [x, y + i] in events_coordinates:
-                                events.append(10)
-                                events_coordinates.append([x, y + i])
-                                events_heights.append(0)
-                            else:
-                                events_heights[events_coordinates.index([x, y + i])] = 0
-                    if direction == "u" or direction == "d":
-                        if not x + i > max_x():
-                            if not [x + i, y] in events_coordinates:
-                                events.append(10)
-                                events_coordinates.append([x + i, y])
-                                events_heights.append(0)
-                            else:
-                                events_heights[events_coordinates.index([x + i, y])] = 0
-                if direction == "r":
-                    x += 1
-                    if chance(0.2):
-                        if chance(0.5):
-                            direction = "u"
-                        else:
-                            direction = "d"
-                        water_turns.append([x, y, "r"])
-                elif direction == "d":
-                    y += 1
-                    if chance(0.2):
-                        if chance(0.5):
-                            direction = "l"
-                        else:
-                            direction = "r"
-                        water_turns.append([x, y, "d"])
-                elif direction == "l":
-                    x -= 1
-                    if chance(0.2):
-                        if chance(0.5):
-                            direction = "u"
-                        else:
-                            direction = "d"
-                        water_turns.append([x, y, "l"])
-                elif direction == "u":
-                    y -= 1
-                    if chance(0.2):
-                        if chance(0.5):
-                            direction = "l"
-                        else:
-                            direction = "r"
-                        water_turns.append([x, y, "u"])
-                if x > max_x() or y > max_y() or x < min_x() or y < min_y():
-                    break
-                river_chance -= 0.01
-        river_chance -= 0.25
-
-    pond_chance = pond_prob[area_id]
-    if chance(pond_chance):
-        x = (min_x() + max_x()) // 2
-        y = (min_y() + max_y()) // 2
-        pond_radius[area_id] = abs(pond_radius[area_id])
-        x1 = x - pond_radius[area_id]
-        y1 = y + pond_radius[area_id]
-        while [x1, y1] != [x - pond_radius[area_id], y - pond_radius[area_id]]:
-            if not [x1, y1] in events_coordinates:
-                events.append(10)
-                events_coordinates.append([x1, y1])
-                events_heights.append(0)
-            else:
-                events_heights[events_coordinates.index([x1, y1])] = 0
-            y1 -= 1
-        while [x1, y1] != [x + pond_radius[area_id], y - pond_radius[area_id]]:
-            if not [x1, y1] in events_coordinates:
-                events.append(10)
-                events_coordinates.append([x1, y1])
-                events_heights.append(0)
-            else:
-                events_heights[events_coordinates.index([x1, y1])] = 0
-            x1 += 1
-        while [x1, y1] != [x + pond_radius[area_id], y + pond_radius[area_id]]:
-            if not [x1, y1] in events_coordinates:
-                events.append(10)
-                events_coordinates.append([x1, y1])
-                events_heights.append(0)
-            else:
-                events_heights[events_coordinates.index([x1, y1])] = 0
-            y1 += 1
-        while [x1, y1] != [x - pond_radius[area_id], y + pond_radius[area_id]]:
-            if not [x1, y1] in events_coordinates:
-                events.append(10)
-                events_coordinates.append([x1, y1])
-                events_heights.append(0)
-            else:
-                events_heights[events_coordinates.index([x1, y1])] = 0
-            x1 -= 1
-
-    if chance(escape_river_prob[area_id]) and escaped == False and game_mode in ["infinite", "story"]:
-        if len(water_turns) > 0:
-            turn = choice(water_turns)
-        else:
-            turn = [(min_x() + max_x()) // 2, -1, "d"]
-        x, y = turn[0], turn[1]
-        if turn[2] == "r":
-            while x + 1 < max_x():
-                x += 1
-                if not [x, y] in events_coordinates:
-                    events.append(10)
-                    events_coordinates.append([x, y])
-                    events_heights.append(0)
-                else:
-                    events_heights[events_coordinates.index([x, y])] = 0
-            x += 1
-        elif turn[2] == "d":
-            while y + 1 < max_y():
-                y += 1
-                if not [x, y] in events_coordinates:
-                    events.append(10)
-                    events_coordinates.append([x, y])
-                    events_heights.append(0)
-                else:
-                    events_heights[events_coordinates.index([x, y])] = 0
-            y += 1
-        elif turn[2] == "l":
-            while x - 1 > 0:
-                x -= 1
-                if not [x, y] in events_coordinates:
-                    events.append(10)
-                    events_coordinates.append([x, y])
-                    events_heights.append(0)
-                else:
-                    events_heights[events_coordinates.index([x, y])] = 0
-            x -= 1
-        elif turn[2] == "u":
-            while y - 1 > 0:
-                y -= 1
-                if not [x, y] in events_coordinates:
-                    events.append(10)
-                    events_coordinates.append([x, y])
-                    events_heights.append(0)
-                else:
-                    events_heights[events_coordinates.index([x, y])] = 0
-            y -= 1
-        if not [x, y] in events_coordinates:
-            events.append(12)
-            events_coordinates.append([x, y])
-            events_heights.append(0)
-        else:
-            if events[events_coordinates.index([x, y])] != 3 and events[events_coordinates.index([x, y])] != 4 and events[events_coordinates.index([x, y])] != 5:
-                events[events_coordinates.index([x, y])] = 12
-            events_heights[events_coordinates.index([x, y])] = 0
-
-    if area_id == 2:
-        counter = 0
-        while True:
-            counter += 1
-            new_tile_coords = choice(events_coordinates)
-            if events[events_coordinates.index(new_tile_coords)] == 0 or counter > 1000:
-                break
-        events[events_coordinates.index(new_tile_coords)] = 15
     
     while events.count(14) > remnants_spawns[area_id][1]:
         events[events.index(14)] = 2
@@ -4290,11 +5726,12 @@ def map_print():
     global current_weather
     global player_oxygen
     global player_oxygen_danger
+    global stalker_stealth
     global area_id
     global water_level
     print("AREA:" + area_color() + " The", areas[area_id] + "\033[0m")
     print("TIME: ", end = "")
-    if area_id == 2 or area_id == 6:
+    if area_id == 2 or area_id == 6 or player_coordinates[2] < 0:
         print("Unknown", end = "")
     elif game_time < 6:
         print("Morning", end = "")
@@ -4342,10 +5779,10 @@ def map_print():
         print()
     print("OXYGEN:" + water_color(), end = "")
     if player_oxygen > 0:
-        for i in range(math.floor(player_oxygen)):
+        for i in range(int(player_oxygen)):
             print("•", end = "")
     else:
-        for i in range(math.floor(abs(player_oxygen))):
+        for i in range(int(abs(player_oxygen))):
             print("\033[38;2;255;0;0m○", end = "")
     if player_oxygen_danger:
         print("\033[38;2;255;0;0m!")
@@ -4354,17 +5791,18 @@ def map_print():
     for x in range(min_x(), max_x() + 1):
         print("-", end = "")
     print()
-    for y in range(min_y(), max_y()+1):
-        for x in range(min_x(), max_x()+1):
-            if [x, y] == player_coordinates and player_boat == False:
+    l = player_coordinates[2]
+    for y in range(min_y(), max_y() + 1):
+        for x in range(min_x(), max_x() + 1):
+            if [x, y, l] == player_coordinates and player_boat == False:
                 print("\033[33;1mP" + area_color(), end = "")
-            elif [x, y] == player_coordinates and player_boat == True:
+            elif [x, y, l] == player_coordinates and player_boat == True:
                 print("\033[33;1mb" + area_color(), end = "")
-            elif not [x, y] in events_coordinates or (vision_range != -1 and (((player_coordinates[0] - x) ** 2 + (player_coordinates[1] - y) ** 2) ** 0.5) > vision_range + 0.25):
+            elif not [x, y, l] in events_coordinates or (vision_range != -1 and (((player_coordinates[0] - x) ** 2 + (player_coordinates[1] - y) ** 2) ** 0.5) > vision_range + 0.25 + l * 1.5):
                 print(" ", end = "")
             else:
-                event = events[events_coordinates.index([x, y])]
-                event_height = events_heights[events_coordinates.index([x, y])]
+                event = events[events_coordinates.index([x, y, l])]
+                event_height = events_heights[events_coordinates.index([x, y, l])] + l * 2.5
                 if event in [0, 9, 25, 26]:
                     if water_level > event_height:
                         print(water_color() + "~", end = "")
@@ -4458,6 +5896,31 @@ def map_print():
                         print(water_color() + "a", end = "")
                     else:
                         print(area_color(event_height, True) + "a", end = "")
+                elif event == 29:
+                    if water_level > event_height:
+                        print(water_color() + "L", end = "")
+                    else:
+                        print(area_color(event_height, True) + "L", end = "")
+                elif event == 30:
+                    if water_level > event_height:
+                        print(water_color() + "H", end = "")
+                    else:
+                        print(area_color(event_height, True) + "H", end = "")
+                elif event == 31:
+                    if water_level > event_height:
+                        print(water_color() + "⊓", end = "")
+                    else:
+                        print(area_color(event_height, True) + "⊓", end = "")
+                elif event == 32:
+                    print("\033[33;1m?", end = "")
+                    stalker_coords = events_coordinates[events.index(32)]
+                    distance = ((player_coordinates[0] - stalker_coords[0]) ** 2 + (player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
+                    if distance > 0:
+                        stalker_stealth -= 25 / distance
+                    else:
+                        stalker_stealth -= 25
+                    if stalker_stealth <= 0:
+                        events[events.index(32)] = 0
 
         print("\n" + water_color(), end = "")
     for x in range(min_x(), max_x() + 1):
@@ -4501,6 +5964,7 @@ def map_movement():
     global score
     global score_increase
     global area_id
+    global player_map_level
     global current_weather
     global current_weather_duration
     global max_power_level
@@ -4524,7 +5988,7 @@ def map_movement():
     while True:
         if player_coordinates in events_coordinates:
             event = events[events_coordinates.index(player_coordinates)]
-            current_height = events_heights[events_coordinates.index(player_coordinates)]
+            current_height = events_heights[events_coordinates.index(player_coordinates)] + player_coordinates[2] * 2.5
         else:
             print("You are somehow out of bounds!")
             event = 0
@@ -4691,7 +6155,7 @@ Type anything to continue''')
             change_interaction()
         elif event == 14:
             player_remnants()
-            time_events(1)
+            time_events(0)
             if game_mode in ["infinite", "story"]:
                 events[events_coordinates.index(player_coordinates)] = 0
             elif game_mode == "raid":
@@ -4743,40 +6207,52 @@ Type anything to continue''')
             time_events(1)
         elif event == 24:
             alchemist_shop()
+        elif event == 29:
+            player_coordinates[2] -= 1
+        elif event == 30:
+            player_coordinates[2] += 1
+        elif event == 31:
+            mimic_bank()
+        elif event == 32:
+            fight([42])
+            event = 0
         map_print()
         print('''\nWhere do you want to move?
 W. ↑
 A. ←
 D. →
 S. ↓
+Y. O
 I. - inventory
 H. - Map Help''')
         while True:
             action = input()
             if action.lower() == "w" or action.lower() == "up":
-                if [player_coordinates.copy()[0], player_coordinates.copy()[1] - 1] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0], player_coordinates.copy()[1] - 1])] != 10 or (player_boat == True and water_level > 0)):
+                if [player_coordinates.copy()[0], player_coordinates.copy()[1] - 1, player_coordinates.copy()[2]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0], player_coordinates.copy()[1] - 1, player_coordinates.copy()[2]])] != 10 or (player_boat == True and water_level > 0)):
                     player_coordinates[1] -= 1
                     break
                 else:
                     print("You can't move there!")
             if action.lower() == "a" or action.lower() == "left":
-                if [player_coordinates.copy()[0] - 1, player_coordinates.copy()[1]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0] - 1, player_coordinates.copy()[1]])] != 10 or (player_boat == True and water_level > 0)):
+                if [player_coordinates.copy()[0] - 1, player_coordinates.copy()[1], player_coordinates.copy()[2]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0] - 1, player_coordinates.copy()[1], player_coordinates.copy()[2]])] != 10 or (player_boat == True and water_level > 0)):
                     player_coordinates[0] -= 1
                     break
                 else:
                     print("You can't move there!")
             if action.lower() == "d" or action.lower() == "right":
-                if [player_coordinates.copy()[0] + 1, player_coordinates.copy()[1]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0] + 1, player_coordinates.copy()[1]])] != 10 or (player_boat == True and water_level > 0)):
+                if [player_coordinates.copy()[0] + 1, player_coordinates.copy()[1], player_coordinates.copy()[2]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0] + 1, player_coordinates.copy()[1], player_coordinates.copy()[2]])] != 10 or (player_boat == True and water_level > 0)):
                     player_coordinates[0] += 1
                     break
                 else:
                     print("You can't move there!")
             if action.lower() == "s" or action.lower() == "down":
-                if [player_coordinates.copy()[0], player_coordinates.copy()[1] + 1] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0], player_coordinates.copy()[1] + 1])] != 10 or (player_boat == True and water_level > 0)):
+                if [player_coordinates.copy()[0], player_coordinates.copy()[1] + 1, player_coordinates.copy()[2]] in events_coordinates and (events[events_coordinates.index([player_coordinates.copy()[0], player_coordinates.copy()[1] + 1, player_coordinates.copy()[2]])] != 10 or (player_boat == True and water_level > 0)):
                     player_coordinates[1] += 1
                     break
                 else:
                     print("You can't move there!")
+            if action.lower() == "y" or "stay" in action.lower() or "still" in action.lower():
+                break
             if action.lower() == "i" or action.lower() == "inventory":
                 print("\033[33;1mYour weapon -", weapon_names[player_weapon])
                 if len(player_items) > 0:
@@ -4810,36 +6286,41 @@ def time_events(num = 0):
     global game_time
     global vision_range
     global forest_enemy_spawn
+    global bank_money
     global enough_destroyed
     global current_weather
     global current_weather_duration
     global earth_cannot_generate_tiles
     global water_level
+    global stalker_stealth
     global area_id
-    global eclipse
     global weather_seed
     global weather_effects_seed
     global map_seed
     global speedrunner
     global speed_timer
+    global eclipse
     global difficulty
     game_time += num
     if speedrunner:
         speed_timer -= num
         if speed_timer <= 0:
             difficulty += 3 * num
-    if (eclipse or game_time > 12) and forest_enemy_spawn < 3 and area_id == 1:
-        node = randint(0, len(events) - 1)
-        if (events[node] == 0 or events[node] == 6) and events_coordinates[node] != player_coordinates:
-            events[node] = 1
-            forest_enemy_spawn += 1
+    for k in range(num):
+        if (eclipse or game_time > 12) and forest_enemy_spawn < 3 and area_id == 1:
+            node = randint(0, len(events) - 1)
+            if (events[node] == 0 or events[node] == 6) and events_coordinates[node] != player_coordinates:
+                events[node] = 1
+                forest_enemy_spawn += 1
+        else:
+            break
 
     raid_mode_reset()
 
     if 15 in events or 19 in events or 22 in events or 27 in events or 28 in events:
         for node_coordinates in events_coordinates:
             if events[events_coordinates.index(node_coordinates)] in [15, 19, 22, 27, 28]:
-                new_coordinates = [node_coordinates[0], node_coordinates[1] - 1]
+                new_coordinates = [node_coordinates[0], node_coordinates[1] - 1, node_coordinates[2]]
                 if new_coordinates in events_coordinates:
                     if events[events_coordinates.index(new_coordinates)] in [0, 6]:
                         events[events_coordinates.index(new_coordinates)] = 17
@@ -4851,7 +6332,7 @@ def time_events(num = 0):
                         events[events_coordinates.index(new_coordinates)] = 27
                     elif events[events_coordinates.index(new_coordinates)] in [26]:
                         events[events_coordinates.index(new_coordinates)] = 28
-                new_coordinates = [node_coordinates[0] + 1, node_coordinates[1]]
+                new_coordinates = [node_coordinates[0] + 1, node_coordinates[1], node_coordinates[2]]
                 if new_coordinates in events_coordinates:
                     if events[events_coordinates.index(new_coordinates)] in [0, 6]:
                         events[events_coordinates.index(new_coordinates)] = 17
@@ -4863,7 +6344,7 @@ def time_events(num = 0):
                         events[events_coordinates.index(new_coordinates)] = 27
                     elif events[events_coordinates.index(new_coordinates)] in [26]:
                         events[events_coordinates.index(new_coordinates)] = 28
-                new_coordinates = [node_coordinates[0], node_coordinates[1] + 1]
+                new_coordinates = [node_coordinates[0], node_coordinates[1] + 1, node_coordinates[2]]
                 if new_coordinates in events_coordinates:
                     if events[events_coordinates.index(new_coordinates)] in [0, 6]:
                         events[events_coordinates.index(new_coordinates)] = 17
@@ -4875,7 +6356,7 @@ def time_events(num = 0):
                         events[events_coordinates.index(new_coordinates)] = 27
                     elif events[events_coordinates.index(new_coordinates)] in [26]:
                         events[events_coordinates.index(new_coordinates)] = 28
-                new_coordinates = [node_coordinates[0] - 1, node_coordinates[1]]
+                new_coordinates = [node_coordinates[0] - 1, node_coordinates[1], node_coordinates[2]]
                 if new_coordinates in events_coordinates:
                     if events[events_coordinates.index(new_coordinates)] in [0, 6]:
                         events[events_coordinates.index(new_coordinates)] = 17
@@ -4904,11 +6385,31 @@ def time_events(num = 0):
                 events[i] = 22
 
     if game_time > 23:
+        seed(weather_seed)
         game_time -= 24
+        if vision_range != -1 and chance(0.4) and not 32 in events:
+            stalker_stealth = 100
+            epic_nodes = list(range(len(events)))
+            while len(epic_nodes) > 10:
+                stalker_node = choice(epic_nodes)
+                stalker_coords = events_coordinates[stalker_node]
+                if events[stalker_node] in [0, 6, 15, 16] and (stalker_coords[2] != player_coordinates[2] or ((stalker_coords[0] - player_coordinates[0]) ** 2 + (stalker_coords[0] - player_coordinates[0]) ** 2) ** 0.5 > vision_range):
+                    events[stalker_node] = 32
+                    break
+                epic_nodes.remove(stalker_node)
+        bank_money += round(bank_money * 0.5)
         forest_enemy_spawn = 0
         shop_items_define()
         if area_id == 4 and enough_destroyed == False:
-            shop_coord_y, boss_coord_y, player_coord_y = events_coordinates[events.index(3)][1], events_coordinates[events.index(4)][1], player_coordinates[1]
+            player_coord_y = player_coordinates[1]
+            if 3 in events:
+                shop_coord_y = events_coordinates[events.index(3)][1]
+            else:
+                shop_coord_y = 0
+            if 4 in events:
+                boss_coord_y = events_coordinates[events.index(4)][1]
+            else:
+                boss_coord_y = 0
             if 5 in events:
                 mimic_coord_y = events_coordinates[events.index(5)][1]
             else:
@@ -4921,9 +6422,13 @@ def time_events(num = 0):
                 alchemist_coord_y = events_coordinates[events.index(24)][1]
             else:
                 alchemist_coord_y = 0
+            if 31 in events:
+                steel_mimic_coord_y = events_coordinates[events.index(31)][1]
+            else:
+                steel_mimic_coord_y = 0
             event_deletions = []
             if not max_y() == player_coord_y:
-                if not max_y() in [mimic_coord_y, shop_coord_y, death_coord_y, boss_coord_y, alchemist_coord_y] or game_mode == "raid":
+                if not max_y() in [mimic_coord_y, shop_coord_y, death_coord_y, boss_coord_y, alchemist_coord_y, steel_mimic_coord_y] or game_mode == "raid":
                     for i in range(len(events_coordinates)):
                         if events_coordinates[i][1] == max_y():
                             event_deletions.append(i)
@@ -4940,9 +6445,9 @@ def time_events(num = 0):
     seed(weather_seed)
     for r in range(len(current_weather)):
         if current_weather[r] == 0:
-            if chance(weather_chance[area_id]) and current_weather_duration[r] <= 0:
+            if current_weather_duration[r] <= 0:
                 if len(weathers[area_id]) > 0:
-                    current_weather[r] = choice(weathers[area_id])
+                    current_weather[r] = choices(weathers[area_id], weights = weather_chances[area_id])[0]
                     current_weather_duration[r] = randint(weathers_durations[current_weather[r]][0], weathers_durations[current_weather[r]][1])
                 else:
                     current_weather[r] = 0
@@ -4958,7 +6463,7 @@ def time_events(num = 0):
                 seed(weather_effects_seed)
                 for i in range(num):
                     node = randint(0, len(events) - 1)
-                    if (events[node] == 0) and events_coordinates[node] != player_coordinates:
+                    if (events[node] == 0) and events_coordinates[node] != player_coordinates and events_coordinates[node][2] == 0:
                         events[node] = 6
                 current_weather_duration[r] -= num
                 weather_effects_seed = randint(0, 10000)
@@ -4990,6 +6495,7 @@ def time_events(num = 0):
                             break
                         x = randint(min_x(), max_x())
                         y = randint(min_y(), max_y())
+                        l = 0
                         h_neighbors = 0
                         v_neighbors = 0
                         d_neighbors = 0
@@ -4997,30 +6503,30 @@ def time_events(num = 0):
                         if [x, y] in events_coordinates:
                             continue
                         else:
-                            if [x + 1, y + 1] in events_coordinates and events[events_coordinates.index([x + 1, y + 1])] != 10:
+                            if [x + 1, y + 1, l] in events_coordinates and events[events_coordinates.index([x + 1, y + 1, l])] != 10:
                                 d_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x + 1, y + 1])]
-                            if [x, y + 1] in events_coordinates and events[events_coordinates.index([x, y + 1])] != 10:
+                                heights += events_heights[events_coordinates.index([x + 1, y + 1, l])]
+                            if [x, y + 1, l] in events_coordinates and events[events_coordinates.index([x, y + 1, l])] != 10:
                                 v_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x, y + 1])]
-                            if [x - 1, y + 1] in events_coordinates and events[events_coordinates.index([x - 1, y + 1])] != 10:
+                                heights += events_heights[events_coordinates.index([x, y + 1, l])]
+                            if [x - 1, y + 1, l] in events_coordinates and events[events_coordinates.index([x - 1, y + 1, l])] != 10:
                                 d_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x - 1, y + 1])]
-                            if [x + 1, y] in events_coordinates and events[events_coordinates.index([x + 1, y])] != 10:
+                                heights += events_heights[events_coordinates.index([x - 1, y + 1, l])]
+                            if [x + 1, y, l] in events_coordinates and events[events_coordinates.index([x + 1, y, l])] != 10:
                                 h_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x + 1, y])]
-                            if [x - 1, y] in events_coordinates and events[events_coordinates.index([x - 1, y])] != 10:
+                                heights += events_heights[events_coordinates.index([x + 1, y, l])]
+                            if [x - 1, y, l] in events_coordinates and events[events_coordinates.index([x - 1, y, l])] != 10:
                                 h_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x - 1, y])]
-                            if [x + 1, y - 1] in events_coordinates and events[events_coordinates.index([x + 1, y - 1])] != 10:
+                                heights += events_heights[events_coordinates.index([x - 1, y, l])]
+                            if [x + 1, y - 1, l] in events_coordinates and events[events_coordinates.index([x + 1, y - 1, l])] != 10:
                                 d_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x + 1, y - 1])]
-                            if [x, y - 1] in events_coordinates and events[events_coordinates.index([x, y - 1])] != 10:
+                                heights += events_heights[events_coordinates.index([x + 1, y - 1, l])]
+                            if [x, y - 1, l] in events_coordinates and events[events_coordinates.index([x, y - 1, l])] != 10:
                                 v_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x, y - 1])]
-                            if [x - 1, y - 1] in events_coordinates and events[events_coordinates.index([x - 1, y - 1])] != 10:
+                                heights += events_heights[events_coordinates.index([x, y - 1, l])]
+                            if [x - 1, y - 1, l] in events_coordinates and events[events_coordinates.index([x - 1, y - 1, l])] != 10:
                                 d_neighbors += 1
-                                heights += events_heights[events_coordinates.index([x - 1, y - 1])]
+                                heights += events_heights[events_coordinates.index([x - 1, y - 1, l])]
                             if v_neighbors + h_neighbors < 1:
                                 continue
                             elif v_neighbors > 0 and h_neighbors > 0 and d_neighbors > 0:
@@ -5037,7 +6543,7 @@ def time_events(num = 0):
                             events.append(25)
                         else:
                             events.append(26)
-                        events_coordinates.append([x, y])
+                        events_coordinates.append([x, y, l])
                         if h_neighbors + v_neighbors + d_neighbors > 0:
                             events_heights.append(heights // (h_neighbors + v_neighbors + d_neighbors))
                         else:
@@ -5188,6 +6694,7 @@ def time_events(num = 0):
 def infinite_mode():
     global area
     global area_id
+    global area_rando
     global player_travel
     global player_xp
     global player_money
@@ -5204,6 +6711,7 @@ def infinite_mode():
     global player_spent_life
     global evolution
     global mimic_got_item
+    global bank_first_time
     global game_time
     global vision_range
     global forest_enemy_spawn
@@ -5218,6 +6726,8 @@ def infinite_mode():
     game_mode = "infinite"
     area_id = 0
     areas_visited = 0
+    if area_rando:
+        area_randomize()
     while True:
         default_water_levels[6] = 0.75
         earth_cannot_generate_tiles = False
@@ -5244,6 +6754,7 @@ def infinite_mode():
         level_up()
         mimic_got_item = False
         mimic_given_items = 0
+        bank_first_time = True
         forest_enemy_spawn = 0
         enough_destroyed = False
         water_level = default_water_levels[area_id]
@@ -5266,6 +6777,7 @@ def infinite_mode():
 def story_mode():
     global area
     global area_id
+    global area_rando
     global player_travel
     global player_xp
     global player_money
@@ -5290,6 +6802,7 @@ def story_mode():
     global current_weather
     global current_weather_duration
     global mimic_given_items
+    global bank_first_time
     global player_boat
     global escaped
     global game_mode # very important
@@ -5297,6 +6810,8 @@ def story_mode():
     game_mode = "story"
     area_id = 0
     i = 0
+    if area_rando:
+        area_randomize()
     while i in range(8):
         default_water_levels[6] = 0.75
         earth_cannot_generate_tiles = False
@@ -5320,6 +6835,7 @@ def story_mode():
         level_up()
         mimic_got_item = False
         mimic_given_items = 0
+        bank_first_time = True
         forest_enemy_spawn = 0
         enough_destroyed = False
         water_level = default_water_levels[area_id]
@@ -5393,7 +6909,7 @@ def raid_mode_area_choose():
                 break
 
 def raid_mode_reset():
-    global map_seed, raid_counter, area_id, mimic_got_item, mimic_given_items, player_travel, score, score_increase, player_xp, speedrunner, speed_timer
+    global map_seed, raid_counter, area_id, mimic_got_item, mimic_given_items, bank_first_time, player_travel, score, score_increase, player_xp, speedrunner, speed_timer
     if not (1 in events or 4 in events or 7 in events or 8 in events or 19 in events or 20 in events) and game_mode == "raid":
         print("The raid is over. Another one begins!")
         seed(map_seed)
@@ -5448,7 +6964,7 @@ def raid_mode_reset():
                     event = choice(range(len(events)))
                     if events[event] in [2, 14]:
                         events[event] = 3
-        else:
+        elif area_id == 2:
             if events.count(2) + events.count(14) > 6:
                 while not 3 in events or not 5 in events or not 24 in events:
                     event = choice(range(len(events)))
@@ -5459,6 +6975,42 @@ def raid_mode_reset():
                             events[event] = 5
                         elif not 24 in events:
                             events[event] = 24
+            elif events.count(2) + events.count(14) > 4:
+                while not 3 in events or not 5 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+            elif events.count(2) + events.count(14) > 2:
+                while not 3 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        events[event] = 3
+        else:
+            if events.count(2) + events.count(14) > 7:
+                while not 3 in events or not 5 in events or not 24 in events or not 31 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+                        elif not 31 in events:
+                            events[event] = 31
+                        elif not 24 in events:
+                            events[event] = 24
+            elif events.count(2) + events.count(14) > 6:
+                while not 3 in events or not 5 in events or not 31 in events:
+                    event = choice(range(len(events)))
+                    if events[event] in [2, 14]:
+                        if not 3 in events:
+                            events[event] = 3
+                        elif not 5 in events:
+                            events[event] = 5
+                        elif not 31 in events:
+                            events[event] = 31
             elif events.count(2) + events.count(14) > 4:
                 while not 3 in events or not 5 in events:
                     event = choice(range(len(events)))
@@ -5488,6 +7040,7 @@ def raid_mode_reset():
         level_up()
         mimic_got_item = False
         mimic_given_items = 0
+        bank_first_time = True
         score += int(score_increase)
         if speedrunner:
             speed_timer = round((events.count(1) * 2 + events.count(2)) * 0.95)
@@ -5530,6 +7083,7 @@ def raid_mode_reset():
 def raid_mode(starting_area = 0):
     global area
     global area_id
+    global area_rando
     global game_mode
     global map_complexity
     global game_time
@@ -5539,14 +7093,18 @@ def raid_mode(starting_area = 0):
     global current_weather_duration
     global mimic_got_item
     global mimic_given_items
+    global bank_first_time
     default_water_levels[6] = 0.75
     game_mode = "raid"
+    if area_rando:
+        area_randomize()
     area_id = starting_area
     vision_range = base_vision_ranges[area_id]
     area = areas[area_id]
     game_time = 0
     mimic_got_item = False
     mimic_given_items = 0
+    bank_first_time = True
     current_weather = []
     current_weather_duration = []
     shop_items_define()
@@ -5645,6 +7203,7 @@ def daily_run():
     global speedrunner
     global item_rando
     global eclipse
+    global area_rando
     global global_seed
     global daily_seed
     global map_seed
@@ -5668,6 +7227,7 @@ def daily_run():
     speedrunner = chance(0.4 * mutator_factor)
     item_rando = chance(0.3 * mutator_factor)
     eclipse = chance(0.3 * mutator_factor)
+    area_rando = chance(0.1 * mutator_factor)
     global_seed = randint(0, 10000)
     map_seed, weather_seed, weather_effects_seed, altar_seed, shop_seed, gamble_seed, remnant_seed, enemy_encouter_seed, evolution_seed = global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed
     mode = choice(["story", "infinite"])
@@ -5682,6 +7242,8 @@ def daily_run():
         print("Item Randomizer is enabled")
     if eclipse:
         print("Eclipse is enabled")
+    if area_rando:
+        print("Area Randomizer is enabled")
     print('''
 Are you sure you want to play this daily run?
 1. Yes
@@ -5710,6 +7272,7 @@ def daily_run_retry():
     global speedrunner
     global item_rando
     global eclipse
+    global area_rando
     global global_seed
     global daily_seed
     global map_seed
@@ -5733,6 +7296,7 @@ def daily_run_retry():
     speedrunner = chance(0.4 * mutator_factor)
     item_rando = chance(0.3 * mutator_factor)
     eclipse = chance(0.3 * mutator_factor)
+    area_rando = chance(0.1 * mutator_factor)
     global_seed = randint(0, 10000)
     map_seed, weather_seed, weather_effects_seed, altar_seed, shop_seed, gamble_seed, remnant_seed, enemy_encouter_seed, evolution_seed = global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed, global_seed
     mode = choice(["story", "infinite"])
@@ -5769,6 +7333,7 @@ def mutators_choose():
     global overkill
     global speedrunner
     global item_rando
+    global area_rando
     global eclipse
     global global_seed
     leave = 0
@@ -5790,6 +7355,7 @@ def mutators_choose():
         print("5. Speedrunner -", speedrunner)
         print("6. Item Randomizer -", item_rando)
         print("7. Eclipse -", eclipse)
+        print("8. Area Randomizer -", area_rando)
         print("9. Play the game")
         while True:
             action = input()
@@ -5863,6 +7429,12 @@ def mutators_choose():
                 else:
                     eclipse = False
                 break
+            elif action == "8" or "area" in action.lower():
+                if area_rando == False:
+                    area_rando = True
+                else:
+                    area_rando = False
+                break
             elif action == "9" or "play" in action.lower() or "game" in action.lower():
                 leave = 1
                 original_difficulty = difficulty
@@ -5901,7 +7473,7 @@ def game():
     retry = 0
     while True:
         global_seed = randint(0, 10000)
-        daily_seed = (time.localtime().tm_year * 365 + time.localtime().tm_mon * 30 + time.localtime().tm_mday)
+        daily_seed = (localtime().tm_year * 365 + localtime().tm_mon * 30 + localtime().tm_mday)
         true_reset()
         if retry == 0:
             settings_reset()
@@ -5971,4 +7543,3 @@ Type in the action...''')
 
 save()
 game()
-
