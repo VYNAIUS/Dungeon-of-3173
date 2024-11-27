@@ -4,6 +4,8 @@ import sys
 import subprocess
 from time import localtime
 
+print("V0.3.1")
+
 # Gets the current user's LocalLow directory
 save_directory_path = os.path.join(os.getenv('USERPROFILE'), 'AppData', 'Local', 'DungeonOf3173')
 # This path is user-specific and will automatically adapt to whoever is running the script
@@ -1079,7 +1081,7 @@ item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 
 item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies", "Enemies will get damaged when hit you",
                      "Dealing damage will heal you", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn", "Kill to grow",
-                     "You will get experience for entering new area", "Enemies explode on death, dealing damage to other enemies",
+                     "You will get experience for entering a new area", "Enemies explode on death, dealing damage to other enemies",
                      "If you die, you will be revived with no money or experience", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                      "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                      "Heals 50% HP on use (consumable)", "Increases damage by 50% if snow-related enemies are present (consumable)", "Grants chance to dodge physical attacks",
@@ -1087,9 +1089,10 @@ item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict
                      "Adds 5% REG on use (consumable)"]
 item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuff over time", "Guys that attack you, will get damaged for doing so", "Turn damage into heal!",
                            "Not sure why I don't use this one myself, but you will gain more money", "You will become untouchable, but that will fade away after a turn",
-                           "How do you think undead people live? They use this to regenerate", "Oh, I don't know about this one, pal. Pretty dark stuff", 
-                           "Do a world tour and become more experienced!", "Enemies go boom and make other enemies go 'ouch'. Does that sound convincing?",
-                           "Another life, pal. But you will be revived broke and unexpirienced", "They say that if you eat this, you will regenerate and stuff. But I can't test it myself, pal",
+                           "How do you think undead people live? They use this to regenerate",
+                           "Oh, I don't know about this one, pal. When you kill something, you take part of their powers", "Do a world tour and become more experienced!",
+                           "Enemies go boom and make other enemies go 'ouch'. Does that sound convincing?", "Another life, pal. But you will be revived broke and unexpirienced",
+                           "They say that if you eat this, you will regenerate and stuff. But I can't test it myself, pal",
                            "Don't you hate being poisoned? Well, this will help with getting rid of it, pal!", "This one is like me! Try to drink it and it turns into something random!",
                            "Ever-warriors, like you, enjoy eating flesh. I believe it heals half of your health, pal",
                            "After drinking this tea, you will become stronger if snow enemies are there to witness it", "You will be so quick, that you have a chance to dodge stuff, pal",
@@ -1207,7 +1210,6 @@ def fight(enemy_ids = [0], ally_ids = []):
             if elite_counter >= max_elite_counter:
                 break
         enemys.append(Enemies(i, elite=elite_counter))
-        #[0] name, [1] current hp, [2] max hp, [3] damage, [4] defense, [5] original defense, [6] description, [7] pattern, [8] pattern action, [9] spawner, [10] spikes, [11] enemy id, [12] money, [13] poisoned, [14] xp, [15] poison, [16] immortality
         k += 1
         original_enemy_count += 1
         if k > 1:
@@ -2290,10 +2292,10 @@ def peaceful_shop():
 \033[38;2;100;220;100m"Oh. Customer, welcome! These are items that my cousin gave me as a gift. I wonder what happened to him..."\033[0m''')
     elif shopkeeper_deaths == 2:
         print('''You came across a shop. \033[38;2;100;220;100mThe shopkeeper\033[0m welcomes you,
-\033[38;2;100;220;100m"Hello. My name is Zach. My cousins Mach and Lach left some items for me to sell. They were damaged by someone. I mean the items."\033[0m''')
+\033[38;2;100;220;100m"Hello. My cousins Mach and Lach left some items for me to sell. They were damaged by someone. I mean the items."\033[0m''')
     elif shopkeeper_deaths == 3:
         print('''You came across a shop. \033[38;2;100;220;100mThe shopkeeper\033[0m welcomes you,
-\033[38;2;100;220;100m"Hello, there. Here are some items that, I found myself. Zach didn't gift me anything! Err... I meant to say... Do you want anything?"\033[0m''')
+\033[38;2;100;220;100m"Hello, there. Here are some items that, I found myself. Zach hasn't gift me anything! Err... I meant to say... Do you want anything?"\033[0m''')
     else:
         print('''You came across a shop. Another \033[38;2;100;220;100mshopkeeper\033[0m welcomed you,
 \033[38;2;100;220;100m"Ah. Hello. Welcome to my shop. There have been quite a few changes over the last few days. As if someone started genocide. Genocide of Shopkeepers"\033[0m''')
@@ -2369,9 +2371,15 @@ def item_info(weapon, shop_type = "shop"):
         if action.isdigit():
             action = int(action)
             if action > 0 and action <= len(current_shop_items):
+                print()
                 print(item_descriptions[current_shop_items[action - 1]])
+                print("\nType anything to continue...")
+                action = input()
             elif action - 1 == len(current_shop_items) and is_weapon_bought == 0:
+                print()
                 print(weapon_descriptions[weapon])
+                print("\nType anything to continue...")
+                action = input()
     elif shop_type == "alchemist":
         counter = 0
         for i in current_alchemist_items:
@@ -2381,7 +2389,10 @@ def item_info(weapon, shop_type = "shop"):
         if action.isdigit():
             action = int(action)
             if action > 0 and action <= len(current_alchemist_items):
+                print()
                 print(item_descriptions[current_alchemist_items[action - 1]])
+                print("\nType anything to continue...")
+                action = input()
 
 def shop_buy(item, shop_type = "shop"):
     global player_money
@@ -2628,10 +2639,10 @@ You continued on your journey...\n\n\n''')
             shopkeeper_sus = 0
     elif eclipse:
         print('''When you came across the shop, it was locked. The sign at the entrance said,
-\033[38;2;100;220;100m"Please, come back after the eclipse!"\033[0m You decided to continue your jorney...\n\n\n''')
+\033[38;2;100;220;100m"Please, come back after the eclipse!"\033[0m You decided to continue your journey...\n\n\n''')
     else:
         print('''When you came across the shop, it was locked. The sign at the entrance said,
-\033[38;2;100;220;100m"Please, come back in the morning!"\033[0m You decided to continue your jorney...\n\n\n''')
+\033[38;2;100;220;100m"Please, come back in the morning!"\033[0m You decided to continue your journey...\n\n\n''')
 
 def alchemist_shop():
     global player_money
@@ -3072,7 +3083,7 @@ She then crawls away.''')
 She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''coins."\033[0m''')
         while True:
             print('''Your balance is''', player_money, '''coins.
-1. Pay''', price, '''
+1. Pay''', price, '''coins
 2. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
@@ -3100,7 +3111,7 @@ Slightly unsettled by this, you continue listening, \033[38;2;100;100;100m"Some 
 She continues, \033[38;2;100;100;100m"However, I do not need your coins. Instead, I need your strength."\033[0m''')
         while True:
             print('''Your balance is''', player_money, '''coins.
-1. Pay''', price, '''for a boat
+1. Pay''', price, '''coins for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
 4. Continue your journey''')
@@ -3147,7 +3158,7 @@ She quickly changes the topic, \033[38;2;100;100;100m"Do you need a boat here? O
         elif area_id == 4:
             print('''You come across the masked creature again. She speaks,
 \033[38;2;100;100;100m"Hello again. What is this feeling? Pride? Longing? Nostalgia? I do not feel it anywhere else."\033[0m
-She quickly changes the topic, \033[38;2;100;100;100m"Do you need a boat here? Or help with spirits?"\033[0m''')
+She quickly changes the topic, \033[38;2;100;100;100m"Do you really need a boat here? Or help with spirits?"\033[0m''')
         elif area_id == 5:
             print('''You come across the masked creature again. She speaks,
 \033[38;2;100;100;100m"Hello again. I do not enjoy being in this place. I feel guilt? I hate recalling \033[38;2;100;100;100;3mHim.\033[0m
@@ -3161,7 +3172,7 @@ She quickly changes the topic, \033[38;2;100;100;100m"You probably need a boat h
 \033[38;2;100;100;100m"Do you need a boat here? Or help with spirits?"\033[0m''')
         while True:
             print('''Your balance is''', player_money, '''
-1. Pay''', price, '''for a boat
+1. Pay''', price, '''coins for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
 4. Continue your journey''')
@@ -3201,8 +3212,8 @@ Your base damage is now''', player_base_dmg, '''DMG!''')
 
 def escape():
     global escaped
-    print('''You see a secret passage, leading to somewhere.
-Do you want to abandon this place or continue exploring it?
+    print('''You see a secret passage, leading somewhere. It seems to skip a lot of your intended path.
+Do you want to escape this place or stay to continue exploring it?
 1. Escape
 2. Stay''')
     while True:
@@ -3239,7 +3250,7 @@ After a long pause he continues, \033[38;2;100;100;175m"It was their fault... Th
                     action = input()
                     if action == "1" or action.lower() == "yes":
                         print('''The man stands up and continues to speak,
-\033[38;2;100;100;175m"Great. I will assist you in the your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
+\033[38;2;100;100;175m"Great. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
 You leave the man alone...''')
                         change_recruited = True
                         break
@@ -3255,7 +3266,7 @@ You leave the man alone...''')
     elif area_id == 2 and change_encouters != 0:
         if change_recruited == True:
             print('''You approach the weird man again. He speaks again,
-\033[38;2;100;100;175m"Okay, I will repeat. I will assist you in the your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
+\033[38;2;100;100;175m"Okay, I will repeat. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
 You leave the man alone...''')
         else:
             print('''You approach the weird man again. He speaks again,
@@ -3400,6 +3411,8 @@ def true_reset():
     player_spent_life = False
     global player_items
     player_items = []
+    global last_altar
+    last_altar = []
     global debt
     debt = 0
     global shopkeeper_sus
@@ -5908,9 +5921,9 @@ def map_print():
                         print(area_color(event_height, True) + "H", end = "")
                 elif event == 31:
                     if water_level > event_height:
-                        print(water_color() + "⊓", end = "")
+                        print(water_color() + "#", end = "")
                     else:
-                        print(area_color(event_height, True) + "⊓", end = "")
+                        print(area_color(event_height, True) + "#", end = "")
                 elif event == 32:
                     print("\033[33;1m?", end = "")
                     stalker_coords = events_coordinates[events.index(32)]
@@ -5954,6 +5967,29 @@ def min_y():
         if cur_min > i[1]:
             cur_min = i[1]
     return cur_min
+
+def lost_check(boss = False, death = False):
+    global lost
+    global win
+    global score, score_increase
+    global player_extra_life, player_spent_life
+    global player_money, player_xp
+    if lost == 1 and (player_extra_life == False or death):
+        return True
+    elif lost == 1 and player_extra_life:
+        player_spent_life = True
+        player_extra_life = False
+        score -= 2
+        score_increase += 2
+        player_money = 0
+        player_xp = 0
+        lost = 0
+        print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
+        return False
+    else:
+        if boss:
+            boss_upgrade()
+        return False
 
 def map_movement():
     global game_time
@@ -6018,17 +6054,8 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life == False:
+            if lost_check():
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
             #if evolution == True:
                 #evolve()
             level_up()
@@ -6050,19 +6077,8 @@ def map_movement():
             fight(bossfight_choose(), ally_choose())
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
-            if lost == 1 and player_extra_life == False:
+            if lost_check(boss=True):
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
-            else:
-                boss_upgrade()
             if evolution == True:
                 evolve()
             level_up()
@@ -6082,17 +6098,8 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life == False:
+            if lost_check():
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
             #if evolution == True:
                 #evolve()
             level_up()
@@ -6103,17 +6110,8 @@ def map_movement():
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life == False:
+            if lost_check():
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
             #if evolution == True:
                 #evolve()
             level_up()
@@ -6128,9 +6126,7 @@ Type anything to continue''')
                 action = input()
                 score -= 5
                 fight([51])
-                if lost == 1:
-                    player_spent_life = True
-                    player_extra_life = False
+                if lost_check(death=True):
                     break
                 else:
                     score += 5
@@ -6165,17 +6161,8 @@ Type anything to continue''')
             max_power_level = round(max_power_level * 1.0175, 2)
             max_power_level_increase += 1
             #score_increase += 0.9
-            if lost == 1 and player_extra_life == False:
+            if lost_check():
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
             #if evolution == True:
                 #evolve()
             level_up()
@@ -6186,20 +6173,9 @@ Type anything to continue''')
             time_events(2)
         elif event in [21, 22, 23]:
             fight(fight_choose(-0.3))
-            if lost == 1 and player_extra_life == False:
+            if lost_check():
                 break
-            elif lost == 1 and player_extra_life:
-                player_spent_life = True
-                player_extra_life = False
-                score -= 2
-                score_increase += 2
-                player_money = 0
-                player_xp = 0
-                lost = 0
-                print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
-                stats_altar()
-            else:
-                stats_altar()
+            stats_altar()
             if game_mode in ["infinite", "story"]:
                 events[events_coordinates.index(player_coordinates)] = 15
             elif game_mode == "raid":
@@ -6215,7 +6191,9 @@ Type anything to continue''')
             mimic_bank()
         elif event == 32:
             fight([42])
-            event = 0
+            if lost_check():
+                break
+            events[events_coordinates.index(player_coordinates)] = 0
         map_print()
         print('''\nWhere do you want to move?
 W. ↑
