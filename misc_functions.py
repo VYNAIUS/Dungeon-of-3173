@@ -1,7 +1,7 @@
 
 from random import seed, randint, choice, choices
-from extra_functions import chance, save
-from circular_avoidance import max_x, max_y, min_x, min_y
+from extra_functions import chance, meta_save
+from circular_avoidance import max_x, max_y, min_x, min_y, npc_talk
 from coloring import represented_area_color
 from upgrades_functions import level_up, xp_to_lvl_up, boss_upgrade
 from shops import shop_items_define
@@ -48,20 +48,21 @@ def final_statistics(V):
     print("Score: ", V.score, sep = "")
     if V.game_mode == "raid":
         print("Raids survived: ", V.raid_counter, sep = "")
-    print("Seed: ", V.global_seed, sep = "")
     print("Max power level: ", V.max_power_level, sep = "")
-    if V.shopkeeper_deaths + V.shopkeeper_sus + V.alchemist_anger + V.alchemist_defeated + V.death_defeated > 0:
-        print("\nReputation:")
-    if V.shopkeeper_sus > 0:
-        print("Shopkeeper's sus meter: ", V.shopkeeper_sus, sep = "")
-    if V.shopkeeper_deaths > 0:
-        print("Shopkeepers' death count: ", V.shopkeeper_deaths, sep = "")
-    if V.alchemist_anger > 0:
-        print("Alchemist's anger meter: ", V.alchemist_anger, sep = "")
-    if V.alchemist_defeated > 0:
-        print("Alchemist's anger meter: ", V.alchemist_defeated, sep = "")
-    if V.death_defeated == True:
-        print("You have defeated Death")
+    if V.saved == False:
+        print("Seed: ", V.global_seed, sep = "")
+        if V.shopkeeper_deaths + V.shopkeeper_sus + V.alchemist_anger + V.alchemist_defeated + V.death_defeated > 0:
+            print("\nReputation:")
+        if V.shopkeeper_sus > 0:
+            print("Shopkeeper's sus meter: ", V.shopkeeper_sus, sep = "")
+        if V.shopkeeper_deaths > 0:
+            print("Shopkeepers' death count: ", V.shopkeeper_deaths, sep = "")
+        if V.alchemist_anger > 0:
+            print("Alchemist's anger meter: ", V.alchemist_anger, sep = "")
+        if V.alchemist_defeated > 0:
+            print("Alchemist's anger meter: ", V.alchemist_defeated, sep = "")
+        if V.death_defeated == True:
+            print("You have defeated Death")
 
 def inventory_statistics(V):
     print("Stats:")
@@ -651,6 +652,7 @@ def raid_mode_reset(V):
         V.mimic_got_item = False
         V.mimic_given_items = 0
         V.bank_first_time = True
+        V.bank_money += round(V.bank_money * 0.5)
         V.score += int(V.score_increase)
         if V.speedrunner:
             V.speed_timer = round((V.events.count(1) * 2 + V.events.count(2)) * 0.95)
@@ -686,7 +688,7 @@ def raid_mode_reset(V):
             if V.TD_area_unlocks[6] == False and V.raid_counter == 7:
                 V.TD_area_unlocks[6] = True
                 print("You have unlocked " + represented_area_color(V, 6) + "the Rotten Forest!\033[0m")
-        save(V)
+        meta_save(V)
         print('''Type anything to continue...''')
         action = input()
 
@@ -704,7 +706,8 @@ Do you want to escape this place or stay to continue exploring it?
             break
 
 def change_interaction(V):
-    if V.area_id == 2 and V.change_encouters == 0:
+    V.leave = 0
+    if V.area_id == 2 and V.change_encounters == 0:
         print('''You come across a man with otherworldly glow surrounding him.
 He quickly notices you and starts to speak, \033[38;2;100;100;175m"You. You. Another one. Did you come here to destroy me or to see me suffer?"\033[0m
 You attempt to respond but the words aren't coming out of your mouth.
@@ -726,41 +729,96 @@ After a long pause he continues, \033[38;2;100;100;175m"It was their fault... Th
                     action = input()
                     if action == "1" or action.lower() == "yes":
                         print('''The man stands up and continues to speak,
-\033[38;2;100;100;175m"Great. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
-You leave the man alone...''')
+\033[38;2;100;100;175m"Great. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m''')
                         V.change_recruited = True
                         break
                     elif action == "2" or action.lower() == "no":
-                        print('''The man looks surprised, \033[38;2;100;100;175m"You aren't going to help me? Well, don't tell your creator where I am, okay?"\033[0m
-You leave the man alone...''')
+                        print('''The man looks surprised, \033[38;2;100;100;175m"You aren't going to help me? Well, don't tell your creator where I am, okay?"\033[0m''')
                         break
                 break
             elif action == "2" or action.lower() == "leave":
                 print("You turned around and left the mysterious man alone...")
+                V.leave = 1
                 break
-        V.change_encouters += 1
-    elif V.area_id == 2 and V.change_encouters != 0:
+        V.change_encounters += 1
+        while V.leave == 0:
+            print('''After a pause, he asks you,
+\033[38;2;100;100;175m"Do you want to listen to me talk nonsense? Or are you going onwards with your journey?"\033[0m
+1. Talk
+2. Leave''')
+            while True:
+                action = input()
+                if action == "1" or action.lower() == "talk":
+                    npc_talk(V, "change")
+                    break
+                elif action == "2" or action.lower() == "leave":
+                    V.leave = 1
+                    break
+        print('''You leave the man alone...
+Type anything to continue...''')
+        action = input()
+    elif V.area_id == 2 and V.change_encounters != 0:
         if V.change_recruited == True:
             print('''You approach the weird man again. He speaks again,
-\033[38;2;100;100;175m"Okay, I will repeat. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m
-You leave the man alone...''')
+\033[38;2;100;100;175m"Okay, I will repeat. I will assist you in your last battle, and you will assist me. Meet me again in the land of your creation."\033[0m''')
+            while V.leave == 0:
+                print('''After a pause, he asks you,
+\033[38;2;100;100;175m"Do you want to listen to me talk nonsense? Or are you going onwards with your journey?"\033[0m
+1. Talk
+2. Leave''')
+                while True:
+                    action = input()
+                    if action == "1" or action.lower() == "talk":
+                        npc_talk(V, "change")
+                        break
+                    elif action == "2" or action.lower() == "leave":
+                        V.leave = 1
+                        break
+            print('''You leave the man alone...''')
         else:
             print('''You approach the weird man again. He speaks again,
 \033[38;2;100;100;175m"Leave. Me. Alone."\033[0m
 You leave the man alone...''')
-    elif V.area_id == 0 and V.change_encouters == 1:
-        print('''You come across the mysterious man again. He notices and speaks quietly,
+    elif V.area_id == 0 and V.change_encounters == 1:
+        print('''You come across the mysterious man again. He notices you and speaks quietly,
 \033[38;2;100;100;175m"Hello, again. I assume we're still going with the plan, right?"\033[0m
-\033[38;2;100;100;175m"The next formidable foe you're going to face is your sibling. Please, don't consume 'em; we need to stop Cycle's cycle, not continue it."\033[0m
-After a pause he adds, \033[38;2;100;100;175m"Not sure what else to say, that you wouldn't already know."\033[0m
-You leave the man and continue your journey...
-Type anything to continue...''')
+\033[38;2;100;100;175m"The next formidable foe you're going to face is your sibling. Please, don't consume 'em; we need to stop Cycle's Great Cycle, not continue it."\033[0m''')
+        while V.leave == 0:
+            print('''After a pause, he asks you,
+\033[38;2;100;100;175m"Do you want to listen to me talk nonsense? Or are you going onwards with your journey?"\033[0m
+1. Talk
+2. Leave''')
+            while True:
+                action = input()
+                if action == "1" or action.lower() == "talk":
+                    npc_talk(V, "change")
+                    break
+                elif action == "2" or action.lower() == "leave":
+                    V.leave = 1
+                    break
+        print('''You leave the man and continue your journey...''')
+        print('''Type anything to continue...''')
         action = input()
-        V.change_encouters += 1
-    elif V.area_id == 0 and V.change_encouters == 2:
+        V.change_encounters += 1
+    elif V.area_id == 0 and V.change_encounters == 2:
         print('''You come to the mysterious man again. He speaks quietly again,
-\033[38;2;100;100;175m"What? Just go to the boss and I will help you."\033[0m
-You walk away and continue your journey...''')
+\033[38;2;100;100;175m"What? Just go to the boss and I will help you."\033[0m''')
+        while V.leave == 0:
+            print('''After a pause, he asks you,
+\033[38;2;100;100;175m"Do you want to listen to me talk nonsense? Or are you going onwards with your journey?"\033[0m
+1. Talk
+2. Leave''')
+            while True:
+                action = input()
+                if action == "1" or action.lower() == "talk":
+                    npc_talk(V, "change")
+                    break
+                elif action == "2" or action.lower() == "leave":
+                    V.leave = 1
+                    break
+        print('''You walk away and continue your journey...''')
+        print('''Type anything to continue...''')
+        action = input()
     else:
         print('''You aren't supposed to encouter this event tile in this area! Please notify the developer!
 Type anything to continue...''')

@@ -105,11 +105,31 @@ def default_enemies(V):
                        52, 58, 59, 60, 61, 65, 66, 67, 68, 69, 70, 71],
                        [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [1, 65], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
                        [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0], [0], [0], [1, 68], [0], [0], [0, 0, 1, 2, 4, 43, 58], [0], [1, 73], [0, 66, 67]]
-    V.enemy_actions = [enemy_hit, enemy_defend, enemy_magic_hit, enemy_summon, enemy_stall, enemy_heal, enemy_stun, enemy_berserk, enemy_transform_others]
-    V.ally_actions = [ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit]
     V.enemy_unconsumable = [4, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67]
     V.enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
     V.bosses_for_areas = [[5, 58], [9, 71], [14, 59], [19, 60], [24, 61], [28, 72, 73], [32, 62]]
+    V.hunters_appeared = [False, False, False]
+
+def default_enemies_credits(V):
+    V.enemy_areas = [[0]]
+    V.enemy_is_boss = [[False]]
+    V.enemys_power_level = [[1]]
+    V.enemys_name = ["VYNAIUS", "Chat GPT", "Family", "Friends"]
+    V.enemys_name_colors = [[230, 230, 230], [60, 60, 160], [0, 240, 160], [0, 240, 240]]
+    V.enemys_elements = [[], [], [], []]
+    V.enemys_base_hp = [20, 25, 30, 40]
+    V.enemys_base_dmg = [2, 3, 4, 5]
+    V.enemys_base_def = [0, 1, 2, 3]
+    V.enemys_base_crit = [0.01, 0.02, 0.03, 0.04]
+    V.enemys_base_spk = [0, 0, 1, 1]
+    V.enemys_base_psn = [0, 0, 0, 0]
+    V.enemys_base_immortality = [0, 0, 0, 0]
+    V.enemys_descriptions = ["Creator, main coder, story writer of this game", "For helping me with technical stuff that I wouldn't be able to figure out",
+                             "For supporing throughout this journey", "For playtesting and giving me many ideas for this game"]
+    V.enemys_patterns = [[0], [0], [0], [0]]
+    V.enemys_spawners = [[0], [0], [0], [0]]
+    V.enemy_unelite = [0, 1, 2, 3]
+    V.bosses_for_areas = []
     V.hunters_appeared = [False, False, False]
 
 class Enemies:
@@ -837,7 +857,7 @@ def fight(V, enemy_ids = [0], ally_ids = []):
             if len(V.allys) > 0:
                 print("\033[31;0m\nStats of your allies:")
                 for i in range(len(V.allys)):
-                    print(i + 1, ". ", enemy_name_color(V, V.allys[i].en_id) + V.allys[i].name, ": ", V.allys[i].hp, "/", V.allys[i].max_hp, " HP; ", V.allys[i].dmg, " DMG; ", round(V.enemys[i].crit * 100), "% CRT; ", V.allys[i].defense, " DEF", sep = "", end = "")
+                    print(i + 1, ". ", enemy_name_color(V, V.allys[i].en_id) + V.allys[i].name, ": ", V.allys[i].hp, "/", V.allys[i].max_hp, " HP; ", V.allys[i].dmg, " DMG; ", round(V.allys[i].crit * 100), "% CRT; ", V.allys[i].defense, " DEF", sep = "", end = "")
                     if V.allys[i].spk > 0:
                         print("; ", V.allys[i].spk, " SPK", sep = "", end = "")
                     if V.allys[i].psn > 0:
@@ -1129,7 +1149,7 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                 if V.enemys[i].pattern_action >= len(V.enemys[i].pattern):
                     V.enemys[i].pattern_action = 0
             if V.enemys[i].stnd > 0:
-                V.enemy_actions[4]()
+                V.enemy_actions[4](V)
                 V.enemys[i].stnd -= 1
             else:
                 V.enemy_actions[V.enemys[i].pattern[V.enemys[i].pattern_action]](V, i)

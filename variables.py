@@ -4,6 +4,11 @@ class V:
         # META STATS START
         self.TD_area_unlocks = []
         self.TD_max_raids = []
+        self.SM_completed = False
+        self.continue_run = False
+        self.saved = False
+        self.SM_skip = False
+        self.RM_areas_cheat = False
 
         self.game_mode = "story"
         self.difficulty = 55 # suggested 0 - 100
@@ -47,6 +52,7 @@ class V:
 
         self.area = "None"
         self.area_id = 0
+        self.story_mode_area_number = 0
         # META STATS END
 
         # PLAYER STATS START
@@ -103,19 +109,19 @@ class V:
         self.debt = 0
         self.shopkeeper_sus = 0 # in decimals
         self.shopkeeper_deaths = 0
-        self.alchemist_anger = 0
+        self.alchemist_anger = 0 # in decimals
         self.alchemist_defeated = 0
         self.alchemist_visited = False
         self.bought_from_alchemist = False
         self.cur_shopkeeper_dead = False
         self.death_encounters = 0
         self.death_defeated = False
-        self.change_encouters = 0
+        self.change_encounters = 0
         self.change_recruited = False
-        self.brewery_encouters = 0
+        self.brewery_encounters = 0
         self.bank_locked = False
         self.bank_first_time = True
-        self.mimic_bank_encouters = 0
+        self.mimic_bank_encounters = 0
         self.bank_money = 0
         self.locking_tutorial = False
 
@@ -263,49 +269,126 @@ class V:
 
         import os
         import sys
+        def turn_text_into_list(text, deletion_needed = True):
+            if deletion_needed:
+                text = text[1:]
+            the_list = []
+            value = ''''''
+            string_type = ""
+            is_string = False
+            is_list = 0
+            for char in text:
+                if is_list == 0:
+                    if char == "'":
+                        if is_string == False:
+                            is_string = True
+                            string_type = "'"
+                            continue
+                        else:
+                            if string_type == "'":
+                                is_string = False
+                                string_type = ""
+                                continue
+                    elif char == '"':
+                        if is_string == False:
+                            is_string = True
+                            string_type = '"'
+                            continue
+                        else:
+                            if string_type == '"':
+                                is_string = False
+                                string_type = ""
+                                continue
+                    elif char == " ":
+                        if is_string == False:
+                            continue
+                    elif char == "[":
+                        if is_string == False:
+                            is_list += 1
+                            continue
+                    elif char in [",", "]"]:
+                        if is_string == False:
+                            if isinstance(value, list):
+                                pass
+                            elif value.replace("-", "").isdigit():
+                                value = int(value)
+                            elif value.replace("-", "").replace(".", "").isdigit():
+                                value = float(value)
+                            elif value == "False":
+                                value = False
+                            elif value == "True":
+                                value = True
+                            if value != "":
+                                the_list.append(value)
+                            value = ''''''
+                            string_type = ""
+                            is_string = False
+                            is_list = 0
+                            continue
+                    value = value + char
+                elif char == "[":
+                    is_list += 1
+                    value = value + char
+                elif char == "]":
+                    is_list -= 1
+                    value = value + char
+                    if is_list == 0:
+                        value = turn_text_into_list(value, False)
+                else:
+                    value = value + char
+            return the_list
+
+        def turn_text_into_stuff(text):
+            if "[" in text:
+                value = turn_text_into_list(text)
+            elif text.replace("-", "").isdigit():
+                value = int(text)
+            elif text.replace(".", "").replace("-", "").isdigit():
+                value = float(text)
+            elif text == "False":
+                value = False
+            elif text == "True":
+                value = True
+            else:
+                value = text
+            return value
+
         # Gets the current user's LocalLow directory
         save_directory_path = os.path.join(os.getenv('USERPROFILE'), 'AppData', 'Local', 'DungeonOf3173')
         # This path is user-specific and will automatically adapt to whoever is running the script
         #THANKS CHAT GPT!!!!!11
         os.makedirs(save_directory_path, exist_ok=True)
-        self.file_path = os.path.join(save_directory_path, 'save.txt')
-        if os.path.exists(self.file_path):
-            with open(self.file_path, 'r') as file:
-                content = file.read()
+        self.meta_save_file_path = os.path.join(save_directory_path, 'save.txt')
+        self.run_save_file_path = os.path.join(save_directory_path, 'run_save.txt')
+        if os.path.exists(self.meta_save_file_path):
+            pass
         else:
-            with open(self.file_path, 'w') as file:
-                file.write('''TD_unlocks=[1100000]
-        TD_high_scores=[0000000]''')
+            with open(self.meta_save_file_path, 'w') as file:
+                file.write('''SM_completed: False
+TD_unlocks: [True, True, False, False, False, False, False]
+TD_high_scores: [0, 0, 0, 0, 0, 0, 0]
+SM_skip: False
+RM_areas_cheat: False''')
             print("New save file has been created!")
-        with open(self.file_path, 'r') as file:
-            content = file.read()
-
-        starting_symbol = 0
-        for starting_symbol in range(len(content)):
-            for symbol in range(len(content)):
-                key_word = content[starting_symbol:symbol]
-                if key_word == "TD_unlocks":
-                    print("Scanning Raid Mode areas unlocks")
-                    area_counter = 0
-                    for i in range(symbol, len(content)):
-                        if content[i] == "]" or area_counter == 7:
-                            break
-                        elif content[i] == "1":
-                            self.TD_area_unlocks.append(True)
-                            area_counter += 1
-                        elif content[i] == "0":
-                            self.TD_area_unlocks.append(False)
-                            area_counter += 1
-                if key_word == "TD_high_scores":
-                    print("Scanning Raid Mode high scores")
-                    area_counter = 0
-                    for i in range(symbol, len(content)):
-                        if content[i] == "]" or area_counter == 7:
-                            break
-                        elif content[i].isdigit():
-                            self.TD_max_raids.append(int(content[i]))
-                            area_counter += 1
-        #print(TD_area_unlocks)
+        data = {}
+        with open(self.meta_save_file_path, 'r') as file:
+            for line in file:
+                try:
+                    key, value = line.strip().split(': ', 1)
+                    data[key] = value
+                except:
+                    break
+        for key, value in data.items():
+            value = turn_text_into_stuff(value)
+            setattr(self, key, value)
+        for var in self.TD_area_unlocks:
+            if not var in [True, False]:
+                self.TD_area_unlocks = []
+                break
+        for var in self.TD_max_raids:
+            if not var in [True, False]:
+                self.TD_max_raids = []
+                break
         fancy_percentage_save_file_thing = 0
         while len(self.TD_area_unlocks) < 7:
             fancy_percentage_save_file_thing += 1
@@ -319,6 +402,21 @@ class V:
             self.TD_max_raids.append(0)
             print("Restoring a corrupt save file - ", round(fancy_percentage_save_file_thing / 14 * 100), "%", sep = "")
         print("\n\n\n")
+
+        if os.path.exists(self.run_save_file_path):
+            print("A saved run has been detected!")
+            data = {}
+            with open(self.run_save_file_path, 'r') as file:
+                for line in file:
+                    key, value = line.strip().split(': ', 1)
+                    data[key] = value
+            for key, value in data.items():
+                value = turn_text_into_stuff(value)
+                setattr(self, key, value)
+            self.continue_run = True
+
+        self.saved = False
+
         import subprocess
         def enable_ansi_escape_codes():
             try:
@@ -334,3 +432,16 @@ class V:
         if __name__ == "__main__":
             enable_ansi_escape_codes()
         sys.set_int_max_str_digits(6969)
+
+    def save_run(self):
+        with open(self.run_save_file_path, 'w') as file:
+            for key, value in self.__dict__.items():
+                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_actions", "ally_actions"]:
+                    continue
+                file.write(f"{key}: {value}\n")
+        self.saved = True
+
+    def delete_run(self):
+        import os
+        if os.path.exists(self.run_save_file_path):
+            os.remove(self.run_save_file_path)

@@ -49,12 +49,12 @@ def true_reset(V):
     V.shopkeeper_sus = 0
     V.shopkeeper_deaths = 0
     V.cur_shopkeeper_dead = False
-    V.mimic_bank_encouters = 0
+    V.mimic_bank_encounters = 0
     V.bank_money = 4
     V.alchemist_anger = 0
     V.alchemist_visited = False
     V.bought_from_alchemist = False
-    V.brewery_encouters = 0
+    V.brewery_encounters = 0
     V.stalker_stealth = 100
     V.vitality_anger = 0
     V.strength_anger = 0
@@ -67,7 +67,7 @@ def true_reset(V):
     V.player_oxygen = 3
     V.player_boat = False
     V.death_defeated = False
-    V.change_encouters = 0
+    V.change_encounters = 0
     V.change_recruited = False
     V.final_area = False
     default_enemies(V)

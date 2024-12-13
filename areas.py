@@ -2557,7 +2557,7 @@ A. ←
 D. →
 S. ↓
 Y. O
-I. - inventory
+I. - Inventory
 H. - Map Help''')
         while True:
             action = input()
@@ -2600,10 +2600,12 @@ H. - Map Help''')
             if action.lower() == "h" or "map" in action.lower() or "help" in action.lower():
                 if V.player_boat == False:
                     print('''Yellow \033[33;1mP\033[0m is you. You can move freely on circles.
-Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...''')
+Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
+Type in "save" to save the run''')
                 else:
                     print('''Yellow \033[33;1mb\033[0m is you. You can move freely on circles and tildas.
-Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...''')
+Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
+Type in "save" to save the run''')
             if "restart" in action.lower():
                 print('''Are you sure you want to restart? You will not be able to continue this run.
 Type in the action
@@ -2613,5 +2615,20 @@ Type in the action
                 if action == "2" or action.lower() == "yes":
                     V.lost = 1
                     break
+            if action.lower() == "save":
+                if V.meta_game_mode != "daily":
+                    print('''Are you sure you want to save this run and continue later? The game will be closed.
+Type in the action
+1. No
+2. Yes''')
+                    action = input()
+                    if action == "2" or action.lower() == "yes":
+                        V.save_run()
+                        V.lost = 1
+                        break
+                else:
+                    print('''You cannot save in daily run...
+Type anything to continue...''')
+                    action = input()
         if V.lost == 1:
             break

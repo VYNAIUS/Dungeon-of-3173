@@ -4,6 +4,7 @@ from extra_functions import chance
 from reset_functions import reset_player
 from enemies_and_fighting import fight
 from upgrades_functions import shop_grant
+from circular_avoidance import npc_talk
 
 def shop_items_define(V):
     seed(V.shop_seed)
@@ -31,10 +32,6 @@ def shop_items_define(V):
     V.leave = 0
     if V.bought_from_alchemist == False and V.alchemist_visited:
         V.alchemist_anger += 0.4
-    else:
-        V.alchemist_anger -= 0.5
-        if V.alchemist_anger < 0:
-            V.alchemist_anger = 0
     V.alchemist_visited = False
     V.bought_from_alchemist = False
 
@@ -50,7 +47,7 @@ def peaceful_shop(V):
 \033[38;2;100;220;100m"Hello. My cousins Mach and Lach left some items for me to sell. They were damaged by someone. I mean the items."\033[0m''')
     elif V.shopkeeper_deaths == 3:
         print('''You came across a shop. \033[38;2;100;220;100mThe shopkeeper\033[0m welcomes you,
-\033[38;2;100;220;100m"Hello, there. Here are some items that, I found myself. Zach hasn't gift me anything! Err... I meant to say... Do you want anything?"\033[0m''')
+\033[38;2;100;220;100m"Hello, there. Here are some items that, I found myself. Zach hasn't gifted me anything! Err... I meant to say... Do you want anything?"\033[0m''')
     else:
         print('''You came across a shop. Another \033[38;2;100;220;100mshopkeeper\033[0m welcomed you,
 \033[38;2;100;220;100m"Ah. Hello. Welcome to my shop. There have been quite a few changes over the last few days. As if someone started genocide. Genocide of Shopkeepers"\033[0m''')
@@ -66,7 +63,8 @@ def peaceful_shop(V):
             print(counter, ". ", V.weapon_names[V.shop_weapon], " - \033[38;2;200;200;0m", cost(V, V.shop_weapon, 1), " coins\033[0m", sep="")
         counter += 1
         print(counter, ". Inspect", sep = "")
-        print(counter + 1, ". Leave", sep = "")
+        print(counter + 1, ". Talk", sep = "")
+        print(counter + 2, ". Leave", sep = "")
         while True:
             print("Which one do you want to buy?")
             action = input()
@@ -81,7 +79,10 @@ def peaceful_shop(V):
                 elif (action - 2 == len(V.current_shop_items) and V.is_weapon_bought == 0) or (action - 1 == len(V.current_shop_items) and V.is_weapon_bought == 1):
                     item_info(V, V.shop_weapon, "shop")
                     break
-                elif (action - 3 >= len(V.current_shop_items) and V.is_weapon_bought == 0) or (V.is_weapon_bought == 1 and action - 2 >= len(V.current_shop_items)):
+                elif (action - 3 == len(V.current_shop_items) and V.is_weapon_bought == 0) or (action - 2 == len(V.current_shop_items) and V.is_weapon_bought == 1):
+                    npc_talk(V, "shopkeeper")
+                    break
+                elif (action - 4 >= len(V.current_shop_items) and V.is_weapon_bought == 0) or (V.is_weapon_bought == 1 and action - 3 >= len(V.current_shop_items)):
                     V.leave = 1
                     break
             else:
@@ -178,6 +179,9 @@ What will you do?
         item_id = V.current_alchemist_items[item]
         if V.player_money >= cost(V, item_id):
             V.bought_from_alchemist = True
+            V.alchemist_anger -= 0.25
+            if V.alchemist_anger < 0:
+                V.alchemist_anger = 0
             V.player_money -= cost(V, item_id)
             shop_grant(V, item_id)
             V.item_bought[item_id] += 1
@@ -269,7 +273,7 @@ You continued on your journey...\n\n\n''')
 def alchemist_shop(V):
     if not chance(V.alchemist_anger - 1):
         V.alchemist_visited = True
-        if V.brewery_encouters == 0:
+        if V.brewery_encounters == 0:
             print('''You came across a brewery. Inside, you were greeted by \033[38;2;200;0;150mthe alchemist\033[0m,
 \033[38;2;200;0;150m"'ello, 'ello! Finally one arrifes to buy my kreat potions."\033[0m
 He presents you the goods.''')
@@ -300,16 +304,16 @@ He presents you the goods.''')
 \033[38;2;200;0;150m"Buy zomethink."\033[0m''')
                 else:
                     print('''You came across a brewery. \033[38;2;200;0;150mThe alchemist\033[0m greets you,
-\033[38;2;200;0;150m"I have impenetrabalality potion. Which iz why I keep living. Idiot."\033[0m''')
+\033[38;2;200;0;150m"I have impenetrabalelity potion. Which iz why I keep living. Idiot."\033[0m''')
             else:
                 if V.alchemist_defeated < 1:
                     print('''You came across a brewery. \033[38;2;200;0;150mThe alchemist\033[0m greets you,
 \033[38;2;200;0;150m"I giff you last chanze. BUY ZOMETHINK"\033[0m''')
                 else:
                     print('''You came across a brewery. \033[38;2;200;0;150mThe alchemist\033[0m greets you,
-\033[38;2;200;0;150m"I have impenetrabalality potion. Which iz why I keep living. NOW BUY ZOMETHINK"\033[0m''')
+\033[38;2;200;0;150m"I have impenetrabalelality potion. Which iz why I keep living. NOW BUY ZOMETHINK"\033[0m''')
         V.leave = 0
-        V.brewery_encouters += 1
+        V.brewery_encounters += 1
         while True:
             counter = 0
             print("Your balance is\033[38;2;200;200;0m", V.player_money, "coins\033[0m")
@@ -318,7 +322,8 @@ He presents you the goods.''')
                 print(counter, ". ", V.item_names[i], " - \033[38;2;200;200;0m", cost(V, i), " coins\033[0m", sep = "")
             counter += 1
             print(counter, ". Inspect", sep = "")
-            print(counter + 1, ". Leave", sep = "")
+            print(counter + 1, ". Talk", sep = "")
+            print(counter + 2, ". Leave", sep = "")
             while True:
                 print("Which one do you want to buy?")
                 action = input()
@@ -330,7 +335,10 @@ He presents you the goods.''')
                     elif action - 1 == len(V.current_alchemist_items):
                         item_info(V, V.shop_weapon, "alchemist")
                         break
-                    elif action - 2 >= len(V.current_alchemist_items):
+                    elif action - 2 == len(V.current_alchemist_items):
+                        npc_talk(V, "alchemist")
+                        break
+                    elif action - 3 >= len(V.current_alchemist_items):
                         V.leave = 1
                         break
                 else:
@@ -436,7 +444,7 @@ It continues, \033[38;2;200;240;0m"Can you meet me later? I don't feel like vomi
                 item = choice(rare_items)
             print('\033[38;2;200;240;0m"How about ', V.item_names[item], '?"\033[0m', sep ="")
             print("Your balance is", V.player_money, "coins")
-            print("1. Take it\n2. Pay", change_cost, "coins to reroll\n3. Inspect")
+            print("1. Take it\n2. Pay", change_cost, "coins to reroll\n3. Inspect\n4. Talk")
             while True:
                 print("Type in the action")
                 action = input()
@@ -454,6 +462,8 @@ It continues, \033[38;2;200;240;0m"Can you meet me later? I don't feel like vomi
                         print('''\033[38;2;200;240;0m"Ay, ay, ay! Don't you scam me like that. I can clearly tell that you don't have enough. Just take the item."\033[0m''')
                 elif action == "3":
                     print('\033[38;2;200;240;0m"', V.item_descriptions_mimic[item], '"\033[0m', sep = "")
+                elif action == "4":
+                    npc_talk(V, "mimic_gamble")
         if V.mimic_given_items <= 5:
             change_cost = round(10 * (V.mimic_given_items / 1.8 + 1))
             for i in range(V.score):
@@ -487,26 +497,26 @@ def mimic_bank(V):
     if V.bank_first_time:
         V.bank_locked = False
     epic_money = 0
-    if V.mimic_bank_encouters == 0 and V.bank_locked == False:
-        V.mimic_bank_encouters += 1
+    if V.mimic_bank_encounters == 0 and V.bank_locked == False:
+        V.mimic_bank_encounters += 1
         print('''You see a locked steel chest with extremely sharp edges. You see a key lying right next to it.
 You unlock the chest and reach to open it, but it springs back as if it is alive. It starts talking,
 \033[38;2;150;150;150m"Ah, my friend! Thank you for setting me free from this prison. I will never be able to repay you!"\033[0m
 After an awkwardly long pause, it continues,
 \033[38;2;150;150;150m"I think I can actually. If you invest a little of your earnings, I can get you even more!"\033[0m''')
-    elif V.mimic_bank_encouters <= 0 and V.bank_locked:
-        V.mimic_bank_encouters += 1
+    elif V.mimic_bank_encounters <= 0 and V.bank_locked:
+        V.mimic_bank_encounters += 1
         print("How did you manage to trigger these conditions?")
-    elif V.mimic_bank_encouters > 0 and V.bank_first_time:
-        V.mimic_bank_encouters += 1
+    elif V.mimic_bank_encounters > 0 and V.bank_first_time:
+        V.mimic_bank_encounters += 1
         print('''You come across the familiar steel chest. You see the key lying right next to it.
 You unlock the chest and let it speak.''')
-    elif V.mimic_bank_encouters > 0 and V.bank_locked == False:
-        V.mimic_bank_encouters += 1
+    elif V.mimic_bank_encounters > 0 and V.bank_locked == False:
+        V.mimic_bank_encounters += 1
         print('''You come across the familiar steel chest. It springs to life.''')
     V.bank_first_time = False
     if V.bank_locked == False:
-        if V.mimic_bank_encouters > 1:
+        if V.mimic_bank_encounters > 1:
             dialogue = randint(1, 4)
             if dialogue == 1:
                 print('''\033[38;2;150;150;150m"My friend! Hello again! I am glad to see you again! Let's cut to business?"\033[0m''')
@@ -514,16 +524,15 @@ You unlock the chest and let it speak.''')
                 print('''\033[38;2;150;150;150m"Hello! I am glad to see you again! Have I mentioned that before? Anyway, my services..."\033[0m''')
             elif dialogue == 3:
                 print('''\033[38;2;150;150;150m"Hello, my friend! The fresh air that you bring with your arrival is amazing! Let's do business?"\033[0m''')
-            elif dialogue == 4 and V.stalker_stealth < 100:
-                print('''\033[38;2;150;150;150m"My friend! It is you, right? I keep seeing a person that looks like you. As if it stalks you. Anyway, business?"\033[0m''')
-            else:
+            elif dialogue == 4:
                 print('''\033[38;2;150;150;150m"My dear friend! Are you hurt? Are you hurt financially? I can help you with that, I think!"\033[0m''')
         while True:
             print('''\033[38;2;150;150;150m"I have''', V.bank_money, '''coins inside me. Do you want to deposit or take some?"\033[0m''')
             print("Your balance is", V.player_money, "coins")
             print('''1. Deposit
 2. Take
-3. Leave''')
+3. Talk
+4. Leave''')
             action = input()
             if action == "1" or action.lower() == "deposit":
                 if V.player_money > 0:
@@ -531,7 +540,7 @@ You unlock the chest and let it speak.''')
                     action = input()
                     if action.isdigit():
                         if int(action) == 0:
-                            print("Stop wasting this guy's time!")
+                            print("Stop wasting this poor mimic's time!")
                             continue
                         epic_money = int(action)
                         if epic_money > V.player_money:
@@ -547,7 +556,9 @@ You unlock the chest and let it speak.''')
                     V.bank_money = 0
                 else:
                     print("There is no money to take!")
-            elif action == "3" or action.lower() == "leave":
+            elif action == "3" or action.lower() == "talk":
+                npc_talk(V, "mimic_bank")
+            elif action == "4" or action.lower() == "leave":
                 break
     else:
         print("You come across a locked steel chest. Its excitement is barely contained by the lock on it.")
@@ -602,7 +613,8 @@ She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''co
         while True:
             print('''Your balance is''', V.player_money, '''coins.
 1. Pay''', price, '''coins
-2. Continue your journey''')
+2. Talk
+3. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
                 if V.player_boat == True:
@@ -617,7 +629,9 @@ She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''co
                     print('''You offer less than she asked. The creature looks at you,
 \033[38;2;100;100;100m"I can tell that you are trying trick me."\033[0m
 You take your money back.''')
-            elif action == "2" or action.lower() == "leave":
+            elif action == "2" or action.lower() == "talk":
+                npc_talk(V, "death")
+            elif action == "3" or action.lower() == "leave":
                 print('''The creature speaks again,
 \033[38;2;100;100;100m"Good bye. We will meet again."\033[0m You continue your journey...''')
                 break
@@ -632,7 +646,8 @@ She continues, \033[38;2;100;100;100m"However, I do not need your coins. Instead
 1. Pay''', price, '''coins for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
-4. Continue your journey''')
+4. Talk
+5. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
                 if V.player_boat == True:
@@ -660,7 +675,9 @@ Your base damage is now''', V.player_base_dmg, '''DMG!''')
 \033[38;2;100;100;100m"No. You are going to be far too weak."\033[0m''')
             elif action == "3" or "self" in action.lower() or "inspect" in action.lower():
                 print("\033[38;2;255;0;0mStrength -", V.player_base_dmg, "DMG\033[0m")
-            elif action == "4" or action.lower() == "leave":
+            elif action == "4" or action.lower() == "talk":
+                npc_talk(V, "death")
+            elif action == "5" or action.lower() == "leave":
                 print('''The creature speaks again,
 \033[38;2;100;100;100m"Good bye. We will meet again."\033[0m You continue your journey...''')
                 break
@@ -689,11 +706,12 @@ She quickly changes the topic, \033[38;2;100;100;100m"You probably need a boat h
             print('''You come across the masked creature again. She speaks,
 \033[38;2;100;100;100m"Do you need a boat here? Or help with spirits?"\033[0m''')
         while True:
-            print('''Your balance is''', V.player_money, '''
+            print('''Your balance is''', V.player_money, '''coins.
 1. Pay''', price, '''coins for a boat
 2. Sacrifice 10% of your strength
 3. Self Inspect
-4. Continue your journey''')
+4. Talk
+5. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
                 if V.player_boat == True:
@@ -721,7 +739,9 @@ Your base damage is now''', V.player_base_dmg, '''DMG!''')
 \033[38;2;100;100;100m"No. You are going to be far too weak."\033[0m''')
             elif action == "3" or "self" in action.lower() or "inspect" in action.lower():
                 print("\033[38;2;255;0;0mStrength -", V.player_base_dmg, "DMG\033[0m")
-            elif action == "4" or action.lower() == "leave":
+            elif action == "4" or action.lower() == "talk":
+                npc_talk(V, "death")
+            elif action == "5" or action.lower() == "leave":
                 print('''The creature speaks again,
 \033[38;2;100;100;100m"Good bye. We will meet again."\033[0m You continue your journey...''')
                 break

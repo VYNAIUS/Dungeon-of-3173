@@ -7,19 +7,10 @@ def chance(num = 0):
     else:
         return False
 
-def save(V):
-    text = "TD_unlocks=["
-    for i in V.TD_area_unlocks:
-        if i:
-            text = text + "1"
-        else:
-            text = text + "0"
-    text = text + "]"
-    text = text + '''
-TD_high_scores=['''
-    for i in V.TD_max_raids:
-        text = text + str(i)
-    text = text + "]"
-    with open(V.file_path, 'w') as file:
-        file.write(text)
+def meta_save(V):
+    with open(V.meta_save_file_path, 'w') as file:
+            for key, value in V.__dict__.items():
+                if not key in ["SM_completed", "TD_area_unlocks", "TD_max_raids"]:
+                    continue
+                file.write(f"{key}: {value}\n")
     print("The game was saved.")
