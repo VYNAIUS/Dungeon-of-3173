@@ -1,7 +1,7 @@
 
 from random import seed, randint, choice, choices
 from extra_functions import chance, meta_save
-from circular_avoidance import max_x, max_y, min_x, min_y, npc_talk
+from circular_avoidance import max_x, max_y, min_x, min_y, map_tile_move, npc_talk
 from coloring import represented_area_color
 from upgrades_functions import level_up, xp_to_lvl_up, boss_upgrade
 from shops import shop_items_define
@@ -130,12 +130,8 @@ def lost_check(V, boss = False, death = False):
 
 def time_events(V, num = 0):
     V.game_time += num
-    if V.speedrunner:
-        V.speed_timer -= num
-        if V.speed_timer <= 0:
-            V.difficulty += 3 * num
     for k in range(num):
-        if (V.eclipse or V.game_time > 12) and V.forest_enemy_spawn < 3 and V.area_id == 1:
+        if V.game_time > 12 and V.forest_enemy_spawn < 3 and V.area_id == 1:
             node = randint(0, len(V.events) - 1)
             if (V.events[node] == 0 or V.events[node] == 6) and V.events_coordinates[node] != V.player_coordinates:
                 V.events[node] = 1
@@ -143,86 +139,92 @@ def time_events(V, num = 0):
         else:
             break
 
-    raid_mode_reset(V)
-
-    if 15 in V.events or 19 in V.events or 22 in V.events or 27 in V.events or 28 in V.events:
+    V.no_update_coordinates = []
+    if 15 in V.events or 17 in V.events or 18 in V.events or 27 in V.events or 28 in V.events:
         for node_coordinates in V.events_coordinates:
-            if V.events[V.events_coordinates.index(node_coordinates)] in [15, 19, 22, 27, 28]:
+            if V.events[V.events_coordinates.index(node_coordinates)] in [15, 17, 18, 27, 28] and not node_coordinates in V.no_update_coordinates:
                 new_coordinates = [node_coordinates[0], node_coordinates[1] - 1, node_coordinates[2]]
                 if new_coordinates in V.events_coordinates:
                     if V.events[V.events_coordinates.index(new_coordinates)] in [0, 6]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.events[V.events_coordinates.index(new_coordinates)] = 15
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [1, 7, 8, 9]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [2]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 21
+                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [25]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 27
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [26]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 28
+                        V.no_update_coordinates.append(new_coordinates)
                 new_coordinates = [node_coordinates[0] + 1, node_coordinates[1], node_coordinates[2]]
                 if new_coordinates in V.events_coordinates:
                     if V.events[V.events_coordinates.index(new_coordinates)] in [0, 6]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.events[V.events_coordinates.index(new_coordinates)] = 15
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [1, 7, 8, 9]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [2]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 21
+                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [25]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 27
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [26]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 28
+                        V.no_update_coordinates.append(new_coordinates)
                 new_coordinates = [node_coordinates[0], node_coordinates[1] + 1, node_coordinates[2]]
                 if new_coordinates in V.events_coordinates:
                     if V.events[V.events_coordinates.index(new_coordinates)] in [0, 6]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.events[V.events_coordinates.index(new_coordinates)] = 15
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [1, 7, 8, 9]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [2]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 21
+                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [25]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 27
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [26]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 28
+                        V.no_update_coordinates.append(new_coordinates)
                 new_coordinates = [node_coordinates[0] - 1, node_coordinates[1], node_coordinates[2]]
                 if new_coordinates in V.events_coordinates:
                     if V.events[V.events_coordinates.index(new_coordinates)] in [0, 6]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.events[V.events_coordinates.index(new_coordinates)] = 15
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [1, 7, 8, 9]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.events[V.events_coordinates.index(new_coordinates)] = 17
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [2]:
-                        V.events[V.events_coordinates.index(new_coordinates)] = 21
+                        V.events[V.events_coordinates.index(new_coordinates)] = 18
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [25]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 27
+                        V.no_update_coordinates.append(new_coordinates)
                     elif V.events[V.events_coordinates.index(new_coordinates)] in [26]:
                         V.events[V.events_coordinates.index(new_coordinates)] = 28
+                        V.no_update_coordinates.append(new_coordinates)
 
-                if V.events[V.events_coordinates.index(node_coordinates)] == 15:
-                    V.events[V.events_coordinates.index(node_coordinates)] = 16
-                elif V.events[V.events_coordinates.index(node_coordinates)] == 19:
-                    V.events[V.events_coordinates.index(node_coordinates)] = 20
-                elif V.events[V.events_coordinates.index(node_coordinates)] == 21:
-                    V.events[V.events_coordinates.index(node_coordinates)] = 22
-    if 17 in V.events or 18 in V.events:
-        for i in range(len(V.events)):
-            if V.events[i] == 17:
-                V.events[i] = 15
-            elif V.events[i] == 18:
-                V.events[i] = 19
-            elif V.events[i] == 21:
-                V.events[i] = 22
+    V.no_update_coordinates = []
 
     if V.game_time > 23:
         seed(V.weather_seed)
         V.game_time -= 24
-        if V.vision_range != -1 and chance(0.4) and not 32 in V.events:
+        if V.vision_range != -1 and chance(0.4) and not 20 in V.events:
             V.stalker_stealth = 100
             epic_nodes = list(range(len(V.events)))
             while len(epic_nodes) > 10:
                 stalker_node = choice(epic_nodes)
                 stalker_coords = V.events_coordinates[stalker_node]
-                if V.events[stalker_node] in [0, 6, 15, 16] and (stalker_coords[2] != V.player_coordinates[2] or ((stalker_coords[0] - V.player_coordinates[0]) ** 2 + (stalker_coords[0] - V.player_coordinates[0]) ** 2) ** 0.5 > V.vision_range):
-                    V.events[stalker_node] = 32
+                if V.events[stalker_node] in [0, 6, 15] and (stalker_coords[2] != V.player_coordinates[2] or ((stalker_coords[0] - V.player_coordinates[0]) ** 2 + (stalker_coords[0] - V.player_coordinates[0]) ** 2) ** 0.5 > V.vision_range):
+                    V.events[stalker_node] = 20
                     break
                 epic_nodes.remove(stalker_node)
         V.bank_money += round(V.bank_money * 0.5)
@@ -236,6 +238,8 @@ def time_events(V, num = 0):
                 shop_coord_y = 0
             if 4 in V.events:
                 boss_coord_y = V.events_coordinates[V.events.index(4)][1]
+            elif 16 in V.events:
+                boss_coord_y = V.events_coordinates[V.events.index(16)][1]
             else:
                 boss_coord_y = 0
             if 5 in V.events:
@@ -250,13 +254,13 @@ def time_events(V, num = 0):
                 alchemist_coord_y = V.events_coordinates[V.events.index(24)][1]
             else:
                 alchemist_coord_y = 0
-            if 31 in V.events:
-                steel_mimic_coord_y = V.events_coordinates[V.events.index(31)][1]
+            if 19 in V.events:
+                steel_mimic_coord_y = V.events_coordinates[V.events.index(19)][1]
             else:
                 steel_mimic_coord_y = 0
             event_deletions = []
             if not max_y(V) == V.player_coord_y:
-                if not max_y(V) in [mimic_coord_y, shop_coord_y, death_coord_y, boss_coord_y, alchemist_coord_y, steel_mimic_coord_y] or V.game_mode == "raid":
+                if max_y(V) != boss_coord_y and (not max_y(V) in [mimic_coord_y, shop_coord_y, death_coord_y, alchemist_coord_y, steel_mimic_coord_y] or V.game_mode == "raid"):
                     for i in range(len(V.events_coordinates)):
                         if V.events_coordinates[i][1] == max_y(V):
                             event_deletions.append(i)
@@ -420,42 +424,24 @@ def time_events(V, num = 0):
                 for k in range(num * 4):
                     for i in range(len(V.events)):
                         if V.events[i] == 1:
-                            directions = ["u", "r", "d", "l"]
                             coordinates = V.events_coordinates[i]
-                            while len(directions) > 0:
-                                direction = choice(directions)
-                                if direction == "u":
-                                    directions.remove("u")
-                                    new_coordinates = [coordinates[0], coordinates[1] - 1]
-                                    if new_coordinates in V.events_coordinates:
-                                        if V.events[V.events_coordinates.index(new_coordinates)] == 0 or V.events[V.events_coordinates.index(new_coordinates)] == 6:
-                                            V.events[V.events_coordinates.index(new_coordinates)] = 1
-                                            V.events[i] = 0
-                                            break
-                                elif direction == "r":
-                                    directions.remove("r")
-                                    new_coordinates = [coordinates[0] + 1, coordinates[1]]
-                                    if new_coordinates in V.events_coordinates:
-                                        if V.events[V.events_coordinates.index(new_coordinates)] == 0 or V.events[V.events_coordinates.index(new_coordinates)] == 6:
-                                            V.events[V.events_coordinates.index(new_coordinates)] = 1
-                                            V.events[i] = 0
-                                            break
-                                elif direction == "l":
-                                    directions.remove("l")
-                                    new_coordinates = [coordinates[0] - 1, coordinates[1]]
-                                    if new_coordinates in V.events_coordinates:
-                                        if V.events[V.events_coordinates.index(new_coordinates)] == 0 or V.events[V.events_coordinates.index(new_coordinates)] == 6:
-                                            V.events[V.events_coordinates.index(new_coordinates)] = 1
-                                            V.events[i] = 0
-                                            break
-                                elif direction == "d":
-                                    directions.remove("d")
-                                    new_coordinates = [coordinates[0], coordinates[1] + 1]
-                                    if new_coordinates in V.events_coordinates:
-                                        if V.events[V.events_coordinates.index(new_coordinates)] == 0 or V.events[V.events_coordinates.index(new_coordinates)] == 6:
-                                            V.events[V.events_coordinates.index(new_coordinates)] = 1
-                                            V.events[i] = 0
-                                            break
+                            if not coordinates in V.no_update_coordinates:
+                                directions = ["u", "r", "d", "l"]
+                                while len(directions) > 0:
+                                    direction = choice(directions)
+                                    if direction == "u":
+                                        directions.remove("u")
+                                        map_tile_move(V, coordinates, "u", 1)
+                                    if direction == "l":
+                                        directions.remove("l")
+                                        map_tile_move(V, coordinates, "l", 1)
+                                    if direction == "d":
+                                        directions.remove("d")
+                                        map_tile_move(V, coordinates, "d", 1)
+                                    if direction == "r":
+                                        directions.remove("r")
+                                        map_tile_move(V, coordinates, "r", 1)
+                V.no_update_coordinates = []
                 V.current_weather_duration[r] -= num
         elif V.current_weather[r] == 6:
             if V.current_weather_duration[r] <= 0:
@@ -521,189 +507,241 @@ def time_events(V, num = 0):
 
 
 def raid_mode_reset(V):
-    if not (1 in V.events or 4 in V.events or 7 in V.events or 8 in V.events or 19 in V.events or 20 in V.events) and V.game_mode == "raid":
-        print("The raid is over. Another one begins!")
-        seed(V.map_seed)
-        V.map_seed = randint(0, 10000)
-        V.raid_counter += 1
-        for i in range(len(V.events)):
-            if V.events[i] in [15, 16, 17]:
-                V.events[i] = 0
-            if V.events[i] in [25, 27]:
-                V.events[i] = 1
-            if V.events[i] in [3, 5, 11, 14, 24, 26, 28]:
-                V.events[i] = 2
-        min_remnant, max_remnant, avg_remnant = V.remnants_spawns[V.area_id][0], V.remnants_spawns[V.area_id][1], V.remnants_spawns[V.area_id][2]
-        remnant_events, remnant_weights = [], []
-        for i in range(min_remnant, max_remnant + 1):
-            if i == avg_remnant:
-                remnant_weights.append(3)
-            elif i == min_remnant or i == max_remnant:
-                remnant_weights.append(1)
-            else:
-                if i < avg_remnant:
-                    addition, amount = 2 / (avg_remnant - min_remnant), i - min_remnant
-                    remnant_weights.append(1 + (addition * amount))
-                else:
-                    addition, amount = 2 / (max_remnant - avg_remnant), max_remnant - i
-                    remnant_weights.append(1 + (addition * amount))
-            remnant_events.append(i)
-        remnant_events_amount = choices(remnant_events, remnant_weights)[0]
-        if remnant_events_amount > V.events.count(2):
-            remnant_events_amount = V.events.count(2)
-        while remnant_events_amount > V.events.count(14):
-            event = choice(range(len(V.events)))
-            if V.events[event] == 2:
-                V.events[event] = 14
-        if V.area_id == 0:
-            if V.events.count(2) + V.events.count(14) > 2:
-                while not 3 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        V.events[event] = 3
-        elif V.area_id == 1:
-            if V.events.count(2) + V.events.count(14) > 4:
-                while not 3 in V.events or not 5 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-            elif V.events.count(2) + V.events.count(14) > 2:
-                while not 3 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        V.events[event] = 3
-        elif V.area_id == 2:
-            if V.events.count(2) + V.events.count(14) > 6:
-                while not 3 in V.events or not 5 in V.events or not 24 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-                        elif not 24 in V.events:
-                            V.events[event] = 24
-            elif V.events.count(2) + V.events.count(14) > 4:
-                while not 3 in V.events or not 5 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-            elif V.events.count(2) + V.events.count(14) > 2:
-                while not 3 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        V.events[event] = 3
+    print("The raid is over. Another one begins!")
+    seed(V.map_seed)
+    V.map_seed = randint(0, 10000)
+    V.raid_counter += 1
+    for i in range(len(V.events)):
+        if V.events[i] in [15]:
+            V.events[i] = 0
+        if V.events[i] in [17, 25, 27]:
+            V.events[i] = 1
+        if V.events[i] in [3, 5, 11, 14, 18, 24, 26, 28]:
+            V.events[i] = 2
+        if V.events[i] in [16]:
+            V.events[i] = 25
+    min_remnant, max_remnant, avg_remnant = V.remnants_spawns[V.area_id][0], V.remnants_spawns[V.area_id][1], V.remnants_spawns[V.area_id][2]
+    remnant_events, remnant_weights = [], []
+    for i in range(min_remnant, max_remnant + 1):
+        if i == avg_remnant:
+            remnant_weights.append(3)
+        elif i == min_remnant or i == max_remnant:
+            remnant_weights.append(1)
         else:
-            if V.events.count(2) + V.events.count(14) > 7:
-                while not 3 in V.events or not 5 in V.events or not 24 in V.events or not 31 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-                        elif not 31 in V.events:
-                            V.events[event] = 31
-                        elif not 24 in V.events:
-                            V.events[event] = 24
-            elif V.events.count(2) + V.events.count(14) > 6:
-                while not 3 in V.events or not 5 in V.events or not 31 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-                        elif not 31 in V.events:
-                            V.events[event] = 31
-            elif V.events.count(2) + V.events.count(14) > 4:
-                while not 3 in V.events or not 5 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
-                        if not 3 in V.events:
-                            V.events[event] = 3
-                        elif not 5 in V.events:
-                            V.events[event] = 5
-            elif V.events.count(2) + V.events.count(14) > 2:
-                while not 3 in V.events:
-                    event = choice(range(len(V.events)))
-                    if V.events[event] in [2, 14]:
+            if i < avg_remnant:
+                addition, amount = 2 / (avg_remnant - min_remnant), i - min_remnant
+                remnant_weights.append(1 + (addition * amount))
+            else:
+                addition, amount = 2 / (max_remnant - avg_remnant), max_remnant - i
+                remnant_weights.append(1 + (addition * amount))
+        remnant_events.append(i)
+    remnant_events_amount = choices(remnant_events, remnant_weights)[0]
+    if remnant_events_amount > V.events.count(2):
+        remnant_events_amount = V.events.count(2)
+    while remnant_events_amount > V.events.count(14):
+        event = choice(range(len(V.events)))
+        if V.events[event] == 2:
+            V.events[event] = 14
+    if V.area_id == 0:
+        if V.events.count(2) + V.events.count(14) > 2:
+            while not 3 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    V.events[event] = 3
+    elif V.area_id == 1:
+        if V.events.count(2) + V.events.count(14) > 6:
+            while not 3 in V.events or not 5 in V.events or not 11 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
                         V.events[event] = 3
-        while not 4 in V.events or (V.area_id == 2 and not 15 in V.events):
-            event = choice(range(len(V.events)))
-            if V.events[event] in [1] and not 4 in V.events and chance(0.3):
-                V.events[event] = 4
-            elif V.events.count(1) < 2 and V.events[event] == [0] and not 4 in V.events:
-                V.events[event] = 4
-            elif V.area_id == 2 and V.events[event] == 0 and not 15 in V.events:
-                V.events[event] = 15
-        for i in range(len(V.hunters_appeared)):
-            V.hunters_appeared[i] = False
-        if V.player_travel > 0:
-            V.player_xp += round(xp_to_lvl_up(V) * V.player_travel / 100)
-            print("You gained\033[38;2;100;0;200m", round(xp_to_lvl_up(V) * V.player_travel / 100), "XP\033[0m for finishing a raid!")
-        level_up(V)
-        V.mimic_got_item = False
-        V.mimic_given_items = 0
-        V.bank_first_time = True
-        V.bank_money += round(V.bank_money * 0.5)
-        V.score += int(V.score_increase)
-        if V.speedrunner:
-            V.speed_timer = round((V.events.count(1) * 2 + V.events.count(2)) * 0.95)
-        if V.raid_counter > V.TD_max_raids[V.area_id]:
-            V.TD_max_raids[V.area_id] = V.raid_counter
-        if V.area_id == 0:
-            if V.TD_area_unlocks[2] == False and V.raid_counter == 3:
-                V.TD_area_unlocks[2] = True
-                print("You have unlocked " + represented_area_color(V, 2) + "the Cave!\033[0m")
-        elif V.area_id == 1:
-            if V.TD_area_unlocks[2] == False and V.raid_counter == 2:
-                V.TD_area_unlocks[2] = True
-                print("You have unlocked " + represented_area_color(V, 2) + "the Cave!\033[0m")
-        elif V.area_id == 2:
-            if V.TD_area_unlocks[3] == False and V.raid_counter == 3:
-                V.TD_area_unlocks[3] = True
-                print("You have unlocked " + represented_area_color(V, 3) + "the Tundra!\033[0m")
-            if V.TD_area_unlocks[4] == False and V.raid_counter == 5:
-                V.TD_area_unlocks[4] = True
-                print("You have unlocked " + represented_area_color(V, 4) + "the Canyon!\033[0m")
-        elif V.area_id == 3:
-            if V.TD_area_unlocks[4] == False and V.raid_counter == 4:
-                V.TD_area_unlocks[4] = True
-                print("You have unlocked " + represented_area_color(V, 4) + "the Canyon!\033[0m")
-            if V.TD_area_unlocks[5] == False and V.raid_counter == 6:
-                V.TD_area_unlocks[5] = True
-                print("You have unlocked " + represented_area_color(V, 5) + "the Desert!\033[0m")
-        elif V.area_id == 4:
-            if V.TD_area_unlocks[5] == False and V.raid_counter == 4:
-                V.TD_area_unlocks[5] = True
-                print("You have unlocked " + represented_area_color(V, 5) + "the Desert!\033[0m")
-        elif V.area_id == 5:
-            if V.TD_area_unlocks[6] == False and V.raid_counter == 7:
-                V.TD_area_unlocks[6] = True
-                print("You have unlocked " + represented_area_color(V, 6) + "the Rotten Forest!\033[0m")
-        meta_save(V)
-        print('''Type anything to continue...''')
-        action = input()
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 11 in V.events:
+                        V.events[event] = 11
+        elif V.events.count(2) + V.events.count(14) > 4:
+            while not 3 in V.events or not 5 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+        elif V.events.count(2) + V.events.count(14) > 2:
+            while not 3 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    V.events[event] = 3
+    elif V.area_id == 2:
+        if V.events.count(2) + V.events.count(14) > 7:
+            while not 3 in V.events or not 5 in V.events or not 11 in V.events or not 24 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 11 in V.events:
+                        V.events[event] = 11
+                    elif not 24 in V.events:
+                        V.events[event] = 24
+        elif V.events.count(2) + V.events.count(14) > 6:
+            while not 3 in V.events or not 5 in V.events or not 11 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 11 in V.events:
+                        V.events[event] = 11
+        elif V.events.count(2) + V.events.count(14) > 4:
+            while not 3 in V.events or not 5 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+        elif V.events.count(2) + V.events.count(14) > 2:
+            while not 3 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    V.events[event] = 3
+    else:
+        if V.events.count(2) + V.events.count(14) > 8:
+            while not 3 in V.events or not 5 in V.events or not 11 in V.events or not 24 in V.events or not 19 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 11 in V.events:
+                        V.events[event] = 11
+                    elif not 24 in V.events:
+                        V.events[event] = 24
+                    elif not 19 in V.events:
+                        V.events[event] = 19
+        if V.events.count(2) + V.events.count(14) > 7:
+            while not 3 in V.events or not 5 in V.events or not 11 in V.events or not 24 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 11 in V.events:
+                        V.events[event] = 11
+                    elif not 24 in V.events:
+                        V.events[event] = 24
+        elif V.events.count(2) + V.events.count(14) > 6:
+            while not 3 in V.events or not 5 in V.events or not 19 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+                    elif not 19 in V.events:
+                        V.events[event] = 19
+        elif V.events.count(2) + V.events.count(14) > 4:
+            while not 3 in V.events or not 5 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    if not 3 in V.events:
+                        V.events[event] = 3
+                    elif not 5 in V.events:
+                        V.events[event] = 5
+        elif V.events.count(2) + V.events.count(14) > 2:
+            while not 3 in V.events:
+                event = choice(range(len(V.events)))
+                if V.events[event] in [2, 14]:
+                    V.events[event] = 3
+    while not 4 in V.events or (V.area_id == 2 and not 15 in V.events):
+        event = choice(range(len(V.events)))
+        if V.events[event] in [1] and not 4 in V.events and chance(0.3):
+            V.events[event] = 4
+        elif V.events.count(1) < 2 and V.events[event] == [0] and not 4 in V.events:
+            V.events[event] = 4
+        elif V.area_id == 2 and V.events[event] == 0 and not 15 in V.events:
+            V.events[event] = 15
+    for i in range(len(V.hunters_appeared)):
+        V.hunters_appeared[i] = False
+    if V.player_travel > 0:
+        V.player_xp += round(xp_to_lvl_up(V) * V.player_travel / 100)
+        print("You gained\033[38;2;100;0;200m", round(xp_to_lvl_up(V) * V.player_travel / 100), "XP\033[0m for finishing a raid!")
+    level_up(V)
+    V.mimic_got_item = False
+    V.mimic_given_items = 0
+    V.bank_first_time = True
+    V.bank_money += round(V.bank_money * 0.5)
+    V.score += int(V.score_increase)
+    if V.raid_counter > V.TD_max_raids[V.area_id]:
+        V.TD_max_raids[V.area_id] = V.raid_counter
+    if V.area_id == 0:
+        if V.TD_area_unlocks[2] == False and V.raid_counter == 3:
+            V.TD_area_unlocks[2] = True
+            print("You have unlocked " + represented_area_color(V, 2) + "the Cave!\033[0m")
+    elif V.area_id == 1:
+        if V.TD_area_unlocks[2] == False and V.raid_counter == 2:
+            V.TD_area_unlocks[2] = True
+            print("You have unlocked " + represented_area_color(V, 2) + "the Cave!\033[0m")
+    elif V.area_id == 2:
+        if V.TD_area_unlocks[3] == False and V.raid_counter == 3:
+            V.TD_area_unlocks[3] = True
+            print("You have unlocked " + represented_area_color(V, 3) + "the Tundra!\033[0m")
+        if V.TD_area_unlocks[4] == False and V.raid_counter == 5:
+            V.TD_area_unlocks[4] = True
+            print("You have unlocked " + represented_area_color(V, 4) + "the Canyon!\033[0m")
+    elif V.area_id == 3:
+        if V.TD_area_unlocks[4] == False and V.raid_counter == 4:
+            V.TD_area_unlocks[4] = True
+            print("You have unlocked " + represented_area_color(V, 4) + "the Canyon!\033[0m")
+        if V.TD_area_unlocks[5] == False and V.raid_counter == 6:
+            V.TD_area_unlocks[5] = True
+            print("You have unlocked " + represented_area_color(V, 5) + "the Desert!\033[0m")
+    elif V.area_id == 4:
+        if V.TD_area_unlocks[5] == False and V.raid_counter == 4:
+            V.TD_area_unlocks[5] = True
+            print("You have unlocked " + represented_area_color(V, 5) + "the Desert!\033[0m")
+    elif V.area_id == 5:
+        if V.TD_area_unlocks[6] == False and V.raid_counter == 7:
+            V.TD_area_unlocks[6] = True
+            print("You have unlocked " + represented_area_color(V, 6) + "the Rotten Forest!\033[0m")
+    meta_save(V)
+    print('''Type anything to continue...''')
+    action = input()
 
-def escape(V):
-    print('''You see a secret passage, leading somewhere. It seems to skip a lot of your intended path.
-Do you want to escape this place or stay to continue exploring it?
+def escape(V, escape_amount = 1):
+    if V.game_mode in ["story", "infinite"]:
+        if escape_amount > 1:
+            print("You see a secret passage, leading somewhere. It seems to skip a lot of your intended path.")
+        else:
+            print("The road ahead seems to lead you to the next area.")
+        print('''Do you want to escape this place or stay to continue exploring it?
 1. Escape
 2. Stay''')
-    while True:
-        action = input()
-        if action == "1" or action.lower() == "escape":
-            V.escaped = True
-            break
-        elif action == "2" or action.lower() == "stay":
-            break
+        while True:
+            action = input()
+            if action == "1" or action.lower() == "escape":
+                V.escape_amount = escape_amount
+                print("\n\n\n")
+                break
+            elif action == "2" or action.lower() == "stay":
+                break
+    elif V.game_mode in ["raid"]:
+        print('''Do you want start the next raid already?
+1. Start
+2. Stay''')
+        while True:
+            action = input()
+            if action == "1" or action.lower() == "start":
+                print("\n\n\n")
+                raid_mode_reset(V)
+                break
+            elif action == "2" or action.lower() == "stay":
+                break
 
 def change_interaction(V):
     V.leave = 0

@@ -63,7 +63,6 @@ def true_reset(V):
     V.fear_anger = 0
     V.mimic_gamble_encounters = 0
     V.death_encounters = 0
-    V.speed_timer = 0
     V.player_oxygen = 3
     V.player_boat = False
     V.death_defeated = False
@@ -76,12 +75,6 @@ def true_reset(V):
 def settings_reset(V):
     V.weather_amount = 1
     V.original_difficulty = 55
-    V.evolution = False
-    V.overkill = False
-    V.speedrunner = False
-    V.item_rando = False
-    V.eclipse = False
-    V.area_rando = False
     
 def reset_player(V):
     V.player_max_hp = 100

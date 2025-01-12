@@ -9,12 +9,8 @@ from circular_avoidance import npc_talk
 def shop_items_define(V):
     seed(V.shop_seed)
     V.shop_seed = randint(0, 10000)
-    if V.item_rando:
-        possible_shop_items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        possible_alchemist_items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    else:
-        possible_shop_items = [1, 2, 4, 8, 11, 12, 13, 14, 15, 16]
-        possible_alchemist_items = [13, 15, 17, 18, 19, 20]
+    possible_shop_items = [1, 2, 4, 8, 11, 12, 13, 14, 15, 16]
+    possible_alchemist_items = [13, 15, 17, 18, 19, 20]
     V.current_shop_items = []
     V.current_alchemist_items = []
     possible_weapons = [0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4]
@@ -221,7 +217,7 @@ What will you do?
             print("You put the item back down and continued shopping...")
 
 def shop(V):
-    if V.game_time < 18 and V.eclipse == False:
+    if V.game_time < 18:
         if chance(V.shopkeeper_sus) == False:
             peaceful_shop(V)
         else:
@@ -263,9 +259,6 @@ You continued on your journey...\n\n\n''')
                         V.cur_shopkeeper_dead = True
                     break
             V.shopkeeper_sus = 0
-    elif V.eclipse:
-        print('''When you came across the shop, it was locked. The sign at the entrance said,
-\033[38;2;100;220;100m"Please, come back after the eclipse!"\033[0m You decided to continue your journey...\n\n\n''')
     else:
         print('''When you came across the shop, it was locked. The sign at the entrance said,
 \033[38;2;100;220;100m"Please, come back in the morning!"\033[0m You decided to continue your journey...\n\n\n''')
@@ -369,14 +362,9 @@ def mimic_gamble(V):
     change_cost = round(10 * (V.mimic_given_items / 1.8 + 1))
     for i in range(V.score):
         change_cost += change_cost // 10
-    if V.item_rando:
-        common_items = [2, 4, 6, 8, 11, 13, 14, 15]
-        uncommon_items = [1, 3, 5, 9, 12, 16, 20]
-        rare_items = [0, 7, 10]
-    else:
-        common_items = [4, 6, 8]
-        uncommon_items = [3, 5, 9, 16]
-        rare_items = [7, 10]
+    common_items = [4, 6, 8]
+    uncommon_items = [3, 5, 9, 16]
+    rare_items = [7, 10]
     if V.mimic_got_item == False:
         if V.mimic_gamble_encounters == 0:
             print('''You see a golden chest on your path. You reach to open it, but as if it is alive, it springs back.
@@ -587,7 +575,7 @@ def death_boat(V):
 You brace yourself, but the creature speaks,
 \033[38;2;100;100;100m"Hello, another one. I am no threat to you."\033[0m
 You lower your weapon. She continues,
-\033[38;2;100;100;100m"I can provide you a boat. But it only functions in this area."\033[0m''')
+\033[38;2;100;100;100m"I can provide you a boat. But it might break soon."\033[0m''')
         while True:
             print('''
 Do you accept a gift of a boat from this creature?
@@ -598,7 +586,8 @@ Do you accept a gift of a boat from this creature?
                 print('''You grab the incredibly light boat. The creature speaks again,
 \033[38;2;100;100;100m"I hope it will help you. I shall depart. Meet me later."\033[0m
 After that, she crawls away.''')
-                V.player_boat = True
+                V.player_has_boat = True
+                V.player_boat_hp = 100
                 break
             elif action == "2" or action.lower() == "no":
                 print('''You refuse to grab the boat. The creature speaks again,
@@ -617,14 +606,15 @@ She continues, \033[38;2;100;100;100m"I can give you a boat for''', price, '''co
 3. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
-                if V.player_boat == True:
+                if V.player_has_boat == True and V.player_boat_hp >= 100:
                     print('''The creature looks at you with confusion,
-\033[38;2;100;100;100m"I do not take gratuity. But thank you?"\033[0m''')
+\033[38;2;100;100;100m"Your boat is not damaged. I do not take gratuity. But thank you?"\033[0m''')
                 elif V.player_money >= price:
                     print('''You offer your coins. The creature grabs them, and hands you the boat,
 \033[38;2;100;100;100m"I am surprised, that you have actually decided to pay. Thank you?"\033[0m''')
                     V.player_money -= price
-                    V.player_boat = True
+                    V.player_has_boat = True
+                    V.player_boat_hp = 100
                 else:
                     print('''You offer less than she asked. The creature looks at you,
 \033[38;2;100;100;100m"I can tell that you are trying trick me."\033[0m
@@ -650,14 +640,15 @@ She continues, \033[38;2;100;100;100m"However, I do not need your coins. Instead
 5. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
-                if V.player_boat == True:
+                if V.player_has_boat == True and V.player_boat_hp >= 100:
                     print('''The creature looks at you with confusion,
-\033[38;2;100;100;100m"I do not take gratuity. But thank you for the offer?"\033[0m''')
+\033[38;2;100;100;100m"Your boat is not damaged. I do not take gratuity. But thank you for the offer?"\033[0m''')
                 elif V.player_money >= price:
                     print('''You offer your coins. The creature grabs them, and hands you the boat,
 \033[38;2;100;100;100m"I am surprised, that you have actually decided to pay. Thank you?"\033[0m''')
                     V.player_money -= price
-                    V.player_boat = True
+                    V.player_has_boat = True
+                    V.player_boat_hp = 100
                 else:
                     print('''You offer less than she asked. The creature looks at you,
 \033[38;2;100;100;100m"I can tell that you are trying trick me."\033[0m
@@ -714,14 +705,15 @@ She quickly changes the topic, \033[38;2;100;100;100m"You probably need a boat h
 5. Continue your journey''')
             action = input()
             if action == "1" or action.lower() == "pay":
-                if V.player_boat == True:
+                if V.player_has_boat == True and V.player_boat_hp >= 100:
                     print('''The creature looks at you with confusion,
-\033[38;2;100;100;100m"I do not take gratuity. But thank you for the offer?"\033[0m''')
+\033[38;2;100;100;100m"Your boat is not damaged. I do not take gratuity. But thank you for the offer?"\033[0m''')
                 elif V.player_money >= price:
                     print('''You offer your coins. The creature grabs them, and hands you the boat,
 \033[38;2;100;100;100m"I am surprised, that you actually decided to pay. Thank you?"\033[0m''')
                     V.player_money -= price
-                    V.player_boat = True
+                    V.player_has_boat = True
+                    V.player_boat_hp = 100
                 else:
                     print('''You offer less than she asked. The creature looks at you,
 \033[38;2;100;100;100m"I can tell that you are trying trick me."\033[0m

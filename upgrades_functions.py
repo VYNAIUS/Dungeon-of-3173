@@ -246,7 +246,6 @@ def boss_upgrade(V):
 
     print("Type anything to continue...")
     action = input()
-    print("\n\n\n")
 
 def shop_grant(V, item):
     print("\n\n\n")

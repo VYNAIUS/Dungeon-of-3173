@@ -13,13 +13,6 @@ class V:
         self.game_mode = "story"
         self.difficulty = 55 # suggested 0 - 100
         self.original_difficulty = 55
-        self.evolution = False
-        self.overkill = False
-        self.speedrunner = False
-        self.speed_timer = 0
-        self.item_rando = False
-        self.eclipse = False
-        self.area_rando = False
         self.weather_amount = 1
         self.score_increase = 0
         self.score = 0
@@ -42,7 +35,6 @@ class V:
 
         self.map_seed = 0
         self.enemy_encouter_seed = 0
-        self.evolution_seed = 0
         self.altar_seed = 0
         self.shop_seed = 0
         self.gamble_seed = 0
@@ -102,7 +94,10 @@ class V:
         self.player_dodged = False
 
         self.player_boat = False
-        self.player_items = [0] # 1 - cookie, 2 - antidote, 3 - gambler's drink, 4 - cooked meat, 5 - winter tea, 6 - heal potion, 7 - berserk's potion, 8 - stun potion
+        self.player_has_boat = False
+        self.player_boat_hp = 0
+        self.player_items = [0] # 1 - cookie, 2 - antidote, 3 - gambler's drink, 4 - cooked meat, 5 - winter tea, 6 - heal potion, 7 - berserk's potion,
+        #8 - stun potion, 9 - regeneration potion
 
         self.mimic_got_item = False
         self.mimic_gamble_encounters = 0
@@ -212,11 +207,11 @@ class V:
         self.base_vision_ranges = []
         self.current_weather = []
         self.current_weather_duration = []
-        self.events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mim[escapedic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile, 9 - non-existent snow pile,
-        # 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path, 16 - inactive crystal path, 17 - pre crystal path,
-        # 18 - pre crystal fight, 19 - crystal fight, 20 - inactive crystal fight, 21 - pre crystal altar, 22 - crystal altar, 23 - inactive crystal altar, 24 - alchemist's brewery,
-        # 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 28 - raid deactivated crystal altar 29 - hole (down), 30 - hole (up)
-        # 31 - mimic bank, 32 - stalker
+        self.events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile,
+        # 9 - non-existent snow pile, 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path,
+        # 16 - main exit, 17 - crystal fight, 18 - crystal altar, 19 - mimic bank, 20 - stalker, 21 - hole down, 22 - hole up, 23 - [REPLACE], 
+        # 24 - alchemist's brewery, 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 
+        # 28 - raid deactivated crystal altar
         self.benefitial_events = []
         self.hurtful_events = []
         self.neutral_events = []
@@ -226,20 +221,22 @@ class V:
         self.map_complexity = 0
         self.game_time = 0
         self.vision_range = 0 # -1 - entire map is visible
-        self.escaped = False
+        self.escape_amount = False
         self.earth_cannot_generate_tiles = False
 
         self.player_hp_penalty = 0
         self.player_def_penalty = 0
         self.stalker_stealth = 100
+        self.no_update_coordinates = []
         self.player_oxygen_danger = False
         # AREA STATS END
 
         # ENEMYS STATS START
         self.bounty_hunter_name_0 = []
         self.bounty_hunter_name_1 = []
-        self.evolution_name_suffix = []
         self.enemys = []
+        self.fight_turn = 0
+        self.original_enemy_count = 0
 
         self.enemy_areas = []
         self.enemy_is_boss = []
@@ -257,8 +254,7 @@ class V:
         self.enemys_descriptions = []
         self.enemys_patterns = []
         self.enemys_spawners = []
-
-        self.enemy_actions = []
+        
         self.ally_actions = []
         self.enemy_unconsumable = []
         self.enemy_unelite = []
@@ -436,7 +432,7 @@ RM_areas_cheat: False''')
     def save_run(self):
         with open(self.run_save_file_path, 'w') as file:
             for key, value in self.__dict__.items():
-                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_actions", "ally_actions"]:
+                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions"]:
                     continue
                 file.write(f"{key}: {value}\n")
         self.saved = True

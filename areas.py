@@ -4,9 +4,9 @@ from extra_functions import chance
 from upgrades_functions import level_up, stats_altar, player_remnants
 from coloring import area_color, water_color
 from misc_functions import lost_check, time_events, inventory_statistics, escape, change_interaction
-from enemies_and_fighting import fight, fight_choose, bossfight_choose, ally_choose, evolve
+from enemies_and_fighting import fight, fight_choose, bossfight_choose, ally_choose
 from shops import shop, alchemist_shop, mimic_gamble, mimic_bank, death_boat
-from circular_avoidance import max_x, max_y, min_x, min_y
+from circular_avoidance import max_x, max_y, min_x, min_y, stalker_AI
 
 def default_areas(V):
     V.areas = ["Garden", "Deep Forest", "Cave", "Tundra", "Canyon", "Desert", "Rotten Forest"]
@@ -56,16 +56,16 @@ def default_areas(V):
     V.current_weather = [0]
     V.current_weather_duration = [0]
     V.events = []
-    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 21, 22, 23, 24, 31]
-    V.hurtful_events = [1, 4, 7, 8, 18, 19, 20, 32]
-    V.neutral_events = [0, 6, 9, 10, 15, 16, 17, 25, 26, 27, 28, 29, 30]
+    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 16, 18, 19, 24]
+    V.hurtful_events = [1, 4, 7, 8, 17, 20]
+    V.neutral_events = [0, 6, 9, 10, 15, 21, 22, 25, 26, 27, 28]
     V.events_coordinates = []
     V.events_heights = []
     V.player_coordinates = [0, 0, 0]
     V.map_complexity = 0
     V.game_time = 0
     V.vision_range = 0 # -1 - entire map is visible
-    V.escaped = False
+    V.escape_amount = 0
     V.earth_cannot_generate_tiles = False
 
     V.player_hp_penalty = 0
@@ -73,44 +73,6 @@ def default_areas(V):
     V.stalker_stealth = 100
     V.player_oxygen_danger = False
 # AREA STATS END
-
-def area_randomize(V):
-    seed(V.global_seed)
-    shuffle(V.areas)
-    shuffle(V.areas_colors)
-    shuffle(V.water_colors_0)
-    shuffle(V.water_colors_1)
-    shuffle(V.path_lengths)
-    shuffle(V.height_variaty)
-    shuffle(V.wall_min_thickness)
-    shuffle(V.turn_right_prob)
-    shuffle(V.turn_down_prob)
-    shuffle(V.turn_left_prob)
-    shuffle(V.turn_up_prob)
-    shuffle(V.area_max_x)
-    shuffle(V.area_max_y)
-    shuffle(V.start_positions)
-    seed(V.global_seed - 3)
-    shuffle(V.area_patterns)
-    shuffle(V.weathers)
-    seed(V.global_seed - 3)
-    shuffle(V.area_pattern_chances)
-    shuffle(V.weather_chances)
-    seed(V.global_seed)
-    shuffle(V.remnants_spawns)
-    shuffle(V.snow_pile_spawns)
-    shuffle(V.default_water_levels)
-    shuffle(V.river_prob)
-    shuffle(V.river_thickness)
-    shuffle(V.escape_river_prob)
-    shuffle(V.pond_prob)
-    shuffle(V.pond_radius)
-    shuffle(V.base_vision_ranges)
-    for i in range(len(V.areas)):
-        shuffle(V.areas_colors[i])
-        shuffle(V.water_colors_0[i])
-        shuffle(V.water_colors_1[i])
-        shuffle(V.weather_chances[i])
 
 
 
@@ -130,14 +92,7 @@ def map_print(V):
         print("Evening", end = "")
     else:
         print("Night", end = "")
-    if V.eclipse:
-        print(", \033[38;2;200;150;50mEclipse\033[0m", end = "")
     print()
-    if V.speedrunner:
-        if V.speed_timer > 0:
-            print("\033[38;2;255;0;0mTIME LEFT:", V.speed_timer, "\033[0m")
-        else:
-            print("\033[38;2;255;0;0mTIME LEFT: too late...\033[0m")
     if V.weather_amount > 0:
         print("WEATHER: ", end = "")
         counter = 0
@@ -166,15 +121,20 @@ def map_print(V):
                 print("Drought", end = "")
             counter += 1
         print()
-    print("OXYGEN:" + water_color(V), end = "")
-    if V.player_oxygen > 0:
-        for i in range(int(V.player_oxygen)):
-            print("•", end = "")
+    if V.player_boat == False:
+        print("OXYGEN:" + water_color(V), end = "")
+        if V.player_oxygen > 0:
+            for i in range(int(V.player_oxygen)):
+                print("•", end = "")
+        else:
+            for i in range(int(abs(V.player_oxygen))):
+                print("\033[38;2;255;0;0m○", end = "")
+        if V.player_oxygen_danger:
+            print("\033[38;2;255;0;0m!")
     else:
-        for i in range(int(abs(V.player_oxygen))):
-            print("\033[38;2;255;0;0m○", end = "")
-    if V.player_oxygen_danger:
-        print("\033[38;2;255;0;0m!")
+        print("BOAT DURABILITY: " + water_color(V), V.player_boat_hp, "%", sep = "", end = "")
+        if V.player_boat_hp <= 0:
+            print("\n\033[38;2;255;0;0mThe boat will break when you step on land!", end = "")
     print("\033[0m")
     print("MAP:" + area_color(V))
     for x in range(min_x(V), max_x(V) + 1):
@@ -195,7 +155,7 @@ def map_print(V):
                 if event in [0, 9, 25, 26]:
                     if V.water_level > event_height:
                         print(water_color(V) + "~", end = "")
-                    elif V.area_id == 2 or V.area_id == 6 or V.eclipse:
+                    elif V.area_id == 2 or V.area_id == 6:
                         print(area_color(V, event_height, True) + "○", end = "")
                     elif V.game_time < 18:
                         print(area_color(V, event_height, True) + "•", end = "")
@@ -251,7 +211,7 @@ def map_print(V):
                         print(water_color(V) + "D", end = "")
                     else:
                         print(area_color(V, event_height, True) + "D", end = "")
-                elif event == 12:
+                elif event in [12, 16]:
                     if V.water_level > event_height:
                         print(water_color(V) + "E", end = "")
                     else:
@@ -266,50 +226,47 @@ def map_print(V):
                         print(water_color(V) + "P", end = "")
                     else:
                         print(area_color(V, event_height, True) + "P", end = "")
-                elif event == 15:
+                elif event in [15, 27, 28]:
                     if V.water_level > event_height:
                         print("\033[38;2;255;50;255m~", end = "")
                     else:
                         print("\033[38;2;255;50;255m•", end = "")
-                elif event in [16, 17, 27, 28]:
-                    if V.water_level > event_height:
-                        print("\033[38;2;200;0;200m~", end = "")
-                    else:
-                        print("\033[38;2;200;0;200m•", end = "")
-                elif event in [18, 19, 20]:
+                elif event == 17:
                     print("\033[38;2;255;50;255mΛ", end = "")
-                elif event in [21, 22, 23]:
+                elif event == 18:
                     print("\033[38;2;255;50;255m†", end = "")
+                elif event == 19:
+                    if V.water_level > event_height:
+                        print(water_color(V) + "#", end = "")
+                    else:
+                        print(area_color(V, event_height, True) + "#", end = "")
+                elif event == 20:
+                    print("\033[33;1m?", end = "")
+                    stalker_coords = V.events_coordinates[V.events.index(20)]
+                    distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
+                    if distance > 0:
+                        V.stalker_stealth -= round(12 / distance) + 1
+                    else:
+                        V.stalker_stealth -= 13
+                    if V.stalker_stealth <= 0:
+                        V.events[V.events.index(20)] = 0
+                elif event == 21:
+                    if V.water_level > event_height:
+                        print(water_color(V) + "L", end = "")
+                    else:
+                        print(area_color(V, event_height, True) + "L", end = "")
+                elif event == 22:
+                    if V.water_level > event_height:
+                        print(water_color(V) + "H", end = "")
+                    else:
+                        print(area_color(V, event_height, True) + "H", end = "")
                 elif event == 24:
                     if V.water_level > event_height:
                         print(water_color(V) + "a", end = "")
                     else:
                         print(area_color(V, event_height, True) + "a", end = "")
-                elif event == 29:
-                    if V.water_level > event_height:
-                        print(water_color(V) + "L", end = "")
-                    else:
-                        print(area_color(V, event_height, True) + "L", end = "")
-                elif event == 30:
-                    if V.water_level > event_height:
-                        print(water_color(V) + "H", end = "")
-                    else:
-                        print(area_color(V, event_height, True) + "H", end = "")
-                elif event == 31:
-                    if V.water_level > event_height:
-                        print(water_color(V) + "#", end = "")
-                    else:
-                        print(area_color(V, event_height, True) + "#", end = "")
-                elif event == 32:
-                    print("\033[33;1m?", end = "")
-                    stalker_coords = V.events_coordinates[V.events.index(32)]
-                    distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
-                    if distance > 0:
-                        V.stalker_stealth -= 25 / distance
-                    else:
-                        V.stalker_stealth -= 25
-                    if V.stalker_stealth <= 0:
-                        V.events[V.events.index(32)] = 0
+                else:
+                    print(event)
 
         print("\n" + water_color(V), end = "")
     for x in range(min_x(V), max_x(V) + 1):
@@ -333,17 +290,18 @@ def map_generation(V):
         if V.score >= 5:
             good_events.append(11)
         if V.score >= 7:
-            good_events.append(31)
+            good_events.append(19)
         if V.score >= 9:
             good_events.append(24)
     elif V.game_mode == "raid":
         good_events.append(3)
         if V.area_id > 0:
             good_events.append(5)
+            good_events.append(11)
         if V.area_id > 1:
             good_events.append(24)
         if V.area_id > 2:
-            good_events.append(31)
+            good_events.append(19)
     if V.game_mode == "story" and (V.area_id == 2 or (V.area_id == 0 and V.change_recruited == True)):
         good_events.append(13)
     min_remnant, max_remnant, avg_remnant = V.remnants_spawns[V.area_id][0], V.remnants_spawns[V.area_id][1], V.remnants_spawns[V.area_id][2]
@@ -386,23 +344,26 @@ def map_generation(V):
     #print(len(bad_events))
     V.score_increase = 0.75 * len(bad_events)
 
-    turns = []
+    turns = [] # [x, y, rotation ("r"/"d"/"l"/"u"), event/tile id, height, layer]
     if V.generation_area_pattern[0][0] in ["basic", "small boxes", "basic only horizontal", "basic only vertical"]:
         if start[0] == "u":
-            turns.append([0, 0, "d", 1, 5, 0])
+            turns.append([0, 0, "d", 0, 5, 0])
         elif start[0] == "d":
-            turns.append([0, 0, "u", 1, 5, 0])
+            turns.append([0, 0, "u", 0, 5, 0])
         else:
-            turns.append([0, 0, "d", 1, 5, 0])
-            turns.append([0, 0, "u", 1, 5, 0])
+            turns.append([0, 0, "d", 0, 5, 0])
+            turns.append([0, 0, "u", 0, 5, 0])
         if start[1] == "l":
-            turns.append([0, 0, "r", 1, 5, 0])
+            turns.append([0, 0, "r", 0, 5, 0])
         elif start[1] == "r":
-            turns.append([0, 0, "l", 1, 5, 0])
+            turns.append([0, 0, "l", 0, 5, 0])
         else:
-            turns.append([0, 0, "r", 1, 5, 0])
-            turns.append([0, 0, "l", 1, 5, 0])
-        V.events = [1]
+            turns.append([0, 0, "r", 0, 5, 0])
+            turns.append([0, 0, "l", 0, 5, 0])
+        if V.game_mode in ["infinite", "story"]:
+            V.events = [0]
+        elif V.game_mode in ["raid"]:
+            V.events = [25]
         V.events_coordinates = [[0, 0, 0]]
         V.events_heights = [5]
         V.player_coordinates = [0, 0, 0]
@@ -926,7 +887,7 @@ def map_generation(V):
                         V.events_heights[V.events_coordinates.index([x1, y1, l])] = 0
                     x1 -= 1
 
-            if chance(V.escape_river_prob[V.area_id]) and V.escaped == False and V.game_mode in ["infinite", "story"]:
+            if chance(V.escape_river_prob[V.area_id]) and V.escape_amount <= 1 and V.game_mode in ["infinite", "story"]:
                 if len(water_turns) > 0:
                     turn = choice(water_turns)
                 else:
@@ -977,7 +938,7 @@ def map_generation(V):
                     V.events_coordinates.append([x, y, l])
                     V.events_heights.append(0)
                 else:
-                    if not V.events[V.events_coordinates.index([x, y, l])] in [3, 4, 5, 11, 13, 24, 29, 30, 31] and [x, y, l] != V.player_coordinates:
+                    if not V.events[V.events_coordinates.index([x, y, l])] in [3, 4, 5, 11, 13, 19, 24, 21, 22] and [x, y, l] != V.player_coordinates:
                         V.events[V.events_coordinates.index([x, y, l])] = 12
                     V.events_heights[V.events_coordinates.index([x, y, l])] = 0
 
@@ -2084,22 +2045,22 @@ def map_generation(V):
                         x = path[0]
                         y = path[1]
                         l = path[5]
-                event = 29
+                event = 21
                 if not [x, y, l - 1] in V.events_coordinates:
                     if [x, y, l + 1] in V.events_coordinates:
-                        if V.events[V.events_coordinates.index([x, y, l + 1])] == 29:
+                        if V.events[V.events_coordinates.index([x, y, l + 1])] == 21:
                             continue
                     turns.remove(path)
                     if [x, y, l] in V.events_coordinates:
-                        V.events[V.events_coordinates.index([x, y, l])] = 29
+                        V.events[V.events_coordinates.index([x, y, l])] = 21
                         V.events_heights[V.events_coordinates.index([x, y, l])] = 0
                     else:
-                        V.events.append(29)
+                        V.events.append(21)
                         V.events_coordinates.append(x, y, l)
                         V.events_heights.append(0)
                     V.events_coordinates.append([x, y, l - 1])
                     V.events_heights.append(5)
-                    V.events.append(30)
+                    V.events.append(22)
                     if start[0] == "d" or start[0] == "m":
                         if y - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_y[V.area_id] and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x, y, "u", event, h, l - 1])
@@ -2136,22 +2097,22 @@ def map_generation(V):
                 l = path[5]
                 if l != generation_layer:
                     continue
-                event = 30
+                event = 22
                 if not [x, y, l + 1] in V.events_coordinates:
                     if [x, y, l - 1] in V.events_coordinates:
-                        if V.events[V.events_coordinates.index([x, y, l - 1])] == 30:
+                        if V.events[V.events_coordinates.index([x, y, l - 1])] == 22:
                             continue
                     turns.remove(path)
                     if [x, y, l] in V.events_coordinates:
-                        V.events[V.events_coordinates.index([x, y, l])] = 30
+                        V.events[V.events_coordinates.index([x, y, l])] = 22
                         V.events_heights[V.events_coordinates.index([x, y, l])] = 5
                     else:
-                        V.events.append(30)
+                        V.events.append(22)
                         V.events_coordinates.append(x, y, l)
                         V.events_heights.append(5)
                     V.events_coordinates.append([x, y, l + 1])
                     V.events_heights.append(5)
-                    V.events.append(29)
+                    V.events.append(21)
                     if start[0] == "d" or start[0] == "m":
                         if y - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_y[V.area_id] and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x, y, "u", event, h, l + 1])
@@ -2203,31 +2164,36 @@ def map_generation(V):
         elif cur_xy == cur_max_xy:
             if start[0] == "u" and turns[furthest_turn_index][2] != "d":
                 if start[1] == "l" and turns[furthest_turn_index][2] != "r":
-                    cur_max_xy = cur_xy
                     furthest_turn_index = turns.index(i)
                 elif start[1] == "r" and turns[furthest_turn_index][2] != "l":
-                    cur_max_xy = cur_xy
                     furthest_turn_index = turns.index(i)
-                elif start[1] == "m":
-                    cur_max_xy = cur_xy
+                elif start[1] == "m" and i[2] == "l" and i[0] < 0:
+                    furthest_turn_index = turns.index(i)
+                elif start[1] == "m" and i[2] == "r" and i[0] > 0:
                     furthest_turn_index = turns.index(i)
             elif start[0] == "d" and turns[furthest_turn_index][2] != "u":
                 if start[1] == "l" and turns[furthest_turn_index][2] != "r":
-                    cur_max_xy = cur_xy
                     furthest_turn_index = turns.index(i)
                 elif start[1] == "r" and turns[furthest_turn_index][2] != "l":
-                    cur_max_xy = cur_xy
                     furthest_turn_index = turns.index(i)
-                elif start[1] == "m":
-                    cur_max_xy = cur_xy
+                elif start[1] == "m" and i[2] == "l" and i[0] < 0:
+                    furthest_turn_index = turns.index(i)
+                elif start[1] == "m" and i[2] == "r" and i[0] > 0:
                     furthest_turn_index = turns.index(i)
             elif start[1] == "l" and turns[furthest_turn_index][2] != "r":
-                cur_max_xy = cur_xy
                 furthest_turn_index = turns.index(i)
             elif start[1] == "r" and turns[furthest_turn_index][2] != "l":
-                cur_max_xy = cur_xy
                 furthest_turn_index = turns.index(i)
     path = turns[furthest_turn_index]
+    if start == "mm":
+        if path[0] < 0 and abs(path[0]) > abs(path[1]):
+            path = [path[0], path[1], "l", path[3], path[4], path[5]]
+        elif path[0] > 0 and abs(path[0]) > abs(path[1]):
+            path = [path[0], path[1], "r", path[3], path[4], path[5]]
+        elif path[1] < 0 and abs(path[0]) < abs(path[1]):
+            path = [path[0], path[1], "u", path[3], path[4], path[5]]
+        elif path[1] > 0 and abs(path[0]) < abs(path[1]):
+            path = [path[0], path[1], "d", path[3], path[4], path[5]]
     x = path[0]
     y = path[1]
     h = path[4]
@@ -2376,9 +2342,6 @@ def map_generation(V):
     while V.events.count(5) > 1:
         V.events[V.events.index(5)] = 0
 
-    if V.speedrunner:
-        V.speed_timer = round((V.events.count(1) * 2 + V.events.count(2)) * 0.85)
-
 
 
 
@@ -2390,23 +2353,46 @@ def map_movement(V):
     V.player_hp_penalty = 0
     V.player_def_penalty = 0
     while True:
+        for event in range(len(V.events)):
+            if V.events[event] == 20:
+                stalker_coords = V.events_coordinates[event]
+                if stalker_coords[2] == V.player_coordinates[2] and not stalker_coords in V.no_update_coordinates:
+                    distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
+                    if distance < V.vision_range - 0.25 + V.player_coordinates[2] * 1.5:
+                        stalker_AI(V, event)
+        V.no_update_coordinates = []
         if V.player_coordinates in V.events_coordinates:
             event = V.events[V.events_coordinates.index(V.player_coordinates)]
             current_height = V.events_heights[V.events_coordinates.index(V.player_coordinates)] + V.player_coordinates[2] * 2.5
         else:
             print("You are somehow out of bounds!")
             event = 0
-        if current_height < V.water_level and V.player_boat == False:
-            V.player_oxygen -= 1
-            if V.player_oxygen < 0:
-                V.player_hp_penalty += 0.01
-                V.player_oxygen_danger = True
-            if V.area_id == 6:
-                V.player_def_penalty += 1
-                V.player_hp_penalty += 0.02
-                V.player_oxygen_danger = True
-            if V.player_oxygen < -3:
-                V.player_oxygen = -3
+        if current_height < V.water_level:
+            if V.player_boat == False:
+                V.player_oxygen -= 1
+                if V.player_oxygen < 0:
+                    V.player_hp_penalty += 0.01
+                    V.player_oxygen_danger = True
+                if V.area_id == 6:
+                    V.player_def_penalty += 1
+                    V.player_hp_penalty += 0.02
+                    V.player_oxygen_danger = True
+                if V.player_oxygen < -3:
+                    V.player_oxygen = -3
+            else:
+                V.player_boat_hp -= 3
+                if V.area_id == 6:
+                    V.player_boat_hp -= 1
+                elif V.area_id == 4:
+                    V.player_boat_hp += 10
+                if V.player_boat_hp < 0:
+                    V.player_boat_hp = 0
+                if V.player_boat_hp > 120:
+                    V.player_boat_hp = 120
+                V.player_oxygen += 1.5
+                if V.player_oxygen > 3:
+                    V.player_oxygen = 3
+                V.player_oxygen_danger = False
         else:
             V.player_oxygen += 1.5
             if V.player_oxygen > 3:
@@ -2415,8 +2401,31 @@ def map_movement(V):
         if V.cur_shopkeeper_dead == True:
             while 3 in V.events:
                 V.events[V.events.index(3)] = 0
-        if event in [0, 9, 15, 16, 17, 25, 26, 27, 28]:
+            V.cur_shopkeeper_dead = False
+        if event in [0, 9, 15, 25, 26, 27, 28]:
             print()
+            if V.player_boat and V.player_boat_hp <= 0:
+                boat_break = False
+                if V.player_coordinates in V.events_coordinates:
+                    land_test_coordinates = [V.player_coordinates[0] - 1, V.player_coordinates[1], V.player_coordinates[2]]
+                    if land_test_coordinates in V.events_coordinates:
+                        if V.events[V.events_coordinates.index(land_test_coordinates)] != 10:
+                            boat_break = True
+                    land_test_coordinates = [V.player_coordinates[0] + 1, V.player_coordinates[1], V.player_coordinates[2]]
+                    if land_test_coordinates in V.events_coordinates:
+                        if V.events[V.events_coordinates.index(land_test_coordinates)] != 10:
+                            boat_break = True
+                    land_test_coordinates = [V.player_coordinates[0], V.player_coordinates[1] - 1, V.player_coordinates[2]]
+                    if land_test_coordinates in V.events_coordinates:
+                        if V.events[V.events_coordinates.index(land_test_coordinates)] != 10:
+                            boat_break = True
+                    land_test_coordinates = [V.player_coordinates[0], V.player_coordinates[1] + 1, V.player_coordinates[2]]
+                    if land_test_coordinates in V.events_coordinates:
+                        if V.events[V.events_coordinates.index(land_test_coordinates)] != 10:
+                            boat_break = True
+                if boat_break:
+                    V.player_boat = False
+                    V.player_has_boat = False
         elif event == 1:
             fight(V, fight_choose(V))
             V.max_power_level = round(V.max_power_level * 1.0175, 2)
@@ -2444,14 +2453,15 @@ def map_movement(V):
             V.max_power_level_increase += 1
             if lost_check(V, boss=True):
                 break
-            if V.evolution == True:
-                evolve(V)
             level_up(V)
-            if V.game_mode == "raid":
-                V.events[V.events_coordinates.index(V.player_coordinates)] = 25
-                time_events(V, 0)
-            elif V.game_mode in ["infinite", "story"]:
-                break
+            if V.game_mode in ["infinite", "story", "raid"]:
+                if V.final_area == False:
+                    V.events[V.events_coordinates.index(V.player_coordinates)] = 16
+                    time_events(V, 2)
+                    continue
+                else:
+                    V.escape_amount = 1
+                    break
         elif event == 5:
             mimic_gamble(V)
         elif event == 6:
@@ -2476,6 +2486,10 @@ def map_movement(V):
             level_up(V)
             V.events[V.events_coordinates.index(V.player_coordinates)] = 9
             time_events(V, 3)
+        elif event == 10:
+            V.player_boat_hp -= 2
+            if V.player_boat_hp < 0:
+                V.player_boat_hp = 0
         elif event == 11:
             if V.death_defeated == False and V.player_spent_life > 0:
                 print('''You approach the masked creature again. She speaks threateningly,
@@ -2498,13 +2512,19 @@ Type anything to continue''')
                     action = input()
             else:
                 death_boat(V)
-            V.events[V.events_coordinates.index(V.player_coordinates)] = 0
+            if V.game_mode in ["infinite", "story"]:
+                V.events[V.events_coordinates.index(V.player_coordinates)] = 0
+            elif V.game_mode == "raid":
+                V.events[V.events_coordinates.index(V.player_coordinates)] = 26
             time_events(V, 2)
-        elif event == 12:
-            escape(V)
-            if V.escaped == True:
-                if V.evolution == True:
-                    evolve(V)
+        elif event in [12, 16]:
+            if event == 12:
+                escape(V, 3)
+            elif event == 16:
+                escape(V)
+            else:
+                escape(V)
+            if V.escape_amount > 0:
                 break
         elif event == 13:
             change_interaction(V)
@@ -2515,7 +2535,7 @@ Type anything to continue''')
                 V.events[V.events_coordinates.index(V.player_coordinates)] = 0
             elif V.game_mode == "raid":
                 V.events[V.events_coordinates.index(V.player_coordinates)] = 26
-        elif event in [18, 19, 20]:
+        elif event == 17:
             fight(V, fight_choose(V, 0.9))
             V.max_power_level = round(V.max_power_level * 1.0175, 2)
             V.max_power_level_increase += 1
@@ -2527,7 +2547,7 @@ Type anything to continue''')
             elif V.game_mode == "raid":
                 V.events[V.events_coordinates.index(V.player_coordinates)] = 27
             time_events(V, 2)
-        elif event in [21, 22, 23]:
+        elif event == 18:
             fight(V, fight_choose(V, -0.3))
             if lost_check(V):
                 break
@@ -2537,26 +2557,37 @@ Type anything to continue''')
             elif V.game_mode == "raid":
                 V.events[V.events_coordinates.index(V.player_coordinates)] = 28
             time_events(V, 1)
-        elif event == 24:
-            alchemist_shop(V)
-        elif event == 29:
-            V.player_coordinates[2] -= 1
-        elif event == 30:
-            V.player_coordinates[2] += 1
-        elif event == 31:
+        elif event == 19:
             mimic_bank(V)
-        elif event == 32:
+        elif event == 20:
             fight(V, [42])
             if lost_check(V):
                 break
             V.events[V.events_coordinates.index(V.player_coordinates)] = 0
+        elif event == 21:
+            V.player_coordinates[2] -= 1
+        elif event == 22:
+            V.player_coordinates[2] += 1
+        elif event == 24:
+            alchemist_shop(V)
         map_print(V)
-        print('''\nWhere do you want to move?
+        if V.player_has_boat == False:
+            print('''\nWhere do you want to move?
 W. ↑
 A. ←
 D. →
 S. ↓
 Y. O
+I. - Inventory
+H. - Map Help''')
+        else:
+            print('''\nWhere do you want to move?
+W. ↑
+A. ←
+D. →
+S. ↓
+Y. O
+B. - Switch boat mode
 I. - Inventory
 H. - Map Help''')
         while True:
@@ -2587,6 +2618,17 @@ H. - Map Help''')
                     print("You can't move there!")
             if action.lower() == "y" or "stay" in action.lower() or "still" in action.lower():
                 break
+            if action.lower() == "b" or "boat" in action.lower():
+                if V.player_has_boat:
+                    if V.player_boat:
+                        if event != 10:
+                            V.player_boat = False
+                            break
+                        else:
+                            print("You can't stop using the boat here!")
+                    else:
+                        V.player_boat = True
+                        break
             if action.lower() == "i" or action.lower() == "inventory":
                 print("\033[33;1mYour weapon -", V.weapon_names[V.player_weapon])
                 if len(V.player_items) > 0:
@@ -2598,7 +2640,7 @@ H. - Map Help''')
                 inventory_statistics(V)
                 print("\033[0m", end = "")
             if action.lower() == "h" or "map" in action.lower() or "help" in action.lower():
-                if V.player_boat == False:
+                if V.player_boat == False and V.player_has_boat == False:
                     print('''Yellow \033[33;1mP\033[0m is you. You can move freely on circles.
 Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
 Type in "save" to save the run''')

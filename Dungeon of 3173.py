@@ -1,5 +1,4 @@
 ﻿
-from optparse import Option
 from random import choice, choices, randint, uniform, seed, shuffle
 from time import localtime
 
@@ -14,18 +13,22 @@ from misc_functions import *
 from shops import *
 from upgrades_functions import *
 
-print("V0.3.3")
+print("V0.3.4")
 V = variables.V()
-V.enemy_actions = [enemy_hit, enemy_defend, enemy_magic_hit, enemy_summon, enemy_stall, enemy_heal, enemy_stun, enemy_berserk, enemy_transform_others]
-V.ally_actions = [ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit, ally_hit]
+V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2, fight_AI_magic_basic_2,
+               fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
+               fight_AI_healer_magic_basic_1, fight_AI_transform_basic_1, fight_AI_transform_summoner_basic_2, fight_AI_basic_defend,
+               fight_AI_basic_shotgunner, fight_AI_stalker, fight_AI_alchemist, fight_AI_3173, fight_AI_cycle]
 
 def infinite_mode():
     if V.continue_run == False:
+        print('''\033[38;2;100;200;250m"My child, defeat your enemies, consume power, and acquire strength."
+"Survive for as long as you can..."\033[0m
+Type anything to continue...''')
+        action = input()
         V.game_mode = "infinite"
         V.area_id = 0
         V.areas_visited = 0
-        if V.area_rando:
-            area_randomize(V)
     while True:
         if V.continue_run == False:
             V.default_water_levels[6] = 0.75
@@ -43,9 +46,10 @@ def infinite_mode():
             V.current_weather_duration = []
             for i in range(V.weather_amount):
                 V.current_weather.append(0)
-                V.current_weather_duration.append(0)
+                V.current_weather_duration.append(3)
             V.area = V.areas[V.area_id]
-            print(area_color(V) + "You have entered the", V.area + "\033[0m")
+            print(area_color(V) + "You have entered the", V.area + "\033[0m\nType anything to continue...")
+            action = input()
             V.game_time = 0
             if V.player_travel > 0:
                 V.player_xp += round(xp_to_lvl_up(V) * V.player_travel / 100)
@@ -58,18 +62,14 @@ def infinite_mode():
             V.forest_enemy_spawn = 0
             V.enough_destroyed = False
             V.water_level = V.default_water_levels[V.area_id]
-            V.player_boat = False
             map_generation(V)
-            V.escaped = False
+            V.escape_amount = 0
         V.delete_run()
         V.continue_run = False
         map_movement(V)
         if V.lost == 1:
             break
-        if V.escaped == False:
-            V.area_id += 1
-        else:
-            V.area_id += 3
+        V.area_id += V.escape_amount
         if V.area_id >= len(V.areas):
             V.area_id -= len(V.areas)
         V.map_complexity += 2
@@ -82,11 +82,13 @@ def infinite_mode():
 
 def story_mode():
     if V.continue_run == False:
+        print('''\033[38;2;100;200;250m"My child, defeat your enemies, consume power, and acquire strength."
+"And once you are strong enough, come back here for the final test..."\033[0m
+Type anything to continue...''')
+        action = input()
         V.game_mode = "story"
         V.area_id = 0
         V.story_mode_area_number = 0
-        if V.area_rando:
-            area_randomize(V)
     while V.story_mode_area_number in range(8):
         if V.continue_run == False:
             V.default_water_levels[6] = 0.75
@@ -101,9 +103,10 @@ def story_mode():
             V.current_weather_duration = []
             for r in range(V.weather_amount):
                 V.current_weather.append(0)
-                V.current_weather_duration.append(0)
+                V.current_weather_duration.append(3)
             V.area = V.areas[V.area_id]
-            print(area_color(V) + "You have entered the", V.area + "\033[0m")
+            print(area_color(V) + "You have entered the", V.area + "\033[0m\nType anything to continue...")
+            action = input()
             V.game_time = 0
             if V.player_travel > 0:
                 V.player_xp += round(xp_to_lvl_up(V) * V.player_travel / 100)
@@ -116,25 +119,23 @@ def story_mode():
             V.forest_enemy_spawn = 0
             V.enough_destroyed = False
             V.water_level = V.default_water_levels[V.area_id]
-            V.player_boat = False
             map_generation(V)
-            V.escaped = False
+            V.escape_amount = 0
         V.delete_run()
         V.continue_run = False
         map_movement(V)
-        V.story_mode_area_number += 1
         if V.lost == 1:
             break
-        if V.escaped == False:
-            V.area_id += 1
-        else:
-            V.area_id += 3
-            V.story_mode_area_number += 2
-            if V.story_mode_area_number > 7:
-                V.story_mode_area_number = 7
+        V.area_id += V.escape_amount
+        V.story_mode_area_number += V.escape_amount
+        if V.story_mode_area_number > 7 and V.escape_amount > 1:
+            V.story_mode_area_number = 7
         if V.area_id >= len(V.areas):
             V.area_id = 0
             V.final_area = True
+            print('''\033[38;2;100;200;250m"My child, you have come back. Prepare yourself for the final battle."\033[0m
+Type anything to continue...''')
+            action = input()
         V.map_complexity += 1
     final_statistics(V)
     if V.saved == False:
@@ -201,10 +202,12 @@ def raid_mode_area_choose():
 
 def raid_mode(starting_area = 0):
     if V.continue_run == False:
+        print('''\033[38;2;100;200;250m"My child, defeat your enemies, consume power, and acquire strength."
+"Survive here for as long as you can..."\033[0m
+Type anything to continue...''')
+        action = input()
         V.game_mode = "raid"
         V.default_water_levels[6] = 0.75
-        if V.area_rando:
-            area_randomize(V)
         V.area_id = starting_area
         V.vision_range = V.base_vision_ranges[V.area_id]
         V.area = V.areas[V.area_id]
@@ -217,7 +220,7 @@ def raid_mode(starting_area = 0):
         shop_items_define(V)
         for r in range(V.weather_amount):
             V.current_weather.append(0)
-            V.current_weather_duration.append(0)
+            V.current_weather_duration.append(3)
         V.map_complexity = 3
         map_generation(V)
     V.delete_run()
@@ -232,33 +235,15 @@ def raid_mode(starting_area = 0):
 
 def daily_run():
     seed(V.daily_seed)
-    V.difficulty = randint(50, 70)
+    V.difficulty = randint(70, 100)
     V.original_difficulty = V.difficulty
-    mutator_factor = V.difficulty * (-0.05) + 4.5
+    mutator_factor = V.difficulty * (-0.05) + 5.5
     V.weather_amount = randint(1, 6)
     mutator_factor = mutator_factor + (V.weather_amount * (-0.1) + 0.6)
-    V.evolution = chance(0.4 * mutator_factor)
-    V.overkill = chance(0.2 * mutator_factor)
-    V.speedrunner = chance(0.4 * mutator_factor)
-    V.item_rando = chance(0.3 * mutator_factor)
-    V.eclipse = chance(0.3 * mutator_factor)
-    V.area_rando = chance(0.1 * mutator_factor)
     V.global_seed = randint(0, 10000)
-    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.evolution_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
-    mode = choice(["story", "infinite"])
+    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+    mode = choice(["story", "infinite", "raid"])
     print("\nDaily Run Seed -", V.daily_seed, "\nGame Mode -", mode, "\nSeed -", V.global_seed, "\nDifficulty -", V.difficulty, "\nWeather amount -", V.weather_amount)
-    if V.evolution:
-        print("Evolution is enabled")
-    if V.overkill:
-        print("Overkill is enabled")
-    if V.speedrunner:
-        print("Speedrunner is enabled")
-    if V.item_rando:
-        print("Item Randomizer is enabled")
-    if V.eclipse:
-        print("Eclipse is enabled")
-    if V.area_rando:
-        print("Area Randomizer is enabled")
     print('''
 Are you sure you want to play this daily run?
 1. Yes
@@ -272,6 +257,9 @@ Are you sure you want to play this daily run?
             elif mode == "story":
                 V.game_mode = "story"
                 story_mode()
+            elif mode == "raid":
+                V.game_mode = "raid"
+                raid_mode(randint(0, 6))
             else:
                 print("There was an error initializing game modes for the daily run! Report this to the developer!")
             break
@@ -280,26 +268,23 @@ Are you sure you want to play this daily run?
 
 def daily_run_retry():
     seed(V.daily_seed)
-    V.difficulty = randint(50, 70)
+    V.difficulty = randint(70, 100)
     V.original_difficulty = V.difficulty
-    mutator_factor = V.difficulty * (-0.05) + 4.5
+    mutator_factor = V.difficulty * (-0.05) + 5.5
     V.weather_amount = randint(1, 6)
     mutator_factor = mutator_factor + (V.weather_amount * (-0.1) + 0.6)
-    V.evolution = chance(0.4 * mutator_factor)
-    V.overkill = chance(0.2 * mutator_factor)
-    V.speedrunner = chance(0.4 * mutator_factor)
-    V.item_rando = chance(0.3 * mutator_factor)
-    V.eclipse = chance(0.3 * mutator_factor)
-    V.area_rando = chance(0.1 * mutator_factor)
     V.global_seed = randint(0, 10000)
-    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.evolution_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
-    mode = choice(["story", "infinite"])
+    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+    mode = choice(["story", "infinite", "raid"])
     if mode == "infinite":
         V.game_mode = "infinite"
         infinite_mode()
     elif mode == "story":
         V.game_mode = "story"
         story_mode()
+    elif mode == "raid":
+        V.game_mode = "raid"
+        raid_mode(randint(0, 6))
     else:
         print("There was an error initializing game modes for the daily run! Report this to the developer!")
 
@@ -353,20 +338,9 @@ def mutators_choose():
             print("1. Difficulty - Unknown (", V.difficulty, ")", sep = "")
         if V.SM_completed or V.SM_skip:
             print("2. Weather Amount -", V.weather_amount)
-            print("3. Evolution -", V.evolution)
-            print("4. Overkill -", V.overkill)
-            print("5. Speedrunner -", V.speedrunner)
-            print("6. Item Randomizer -", V.item_rando)
-            print("7. Eclipse -", V.eclipse)
-            print("8. Area Randomizer -", V.area_rando)
+            print("3. More...")
         else:
             print("2. Locked")
-            print("3. Locked")
-            print("4. Locked")
-            print("5. Locked")
-            print("6. Locked")
-            print("7. Locked")
-            print("8. Locked")
         print("9. Play the game")
         while True:
             action = input()
@@ -410,41 +384,9 @@ def mutators_choose():
                 else:
                     V.weather_amount = randint(1, 5)
                 break
-            elif (action == "3" or action.lower() == "evolution" or action.lower() == "evolve") and (V.SM_completed or V.SM_skip):
-                if V.evolution == False:
-                    V.evolution = True
-                else:
-                    V.evolution = False
-                break
-            elif (action == "4" or action.lower() == "overkill") and (V.SM_completed or V.SM_skip):
-                if V.overkill == False:
-                    V.overkill = True
-                else:
-                    V.overkill = False
-                break
-            elif (action == "5" or "speed" in action.lower()) and (V.SM_completed or V.SM_skip):
-                if V.speedrunner == False:
-                    V.speedrunner = True
-                else:
-                    V.speedrunner = False
-                break
-            elif (action == "6" or "item" in action.lower()) and (V.SM_completed or V.SM_skip):
-                if V.item_rando == False:
-                    V.item_rando = True
-                else:
-                    V.item_rando = False
-                break
-            elif (action == "7" or action.lower() == "eclipse") and (V.SM_completed or V.SM_skip):
-                if V.eclipse == False:
-                    V.eclipse = True
-                else:
-                    V.eclipse = False
-                break
-            elif (action == "8" or "area" in action.lower()) and (V.SM_completed or V.SM_skip):
-                if V.area_rando == False:
-                    V.area_rando = True
-                else:
-                    V.area_rando = False
+            elif (action == "3" or "more" in action.lower()) and (V.SM_completed or V.SM_skip):
+                print("I really wasn't happy with the mutators that did exist. I will make better ones later!\nType anything to continue...")
+                action = input()
                 break
             elif action == "9" or "play" in action.lower() or "game" in action.lower():
                 leave = 1
@@ -562,7 +504,7 @@ Type in the gamemode you want to play...''')
                 continue
             if V.game_mode not in ["daily", "credits"] and V.continue_run == False:
                 mutators_init()
-                V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.evolution_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+                V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
             if V.game_mode == "story":
                 story_mode()
             elif V.game_mode == "infinite":
@@ -576,7 +518,7 @@ Type in the gamemode you want to play...''')
             else:
                 print("There was an error initiating gamemodes...")
         else:
-            V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.evolution_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+            V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
             if V.meta_game_mode == "story":
                 story_mode()
             elif V.meta_game_mode == "infinite":
