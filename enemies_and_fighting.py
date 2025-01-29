@@ -16,13 +16,13 @@ def default_enemies(V):
                  False, False, False, True, False, False, False, True, False, False, False, True, False, False, False, False, False, False, False, False, False,
                  False, False, False, False, False, False, False, False, False, True, True, True, True, False, False, False, True, True, True, True, True, False,
                  True, False, False, False, False, False, False, True, True, True]
-    V.enemys_power_level = [1, 0.9, 0.75, 1.35, 1.7, 1, 1.02, 0.95, 1.05, 1, 1.07, 0.95, 1.45, 0.55, 1, 1, 1.05, 0.6, 1.12, 1, 0.85, 1.15, 1, 1.4, 1, 1, 1.1, 1.07,
-                      1, 1.15, 1.1, 1.45, 1, 2, 1.65, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 0.7, 0.8, 1.3, 1.5, 2.3, 1.3, 1.6, 1.02, 0.5,
-                      1.2, 1.1, 1, 1.05, 0.6, 0.9, 0.35, 1.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 1.03, 1, 1.5]
+    V.enemys_power_level = [1, 0.9, 0.75, 1.35, 1.7, 3, 1.02, 0.95, 1.05, 3, 1.07, 0.95, 1.45, 0.55, 3, 1, 1.05, 0.6, 1.12, 3, 0.85, 1.15, 1, 1.4, 3, 1, 1.1, 1.07,
+                      3, 1.15, 1.1, 1.45, 3, 6, 0.1, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 0.7, 0.8, 1.3, 4.5, 6.9, 3.9, 4.8, 1.02, 0.5,
+                      1.2, 3.3, 3, 3.15, 1.8, 2.7, 0.35, 4.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 3.09, 3, 4.5]
     V.enemys_name = ["Bush Man", "Weird Plant", "Arachno-flower", "Ent", "Spirit of Fear", "Treant", "Thug", "Bandit", "Dark Mage", "Bandit Chieftain", "Skeleton Warrior",
                "Undead Miner", "Bone Serpent", "Skeleton", "Soul Catcher", "Snowman Knifer", "Ice Elemental", "Snowman", "Snow Mage", "Yeti", "Spiderling",
                "Cave Spider", "Gargoyle", "Matriarch", "Spider Queen", "Cactus", "Desert Spider", "Sandwitch", "Cactus Golem", "Necromancer", "Poison Spider",
-               "Rotten Ent", "Undead Paladin", "Shopkeeper", "Spirit of Kindness", choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1),
+               "Rotten Ent", "Undead Paladin", "Shopkeeper", "Soul", choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1),
                choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1), choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1),
                "Spirit of Vitality", "Spirit of Strength", "Spirit of Might", "Spirit of Protection", "Yourself", "Venomous Roser", "Crystal Assassin",
                "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Jerboa", "Tumbleweeder", "Dark Knight", "Death", "The 3173rd", "Change", "Cycle",
@@ -33,7 +33,7 @@ def default_enemies(V):
                       [200, 185, 125], [210, 210, 170], [170, 165, 140], [170, 200, 170], [210, 210, 210], [75, 220, 220], [240, 240, 240], [40, 220, 220],
                       [240, 240, 240], [135, 220, 220], [190, 190, 190], [50, 65, 90], [90, 95, 110], [130, 140, 130], [50, 160, 90], [70, 200, 140],
                       [90, 240, 90], [120, 80, 70], [200, 175, 20], [110, 200, 110], [140, 180, 170], [50, 220, 50], [90, 90, 30], [100, 100, 100],
-                      [100, 220, 100], [240, 240, 0], [40, 210, 210], [210, 40, 40], [40, 210, 40], [0, 255, 0], [255, 0, 0], [255, 128, 0], [0, 200, 255],
+                      [100, 220, 100], [90, 120, 255], [40, 210, 210], [210, 40, 40], [40, 210, 40], [0, 255, 0], [255, 0, 0], [255, 128, 0], [0, 200, 255],
                       [249, 241, 165], [200, 0, 50], [255, 100, 255], [255, 100, 255], [255, 230, 230], [40, 100, 100], [150, 150, 100], [150, 150, 50],
                       [60, 70, 60], [100, 100, 100], [249, 241, 165], [100, 100, 175], [100, 200, 250], [20, 200, 20], [0, 250, 250], [0, 250, 100], [200, 0, 35],
                       [255, 50, 255], [255, 200, 200], [100, 210, 100], [75, 250, 75], [250, 220, 100], [200, 0, 150], [210, 200, 160], [190, 200, 160],
@@ -41,15 +41,19 @@ def default_enemies(V):
     V.enemys_elements = [[6], [6], [6], [2, 6], [4, 5], [2, 6], [2], [2], [5], [1, 2], [0], [0], [0, 6], [0], [5, 6], [1], [5], [], [1, 5], [1], [3], [5], [3], [0], [3],
                        [4], [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 6, 5], [6], [6], [], [0], [1], [3], [4],
                        [4], [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1], [4], [4], [4], [4], [5, 6], [5, 6], [2], [4], [4]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
-    V.enemys_base_hp = [30, 25, 23, 50, 50, 78, 35, 30, 27, 78, 31, 27, 40, 10, 66, 20, 27, 10, 25, 84, 10, 30, 25, 45, 72, 26, 32, 27, 72, 25, 30, 55, 78, 60, 72,
+    V.enemys_charm_immunity = [False, False, False, False, True, True, False, False, False, True, False, False, False, False, True, False, False, False, False, True,
+                               False, False, False, False, True, False, False, False, True, False, False, False, True, True, True, True, True, True, True, True, True,
+                               True, True, False, False, False, False, False, False, False, False, True, True, True, True, False, False, False, True, True, True, True,
+                               True, False, True, False, False, False, False, False, False, True, True, True]
+    V.enemys_base_hp = [30, 25, 23, 50, 50, 78, 35, 30, 27, 78, 31, 27, 40, 10, 66, 20, 27, 10, 25, 84, 10, 30, 25, 45, 72, 26, 32, 27, 72, 25, 30, 55, 78, 80, 0.5,
                   60, 42, 56, 150, 50, 30, 60, 1, 30, 30, 10, 19, 40, 2, 30, 40, 100, 350, 75, 125, 30, 7, 35, 72, 60, 78, 36, 60, 20, 60, 40, 5, 5, 60, 34, 30, 72,
                   2, 84]
-    V.enemys_base_dmg = [10, 7, 8, 12, 14, 14, 10, 9, 7, 13, 10, 9, 12, 4, 10, 15, 7, 5, 4, 13, 7, 11, 9, 12, 12, 10, 11, 4, 12, 5, 12, 14, 12, 10, 10, 10, 25, 12,
+    V.enemys_base_dmg = [10, 7, 8, 12, 14, 14, 10, 9, 7, 13, 10, 9, 12, 4, 10, 15, 7, 5, 4, 13, 7, 11, 9, 12, 12, 10, 11, 4, 12, 5, 12, 14, 12, 10, 0.5, 10, 25, 12,
                    20, 60, 30, 17, 1, 10, 14, 4, 40, 9, 0, 7, 15, 1, 50, 20, 30, 10, 0, 9, 10, 12, 20, 15, 10, 7, 12, 19, 1, 1, 22, 10, 9, 7, 0, 20]
-    V.enemys_base_def = [0, 0, 0, 0.4, 2, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 7, 2, 15, 2, 5, 7, 3, 0, 40, 1, 1, 1, 0, 0, 0,
+    V.enemys_base_def = [0, 0, 0, 0.4, 2, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 7, 0.5, 15, 2, 5, 7, 3, 0, 40, 1, 1, 1, 0, 0, 0,
                        0.2, 0, 2.5, 4, 150, 3, 15, 0, 0, 0, 1, 1, 0, 0, 2, 0, 2, 0, 0, 0, 0, 1, 0, 5, 0, 3]
     V.enemys_base_crit = [0.02, 0.01, 0.02, 0.04, 0.12, 0.06, 0.05, 0.05, 0.03, 0.09, 0.07, 0.04, 0.1, 0.01, 0.06, 0.05, 0.04, 0.01, 0.03, 0.11, 0.1, 0.05, 0.15, 0.1, 0.1,
-                        0.06, 0.05, 0.03, 0.07, 0.03, 0.06, 0.06, 0.1, 0.35, 0.13, 0.05, 0.4, 0.1, 0.03, 0.2, 0.8, 0.05, 1, 0.04, 0.07, 0.01, 0, 0.03, 0, 0.02, 0.1, 1,
+                        0.06, 0.05, 0.03, 0.07, 0.03, 0.06, 0.06, 0.1, 0.35, 0.5, 0.05, 0.4, 0.1, 0.03, 0.2, 0.8, 0.05, 1, 0.04, 0.07, 0.01, 0, 0.03, 0, 0.02, 0.1, 1,
                         0.4, 0.1, 0.1, 0.04, 0, 0.03, 0.1, 0.06, 0.1, 0.1, 0.07, 0.01, 0.05, 0.02, 0, 0, 0.04, 0.02, 0.02, 0.05, 0, 0.05]
     V.enemys_base_spk = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 7, 0, 0, 0, 10, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0,
                        0, 0.25, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0.25, 0.125, 0.125, 0.5, 0, 0, 0, 0, 0.25]
@@ -71,8 +75,8 @@ def default_enemies(V):
                        "Uses powers of Suffering Sands to heal allies and attack intruders", "Infestacious cactus has grown over an ancient stone golem",
                        "Dark mage who is able to summon the dead to their aid", "Extremely poisonous spider capable of killing large prey",
                        "Corrupted by eternal life, this ent will fight to protect the Holy Forest",
-                       "Once great paladin and now a force mindlessly protecting the Holy Forest", "One of the only humans, that you have made angry",
-                       "This spirit avenges those who act justly in life", "A bounty hunter who seems to use defense a lot",
+                       "Once great paladin and now a force mindlessly protecting the Holy Forest", "Orphan that has chosen the path of acceptance of his place in this world",
+                       "A soul brought back into this world", "A bounty hunter who seems to use defense a lot",
                        "A bounty hunter who seems to specify in damage", "A bounty hunter who seems to be proficient in poison and spikes",
                        "This spirit punishes those, who abuse altars' magic of vitality", "This spirit punishes those, who abuse altars' magic of strength",
                        "This spirit punishes those, who abuse altars' magic of might", "This spirit punishes those, who abuse altars' magic of protection and magic protection",
@@ -86,7 +90,7 @@ def default_enemies(V):
                        "Elite amphibian heretic, who learned how manipulate and create frogs", "The great knight that protects the Garden's grounds",
                        "A great wizard that infused himself with corrupted crystals of the Stale Cave", "There is little explanation of how this bear has visible abs",
                        "Male Spidernachs are considerably smaller than their counterparts", "This frog has been empowered by magic of amphibian heretics",
-                       "This worm like creature is quite common during dry weather", "A somewhat immortal alchemist that robs his customers when the buy nothing for too long",
+                       "This worm like creature is quite common during dry weather", "A somewhat immortal alchemist that robs his customers when they buy nothing for too long",
                        "This incredibly large parasite can make others transform", "This larva may mature when provoked", "This larva may mature when provoked",
                        "Mature antlion, ready to fight, hunt and kill for its colony", "This mage uses powers of Vine's Book to protect the Garden's grounds",
                        "This mage is obsessed with preserving plant life of the Garden's grounds", "This thug stole the armour from one of the legendary shield men",
@@ -96,7 +100,7 @@ def default_enemies(V):
                    1, 1, 14, 9, 0, 2, 2, 4, 17, 3, 18, 2, 1, 6, 2, 4, 2, 8,
                    4, 1, 16, 11, 8, 8, 2, 3, 9, 13, 0, 12] # for reference use start of Dungeon_of_3173.py
     V.enemys_spawners = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [1, 13, 13], [0], [0], [0], [0], [0], [0, 17], [0], [0], [0], [0],
-                       [0, 20, 20], [0, 20, 20], [0], [0], [0, 25, 26, 27, 28, 48, 49, 65, 66, 67, 68], [0], [0, 13], [0], [0], [0], [1, 34], [0], [0], [0], [0],
+                       [0, 20, 20], [0, 20, 20], [0], [0], [0, 25, 26, 27, 28, 48, 49, 65, 66, 67, 68], [0], [0, 13], [0], [0], [0], [0], [0], [0], [0], [0],
                        [0, 0, 1, 2, 3, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 33, 43, 44, 45, 46, 47, 48, 49, 50,
                        52, 58, 59, 60, 61, 65, 66, 67, 68, 69, 70, 71],
                        [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [1, 65], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
@@ -129,11 +133,9 @@ def default_enemies_credits(V):
     V.hunters_appeared = [False, False, False]
 
 class Enemies:
-    def __init__(self, V, enemy_id = 0, summoned = False, summoner_id = 0, elite = 0):
+    def __init__(self, V, enemy_id = 0, summoned = False, summoner_id = 0, elite = 0, is_enemy = True):
         if enemy_id == 4 and V.fear_anger - V.spirit_anger_reduction > 1:
             multiplier = round(V.fear_anger) - V.spirit_anger_reduction
-        elif enemy_id == 34 and V.shopkeeper_deaths - V.spirit_anger_reduction > 1:
-            multiplier = round(V.shopkeeper_deaths) - V.spirit_anger_reduction
         elif enemy_id == 38 and V.vitality_anger - V.spirit_anger_reduction > 1:
             multiplier = round(V.vitality_anger) - V.spirit_anger_reduction
         elif enemy_id == 39 and V.strength_anger - V.spirit_anger_reduction > 1:
@@ -160,35 +162,56 @@ class Enemies:
         self.en_id = enemy_id
         self.name = name_prefix + V.enemys_name[enemy_id]
         self.description = V.enemys_descriptions[enemy_id]
-        if "Tanky " in elite_prefixes:
-            self.hp = round(V.enemys_base_hp[enemy_id] * health_multiplier(V, enemy_id) * multiplier * 2.3)
+        if enemy_id == 34:
+            self.hp = round(V.enemys_base_hp[enemy_id] * V.enemys[summoner_id].max_hp)
         else:
-            self.hp = round(V.enemys_base_hp[enemy_id] * health_multiplier(V, enemy_id) * multiplier)
+            if "Tanky " in elite_prefixes:
+                self.hp = round(V.enemys_base_hp[enemy_id] * health_multiplier(V, enemy_id) * multiplier * 2.3)
+            else:
+                self.hp = round(V.enemys_base_hp[enemy_id] * health_multiplier(V, enemy_id) * multiplier)
         self.max_hp = self.hp
-        self.dmg = round(V.enemys_base_dmg[enemy_id] * damage_multiplier(V, enemy_id) * multiplier)
-        self.defense = round((V.enemys_base_def[enemy_id] + defense_addition(V, enemy_id)) * defense_multiplier(V, enemy_id) * multiplier)
-        if "Critical " in elite_prefixes:
-            self.crit = round(V.enemys_base_crit[enemy_id] * 2, 2) * crit_multiplier(V, enemy_id)
+        if enemy_id == 34:
+            self.dmg = round(V.enemys_base_dmg[enemy_id] * V.enemys[summoner_id].dmg)
         else:
-            self.crit = round(V.enemys_base_crit[enemy_id], 2) * crit_multiplier(V, enemy_id)
+            self.dmg = round(V.enemys_base_dmg[enemy_id] * damage_multiplier(V, enemy_id) * multiplier)
+        if enemy_id == 34:
+            self.defense = round(V.enemys_base_def[enemy_id] * V.enemys[summoner_id].original_defense)
+        else:
+            self.defense = round((V.enemys_base_def[enemy_id] + defense_addition(V, enemy_id)) * defense_multiplier(V, enemy_id) * multiplier)
         self.original_defense = self.defense
-        if "Thorny " in elite_prefixes:
-            self.spk = round((V.enemys_base_spk[enemy_id] + 2) * spike_multiplier(V, enemy_id) * multiplier * 2.3)
+        if enemy_id == 34:
+            self.crit = round(V.enemys_base_crit[enemy_id], 2) * V.enemys[summoner_id].crit
         else:
-            self.spk = round(V.enemys_base_spk[enemy_id] * spike_multiplier(V, enemy_id) * multiplier)
-        if "Toxic " in elite_prefixes:
-            self.psn = round((V.enemys_base_psn[enemy_id] + 2) * poison_multiplier(V, enemy_id) * multiplier * 1.5)
+            if "Critical " in elite_prefixes:
+                self.crit = round(V.enemys_base_crit[enemy_id] * 2, 2) * crit_multiplier(V, enemy_id)
+            else:
+                self.crit = round(V.enemys_base_crit[enemy_id], 2) * crit_multiplier(V, enemy_id)
+        if enemy_id == 34:
+            self.spk = 0
         else:
-            self.psn = round(V.enemys_base_psn[enemy_id] * poison_multiplier(V, enemy_id) * multiplier)
-        if summoned:
+            if "Thorny " in elite_prefixes:
+                self.spk = round((V.enemys_base_spk[enemy_id] + 2) * spike_multiplier(V, enemy_id) * multiplier * 2.3)
+            else:
+                self.spk = round(V.enemys_base_spk[enemy_id] * spike_multiplier(V, enemy_id) * multiplier)
+        if enemy_id == 34:
+            self.psn = 0
+        else:
+            if "Toxic " in elite_prefixes:
+                self.psn = round((V.enemys_base_psn[enemy_id] + 2) * poison_multiplier(V, enemy_id) * multiplier * 1.5)
+            else:
+                self.psn = round(V.enemys_base_psn[enemy_id] * poison_multiplier(V, enemy_id) * multiplier)
+        if summoned and enemy_id != 34:
             self.psnd = V.enemys[summoner_id].psnd // 2
         else:
             self.psnd = 0
         self.stnd = 0
-        if "Impenetrable " in elite_prefixes:
-            self.max_imm = round((V.enemys_base_immortality[enemy_id] + 2) * immortality_multiplier(V, enemy_id) * multiplier)
+        if enemy_id == 34:
+            self.max_imm = round(V.enemys_base_immortality[enemy_id] * V.enemys[summoner_id].max_imm)
         else:
-            self.max_imm = round(V.enemys_base_immortality[enemy_id] * immortality_multiplier(V, enemy_id) * multiplier)
+            if "Impenetrable " in elite_prefixes:
+                self.max_imm = round((V.enemys_base_immortality[enemy_id] + 2) * immortality_multiplier(V, enemy_id) * multiplier)
+            else:
+                self.max_imm = round(V.enemys_base_immortality[enemy_id] * immortality_multiplier(V, enemy_id) * multiplier)
         self.imm = self.max_imm
         self.pattern = V.enemys_patterns[enemy_id]
         self.spawner = V.enemys_spawners[enemy_id].copy()
@@ -201,6 +224,11 @@ class Enemies:
         else:
             self.money = 0
             self.xp = 0
+        self.charm_immune = V.enemys_charm_immunity[enemy_id]
+        if enemy_id != 34:
+            self.is_enemy = is_enemy
+        else:
+            self.is_enemy = True
 
 
 def enemy_hit(V, attacker = 0):
@@ -245,6 +273,8 @@ def enemy_hit(V, attacker = 0):
         if alive_allies > 0:
             print(V.enemys[attacker].name, "dealt ", end = "")
         k = 0
+        
+        allies_deletion = []
         for i in V.allys:
             if i.hp <= 0:
                 continue
@@ -256,10 +286,16 @@ def enemy_hit(V, attacker = 0):
             ally_dealt_damage += V.enemys[attacker].psn
             ally_dealt_damage = round(ally_dealt_damage * (1 - immortality_compute(i.max_imm, i.imm)))
             i.hp -= ally_dealt_damage
+            if i.hp <= 0 and i.is_enemy:
+                allies_deletion.append(i)
             if k > 1:
                 print(", ", end = "")
             print(ally_dealt_damage, "DMG to", enemy_name_color(V, i.en_id) + i.name + enemy_name_color(V, V.enemys[attacker].en_id), end = "")
         print("!")
+
+        for i in allies_deletion:
+            V.allys.remove(i)
+
     V.player_dealt_damage = round(dealt_damage * (1 - (V.player_shield / 100)))
     if V.player_dealt_damage > V.player_base_def + V.player_extra_def:
         V.player_dealt_damage -= V.player_base_def + V.player_extra_def
@@ -652,12 +688,15 @@ def fight_choose(V, extra_power_level = 0):
     cur_max_power_level = V.max_power_level + game_time_bonus + extra_power_level
 
     for i in range(len(V.enemys_name)):
-        if (V.enemy_is_boss[i] == False and V.area_id in V.enemy_areas[i]) or ("drought" in V.enemy_areas[i] and 9 in V.current_weather):
+        if V.area_id in V.enemy_areas[i] or ("drought" in V.enemy_areas[i] and 9 in V.current_weather):
             if i in [35, 36, 37]:
                 if V.hunters_appeared[i - 35] == False:
                     possible_enemies.append(i)
             else:
                 possible_enemies.append(i)
+                if i in V.bounty_target:
+                    possible_enemies.append(i)
+                    possible_enemies.append(i)
 
     while len(possible_enemies) > 0:
         i = choice(possible_enemies)
@@ -711,13 +750,16 @@ A familiar figure appears in front of you three.
         print('''Type anything to continue...''')
         action = input()
     else:
-        cur_max_power_level = V.max_power_level
+        cur_max_power_level = V.max_power_level * 3
         enemies = []
         possible_enemies = []
 
         for i in range(len(V.enemys_name)):
             if V.enemy_is_boss[i] == True and ((V.area_id in V.enemy_areas[i]) or ("drought" in V.enemy_areas[i] and 9 in V.current_weather)):
                 possible_enemies.append(i)
+                if i in V.bounty_target:
+                    possible_enemies.append(i)
+                    possible_enemies.append(i)
     
         while len(possible_enemies) > 0:
             i = choice(possible_enemies)
@@ -996,7 +1038,7 @@ def fight(V, enemy_ids = [0], ally_ids = []):
         print("\033[0m blocks your way!")
     k = 0
     for i in ally_ids:
-        V.allys.append(Enemies(V, i))
+        V.allys.append(Enemies(V, i, False, 0, 0, False))
     while True:
         while True:
             print("\033[33;1mYour stats: ", V.player_current_hp, "/", V.player_max_hp, " HP; ", round(V.player_base_dmg * ((V.player_damage_buff / 100) + 1)), " DMG; ", round(V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)), "% CRT; ", V.player_base_def, "+", V.player_extra_def, " DEF", sep = "", end = "")
@@ -1018,6 +1060,8 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                 print("; ", V.player_magic_shield, "% MGCSHLD", sep = "", end = "")
             if V.player_lifesteal > 0:
                 print("; ", V.player_lifesteal, "% LFST", sep = "", end = "")
+            if V.player_weapon_wrath > 0:
+                print("; ", V.player_weapon_wrath, "% WRT", sep = "", end = "")
             if V.player_dodge_chance > 0:
                 print("; ", V.player_dodge_chance, "% DCH", sep = "", end = "")
             if V.player_poisoned > 0:
@@ -1100,9 +1144,23 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                             hit_action = int(hit_action)
                             if hit_action > 0 and hit_action <= len(V.enemys):
                                 player_hit(V, hit_action - 1)
-                                break
+                                if V.player_weapon != 2:
+                                    break
+                        if V.player_weapon == 2:
+                            print("Choose enemy")
+                            for i in range(len(V.enemys)):
+                                print(i + 1, ". ", enemy_name_color(V, V.enemys[i].en_id) + V.enemys[i].name, "\033[0m", sep='')
+                            while True:
+                                hit_action = input()
+                                if hit_action.isdigit():
+                                    hit_action = int(hit_action)
+                                    if hit_action > 0 and hit_action <= len(V.enemys):
+                                        player_hit(V, hit_action - 1)
+                                        break
                     else:
                         player_hit(V, 0)
+                        if V.player_weapon == 2:
+                            player_hit(V, 0)
                         break
                 elif action == '2' or action.lower() == "defend":
                     if V.player_base_def < 10:
@@ -1112,6 +1170,7 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                     print("\033[33;1mYou defended! Your defense has increased to", V.player_base_def + V.player_extra_def, "DEF!\033[0m")
                     break
                 elif action == '3' or action.lower() == "inspect":
+                    inspect_cancel = False
                     if len(V.enemys) > 1:
                         print("Choose enemy")
                         for i in range(len(V.enemys)):
@@ -1121,34 +1180,41 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                             inspect_action = int(inspect_action)
                             if inspect_action > 0 and inspect_action <= len(V.enemys):
                                 print(enemy_name_color(V, V.enemys[inspect_action - 1].en_id) + V.enemys[inspect_action - 1].description)
+                            else:
+                                inspect_cancel = True
+                        else:
+                            inspect_cancel = True
                     else:
                         inspect_action = 1
                         print(enemy_name_color(V, V.enemys[0].en_id) + V.enemys[0].description)
-                    print("Elements: ", end = "")
-                    if len(V.enemys_elements[V.enemys[inspect_action - 1].en_id]):
-                        element_count = 0
-                        for i in V.enemys_elements[V.enemys[inspect_action - 1].en_id]:
-                            if element_count > 0:
-                                print(enemy_name_color(V, V.enemys[0].en_id)+ ", ", end = "")
-                            if i == 0:
-                                print("\033[38;2;0;255;0mVitality", end = "")
-                            elif i == 1:
-                                print("\033[38;2;255;0;0mStrength", end = "")
-                            elif i == 2:
-                                print("\033[38;2;0;200;255mProtection", end = "")
-                            elif i == 3:
-                                print("\033[38;2;255;128;0mMight", end = "")
-                            elif i == 4:
-                                print("\033[38;2;190;0;205mInnocence", end = "")
-                            elif i == 5:
-                                print("\033[38;2;250;250;0mMana", end = "")
-                            elif i == 6:
-                                print("\033[38;2;0;255;255mMagic Protection", end = "")
-                            element_count += 1
-                    else:
-                        print("\033[0mNone", end = "")
-                    print("\033[0m\nType anything to continue...")
-                    action = input()
+                    if inspect_cancel == False:
+                        print("Elements: ", end = "")
+                        if len(V.enemys_elements[V.enemys[inspect_action - 1].en_id]):
+                            element_count = 0
+                            for i in V.enemys_elements[V.enemys[inspect_action - 1].en_id]:
+                                if element_count > 0:
+                                    print(enemy_name_color(V, V.enemys[0].en_id)+ ", ", end = "")
+                                if i == 0:
+                                    print("\033[38;2;0;255;0mVitality", end = "")
+                                elif i == 1:
+                                    print("\033[38;2;255;0;0mStrength", end = "")
+                                elif i == 2:
+                                    print("\033[38;2;0;200;255mProtection", end = "")
+                                elif i == 3:
+                                    print("\033[38;2;255;128;0mMight", end = "")
+                                elif i == 4:
+                                    print("\033[38;2;190;0;205mInnocence", end = "")
+                                elif i == 5:
+                                    print("\033[38;2;250;250;0mMana", end = "")
+                                elif i == 6:
+                                    print("\033[38;2;0;255;255mMagic Protection", end = "")
+                                element_count += 1
+                        else:
+                            print("\033[0mNone", end = "")
+                        if V.enemys[inspect_action - 1].en_id in V.bounty_target:
+                            print("\n\033[33;1mA bounty target!", end = "")
+                        print("\033[0m\nType anything to continue...")
+                        action = input()
                 elif action == '4' or action.lower() == "self inspect":
                     print("\033[33;1mYou concentrate and attempt to remember yourself...\nYour balance is ", V.player_money, " coins\nYour experience is ", V.player_xp, "/", xp_to_lvl_up(V), " XP\nYour level is ", V.player_level, sep = "")
                     if V.player_gold_boost > 0:
@@ -1167,41 +1233,52 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                 elif (action == '5' or action.lower() == "broad hit"):
                     if len(V.enemys) > 1:
                         player_hit(V, -1)
+                        if V.player_weapon == 2:
+                            player_hit(V, -1)
                     elif len(V.enemys) == 1:
                         player_hit(V, 0)
+                        if V.player_weapon == 2:
+                            player_hit(V, 0)
                     break
                 elif action == '7' or action.lower() == "do nothing":
                     print("\033[33;1mYou decided to do absolutely nothing for this turn!\033[0m")
                     break
                 elif action == '8' or "item" in action.lower():
                     if len(V.player_items) > 0:
-                        counter = 0
-                        for i in V.player_items:
-                            counter += 1
-                            print(str(counter) + ".", V.consumable_item_names[i])
-                        print("\n1. Use\n2. Inspect")
                         while True:
-                            action = input()
-                            if action == '1' or action.lower() == "use":
-                                print("Which item do you want to use?")
-                                use_action = input()
-                                if use_action.isdigit():
-                                    use_action = int(use_action)
-                                    if use_action > 0 and use_action <= len(V.player_items):
-                                        item_use(V, V.player_items[use_action - 1])
+                            counter = 0
+                            for i in V.player_items:
+                                counter += 1
+                                print(str(counter) + ".", V.consumable_item_names[i])
+                            if counter == 0:
                                 break
-                            elif action == '2' or action.lower() == "inspect":
-                                print("Which one do you want to inspect?")
-                                inspect_action = input()
-                                if inspect_action.isdigit():
-                                    inspect_action = int(inspect_action)
-                                    if inspect_action > 0 and inspect_action <= len(V.player_items):
-                                        print(V.consumable_item_desc[V.player_items[inspect_action-1]])
-                                break
+                            print("0. Cancel")
+                            print("Choose an item")
+                            item_action = input()
+                            if item_action.isdigit():
+                                item_action = int(item_action)
+                                if item_action > 0 and item_action <= len(V.player_items):
+                                    print("1. Use\n2. Inspect\n0. Cancel")
+                                    while True:
+                                        action = input()
+                                        if action == '1' or action.lower() == "use":
+                                            item_use(V, V.player_items[item_action - 1], "fight")
+                                            print("\033[0m\nType anything to continue...")
+                                            action = input()
+                                            break
+                                        elif action == '2' or action.lower() == "inspect":
+                                            print(V.consumable_item_desc[V.player_items[item_action-1]])
+                                            print("\033[0m\nType anything to continue...")
+                                            action = input()
+                                            break
+                                        elif action == '0' or action.lower() == "cancel":
+                                            break
+                                if item_action == 0:
+                                    break
                     else:
                         print("You have no items!")
-                    print("\033[0m\nType anything to continue...")
-                    action = input()
+                        print("\033[0m\nType anything to continue...")
+                        action = input()
                 elif action == '9' or "queue" in action.lower() or "action" in action.lower():
                     print("You will repeat the same action a certain amount of times.")
                     print("Choose which action do you want to queue:")
@@ -1271,6 +1348,11 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                 print("\033[33;1mYou regenerated", regen, "HP! You have", V.player_current_hp, "HP left!\033[0m")
                 print("\033[33;1mYour REG has been decreased by 1% for this battle!\033[0m")
                 V.player_current_regen -= 1
+
+        if V.player_weapon_wrath > 0:
+            V.player_damage_buff += V.player_weapon_wrath
+            V.player_crit_chance_buff += V.player_weapon_wrath
+            print("\033[33;1mYour damage and critical chance have been increased by ", V.player_weapon_wrath, "%! Total increases are ", V.player_damage_buff, "%(DMG) and ", V.player_crit_chance_buff, "%(CRT)!\033[0m", sep = "")
         
         if V.player_poisoned > 0:
             if V.player_poison_def >= V.player_poisoned:
@@ -1295,17 +1377,27 @@ def fight(V, enemy_ids = [0], ally_ids = []):
         if V.player_current_hp < 0:
             V.player_current_hp = 0
 
+        allies_deletion = []
         for i in range(len(V.allys)):
-            if V.allys[i].hp <= 0:
+            if V.allys[i].hp <= 0 and V.allys[i].is_enemy == False:
                 V.allys[i].hp += V.allys[i].max_hp // 10
                 if V.allys[i].hp > 0:
                     V.allys[i].hp = V.allys[i].max_hp // 2
                 else:
                     continue
+            elif V.allys[i].hp <= 0 and V.allys[i].is_enemy:
+                allies_deletion.append(V.allys[i])
+                continue
             ally_hit(V, i)
             if V.allys[i].psnd > 0:
                 V.allys[i].hp -= V.allys[i].psnd
+                if V.allys[i].hp <= 0 and V.allys[i].is_enemy:
+                    allies_deletion.append(V.allys[i])
+                    continue
             V.allys[i].imm -= 1
+
+        for i in allies_deletion:
+            V.allys.remove(i)
 
         for i in range(len(V.enemys)):
             if V.enemys[i].stnd > 0:
@@ -1329,8 +1421,23 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                     spawn += 1
                     if spawn > 1:
                         V.enemys.append(Enemies(V, enemy_id = k, summoned = True, summoner_id = V.enemys.index(i)))
+            if V.player_weapon == 5:
+                print("\033[38;2;90;120;255m" + V.enemys[V.enemys.index(i)].name + "'s soul left their host!")
+                V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = V.enemys.index(i)))
             V.money_gain += i.money
             V.xp_gain += i.xp
+            if i.en_id == V.bounty_target[0]:
+                V.bounty_target_tracking[0] += 1
+                if V.bounty_target_tracking[0] < 8:
+                    V.reaper_trust += 0.02
+            if i.en_id == V.bounty_target[1]:
+                V.bounty_target_tracking[1] += 1
+                if V.bounty_target_tracking[1] < 4:
+                    V.reaper_trust += 0.04
+            if i.en_id == V.bounty_target[2]:
+                V.bounty_target_tracking[2] += 1
+                if V.bounty_target_tracking[2] < 2:
+                    V.reaper_trust += 0.15
             if not i.en_id in V.enemy_unconsumable:
                 V.player_max_hp += round((V.player_consume / 100) * i.max_hp)
                 V.player_base_dmg += round((V.player_consume / 100) * i.dmg)
@@ -1380,204 +1487,320 @@ def fight(V, enemy_ids = [0], ally_ids = []):
 
 def player_hit(V, target = 0):
 
-    enemys_deletion = []
-    print("\033[33;1m", end = "")
-    if target > -1: # Regular Hit
-        dealt_damage = round(V.player_base_dmg * (randint(V.weapon_damage_ranges[V.player_weapon][0] + V.player_damage_range_boost, V.weapon_damage_ranges[V.player_weapon][1] + V.player_damage_range_boost) / 100) * ((V.player_damage_buff / 100) + 1))
-        cur_crit_chance = V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)
-        crit_count = 0
-        while cur_crit_chance > 0:
-            if chance(cur_crit_chance / 100):
-                dealt_damage *= 2
-                crit_count += 1
-            cur_crit_chance -= V.player_crit_chance_reduction
-        if V.enemys[target].defense < dealt_damage:
-            dealt_damage -= V.enemys[target].defense
-        else:
-            dealt_damage = 1
-        
-        dealt_damage = round(dealt_damage * (1 - immortality_compute(V.enemys[target].max_imm, V.enemys[target].imm)))
-        V.enemys[target].hp -= dealt_damage
-        spike_damage = V.enemys[target].spk
-        if V.player_lifesteal > 0:
-            heal = round(dealt_damage * V.player_lifesteal / 100)
-            if heal + V.player_current_hp > V.player_max_hp:
-                heal -= heal + V.player_current_hp - V.player_max_hp
-            V.player_current_hp += heal
-            print("You have healed for", heal, "HP! You have", V.player_current_hp, "HP left!")
-        V.player_current_hp -= spike_damage
-        if V.player_current_hp < 0:
-            V.player_current_hp = 0
-        if V.enemys[target].hp > 0:
-            print("You hit", V.enemys[target].name, "for", dealt_damage, "DMG! They have", V.enemys[target].hp, "HP left!")
-            if spike_damage > 0:
-                print(V.enemys[target].name, "'s spikes dealt ", spike_damage, " DMG to you! You have ", V.player_current_hp, " HP left!", sep = "")
-            if V.player_poison > 0:
-                dealt_poison = round(V.player_poison * V.weapon_poison_factor[V.player_weapon])
+    if len(V.enemys) > 0:
+        enemys_deletion = []
+        print("\033[33;1m", end = "")
+        if target > -1: # Regular Hit
+            dealt_damage = round(V.player_base_dmg * (randint(V.weapon_damage_ranges[V.player_weapon][0] + V.player_damage_range_boost, V.weapon_damage_ranges[V.player_weapon][1] + V.player_damage_range_boost) / 100) * ((V.player_damage_buff / 100) + 1))
+            cur_crit_chance = V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)
+            crit_count = 0
+            while cur_crit_chance > 0:
+                if chance(cur_crit_chance / 100):
+                    dealt_damage *= 2
+                    crit_count += 1
+                cur_crit_chance -= V.player_crit_chance_reduction
+            if V.player_weapon == 1:
+                if 5 in V.enemys_elements[V.enemys[target].en_id]:
+                    dealt_damage *= 3
+            if V.enemys[target].defense < dealt_damage:
+                dealt_damage -= V.enemys[target].defense
             else:
-                dealt_poison = 0
-            if dealt_poison > 0:
-                V.enemys[target].psnd += dealt_poison
-                print("You have inflicted ", dealt_poison, " PSN to ", V.enemys[target].name, "! Their total poison is ", V.enemys[target].psnd, " PSN!", sep = "")
-        else:
-            V.queue_amount = 0
-            print("You hit", V.enemys[target].name, "for", dealt_damage, "DMG! You killed them!")
+                dealt_damage = 1
+        
+            dealt_damage = round(dealt_damage * (1 - immortality_compute(V.enemys[target].max_imm, V.enemys[target].imm)))
+            V.enemys[target].hp -= dealt_damage
+            spike_damage = V.enemys[target].spk
+            if V.player_lifesteal > 0:
+                heal = round(dealt_damage * V.player_lifesteal / 100)
+                if heal + V.player_current_hp > V.player_max_hp:
+                    heal -= heal + V.player_current_hp - V.player_max_hp
+                V.player_current_hp += heal
+                print("You have healed for", heal, "HP! You have", V.player_current_hp, "HP left!")
+            V.player_current_hp -= spike_damage
+            if V.player_current_hp < 0:
+                V.player_current_hp = 0
+            if V.enemys[target].hp > 0:
+                print("You hit", V.enemys[target].name, "for", dealt_damage, "DMG! They have", V.enemys[target].hp, "HP left!")
+                if spike_damage > 0:
+                    print(V.enemys[target].name, "'s spikes dealt ", spike_damage, " DMG to you! You have ", V.player_current_hp, " HP left!", sep = "")
+                if V.player_poison > 0:
+                    dealt_poison = round(V.player_poison * V.weapon_poison_factor[V.player_weapon])
+                else:
+                    dealt_poison = 0
+                if dealt_poison > 0:
+                    V.enemys[target].psnd += dealt_poison
+                    print("You have inflicted ", dealt_poison, " PSN to ", V.enemys[target].name, "! Their total poison is ", V.enemys[target].psnd, " PSN!", sep = "")
+            else:
+                V.queue_amount = 0
+                print("You hit", V.enemys[target].name, "for", dealt_damage, "DMG! You killed them!")
+                if spike_damage > 0:
+                    print(V.enemys[target].name, "'s spikes dealt ", spike_damage, " DMG to you! You have ", V.player_current_hp, " HP left!", sep = "")
+                if V.enemys[target].spawner[0] == 1:
+                    spawn = 0
+                    for i in V.enemys[target].spawner:
+                        spawn += 1
+                        if spawn > 1:
+                            V.enemys.append(Enemies(V, enemy_id = i, summoned = True, summoner_id = target))
+                if V.player_weapon == 5:
+                    print("\033[38;2;90;120;255m" + V.enemys[target].name + "'s soul left their host!")
+                    V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = target))
+                V.money_gain += V.enemys[target].money
+                V.xp_gain += V.enemys[target].xp
+                if not V.enemys[target].en_id in V.enemy_unconsumable:
+                    V.player_max_hp += round((V.player_consume / 100) * V.enemys[target].max_hp)
+                    V.player_base_dmg += round((V.player_consume / 100) * V.enemys[target].dmg)
+                    V.player_base_def += round((V.player_consume / 100) * V.enemys[target].defense)
+                    V.player_crit_chance += round(V.player_consume * V.enemys[target].crit)
+                if V.enemys[target].en_id == V.bounty_target[0]:
+                    V.bounty_target_tracking[0] += 1
+                    if V.bounty_target_tracking[0] < 8:
+                        V.reaper_trust += 0.02
+                if V.enemys[target].en_id == V.bounty_target[1]:
+                    V.bounty_target_tracking[1] += 1
+                    if V.bounty_target_tracking[0] < 4:
+                        V.reaper_trust += 0.04
+                if V.enemys[target].en_id == V.bounty_target[2]:
+                    V.bounty_target_tracking[2] += 1
+                    if V.bounty_target_tracking[0] < 2:
+                        V.reaper_trust += 0.15
+                if V.player_enemy_explotano > 0:
+                    exploding_damage = round((V.player_enemy_explotano / 100) * V.enemys[target].max_hp)
+                    if len(V.enemys) - 1 != 0:
+                        exploding_damage //= len(V.enemys) - 1
+                    else:
+                        exploding_damage = 0
+                    for k in V.enemys:
+                        if not k == V.enemys[target]:
+                            k.hp -= exploding_damage
+                            if k.hp <= 0:
+                                enemys_deletion.append(k)
+                    if exploding_damage > 0:
+                        print(V.enemys[target].name, "exploded and dealt", exploding_damage, "to other enemies.")
+                V.enemys.remove(V.enemys[target])
+
+        else: # Broad Hit
+            dealt_damage = round(V.player_base_dmg * ((V.weapon_damage_ranges[V.player_weapon][1] + V.player_damage_range_boost)  / 100) * ((V.player_damage_buff / 100) + 1) * V.weapon_crowd_factor[V.player_weapon])
+            cur_crit_chance = V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)
+            crit_count = 0
+            while cur_crit_chance > 0:
+                if chance(cur_crit_chance / 100):
+                    dealt_damage *= 2
+                    crit_count += 1
+                cur_crit_chance -= V.player_crit_chance_reduction
+            dealt_damage = round(dealt_damage / len(V.enemys))
+            print("You dealt", end = "")
+            jank_code_counter = 0
+            enemys_deletion = []
+            spike_damage = 0
+            for i in V.enemys:
+                current_enemy_dealt_damage = dealt_damage
+                if V.player_weapon == 1:
+                    if 5 in V.enemys_elements[i.en_id]:
+                        dealt_damage *= 5
+                if i.defense < current_enemy_dealt_damage:
+                    current_enemy_dealt_damage = current_enemy_dealt_damage - i.defense
+                else:
+                    current_enemy_dealt_damage = 1
+                current_enemy_dealt_damage = round(current_enemy_dealt_damage * (1 - immortality_compute(i.max_imm, i.imm)))
+                if jank_code_counter > 0:
+                    print(",", end = "")
+                i.hp -= (dealt_damage - i.defense)
+                print("", dealt_damage - i.defense, "DMG to", i.name, end = "")
+                if i.hp <= 0:
+                    enemys_deletion.append(i)
+                jank_code_counter += 1
+                spike_damage += i.spk
+            print("!")
+            V.player_current_hp -= spike_damage
+            if V.player_current_hp < 0:
+                V.player_current_hp = 0
             if spike_damage > 0:
-                print(V.enemys[target].name, "'s spikes dealt ", spike_damage, " DMG to you! You have ", V.player_current_hp, " HP left!", sep = "")
-            if V.enemys[target].spawner[0] == 1:
+                print("Some of the enemies you've hit had spikes and dealt", spike_damage, "DMG to you! You have", V.player_current_hp, "HP left!")
+            if V.player_poison > 0:
+                print("Your hit was too inaccurate to inflict poison!")
+        for i in enemys_deletion:
+            V.queue_amount = 0
+            enemy_id = V.enemys.index(i)
+            if i.spawner[0] == 1:
                 spawn = 0
-                for i in V.enemys[target].spawner:
+                for k in i.spawner:
                     spawn += 1
                     if spawn > 1:
-                        V.enemys.append(Enemies(V, enemy_id = i, summoned = True, summoner_id = target))
-            V.money_gain += V.enemys[target].money
-            V.xp_gain += V.enemys[target].xp
-            if not V.enemys[target].en_id in V.enemy_unconsumable:
-                V.player_max_hp += round((V.player_consume / 100) * V.enemys[target].max_hp)
-                V.player_base_dmg += round((V.player_consume / 100) * V.enemys[target].dmg)
-                V.player_base_def += round((V.player_consume / 100) * V.enemys[target].defense)
-                V.player_crit_chance += round(V.player_consume * V.enemys[target].crit)
+                        V.enemys.append(Enemies(V, enemy_id = k,summoned = True, summoner_id = enemy_id))
+            if V.player_weapon == 5:
+                print("\033[38;2;90;120;255m" + V.enemys[V.enemy_id].name + "'s soul left their host!")
+                V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = enemy_id))
+            V.money_gain += i.money
+            V.xp_gain += i.xp
+            if not i.en_id in V.enemy_unconsumable:
+                V.player_max_hp += round((V.player_consume / 100) * i.max_hp)
+                V.player_base_dmg += round((V.player_consume / 100) * i.dmg)
+                V.player_base_def += round((V.player_consume / 100) * i.original_defense)
+                V.player_crit_chance += round(V.player_consume * i.crit)
+            if i.en_id == V.bounty_target[0]:
+                V.bounty_target_tracking[0] += 1
+                if V.bounty_target_tracking[0] < 8:
+                    V.reaper_trust += 0.02
+            if i.en_id == V.bounty_target[1]:
+                V.bounty_target_tracking[1] += 1
+                if V.bounty_target_tracking[0] < 4:
+                    V.reaper_trust += 0.04
+            if i.en_id == V.bounty_target[2]:
+                V.bounty_target_tracking[2] += 1
+                if V.bounty_target_tracking[0] < 2:
+                    V.reaper_trust += 0.15
             if V.player_enemy_explotano > 0:
-                exploding_damage = round((V.player_enemy_explotano / 100) * V.enemys[target].max_hp)
-                if len(V.enemys) - 1 != 0:
-                    exploding_damage //= len(V.enemys) - 1
+                exploding_damage = round((V.player_enemy_explotano / 100) * i.max_hp)
+                if len(V.enemys) - len(enemys_deletion) > 0:
+                    exploding_damage //= len(V.enemys) - len(enemys_deletion)
                 else:
                     exploding_damage = 0
                 for k in V.enemys:
-                    if not k == V.enemys[target]:
+                    if not k in enemys_deletion:
                         k.hp -= exploding_damage
                         if k.hp <= 0:
                             enemys_deletion.append(k)
                 if exploding_damage > 0:
-                    print(V.enemys[target].name, "exploded and dealt", exploding_damage, "to other enemies.")
-            V.enemys.remove(V.enemys[target])
+                    print(i.name, "exploded and dealt", exploding_damage, "to other enemies.")
+            V.enemys.remove(i)
 
-    else: # Broad Hit
-        dealt_damage = round(V.player_base_dmg * ((V.weapon_damage_ranges[V.player_weapon][1] + V.player_damage_range_boost)  / 100) * ((V.player_damage_buff / 100) + 1) * V.weapon_crowd_factor[V.player_weapon])
-        cur_crit_chance = V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)
-        crit_count = 0
-        while cur_crit_chance > 0:
-            if chance(cur_crit_chance / 100):
-                dealt_damage *= 2
-                crit_count += 1
-            cur_crit_chance -= V.player_crit_chance_reduction
-        dealt_damage = round(dealt_damage / len(V.enemys))
-        print("You dealt", end = "")
-        jank_code_counter = 0
-        enemys_deletion = []
-        spike_damage = 0
-        for i in V.enemys:
-            if i.defense < dealt_damage:
-                current_enemy_dealt_damage = dealt_damage - i.defense
-            else:
-                current_enemy_dealt_damage = 1
-            current_enemy_dealt_damage = round(current_enemy_dealt_damage * (1 - immortality_compute(i.max_imm, i.imm)))
-            if jank_code_counter > 0:
-                print(",", end = "")
-            i.hp -= (dealt_damage - i.defense)
-            print("", dealt_damage - i.defense, "DMG to", i.name, end = "")
-            if i.hp <= 0:
-                enemys_deletion.append(i)
-            jank_code_counter += 1
-            spike_damage += i.spk
-        print("!")
-        V.player_current_hp -= spike_damage
-        if V.player_current_hp < 0:
-            V.player_current_hp = 0
-        if spike_damage > 0:
-            print("Some of the enemies you've hit had spikes and dealt", spike_damage, "DMG to you! You have", V.player_current_hp, "HP left!")
-        if V.player_poison > 0:
-            print("Your hit was too inaccurate to inflict poison!")
-    for i in enemys_deletion:
-        V.queue_amount = 0
-        enemy_id = V.enemys.index(i)
-        if i.spawner[0] == 1:
-            spawn = 0
-            for k in i.spawner:
-                spawn += 1
-                if spawn > 1:
-                    V.enemys.append(Enemies(V, enemy_id = k,summoned = True, summoner_id = enemy_id))
-        V.money_gain += i.money
-        V.xp_gain += i.xp
-        if not i.en_id in V.enemy_unconsumable:
-            V.player_max_hp += round((V.player_consume / 100) * i.max_hp)
-            V.player_base_dmg += round((V.player_consume / 100) * i.dmg)
-            V.player_base_def += round((V.player_consume / 100) * i.original_defense)
-            V.player_crit_chance += round(V.player_consume * i.crit)
-        if V.player_enemy_explotano > 0:
-            exploding_damage = round((V.player_enemy_explotano / 100) * i.max_hp)
-            if len(V.enemys) - len(enemys_deletion) > 0:
-                exploding_damage //= len(V.enemys) - len(enemys_deletion)
-            else:
-                exploding_damage = 0
-            for k in V.enemys:
-                if not k in enemys_deletion:
-                    k.hp -= exploding_damage
-                    if k.hp <= 0:
-                        enemys_deletion.append(k)
-            if exploding_damage > 0:
-                print(i.name, "exploded and dealt", exploding_damage, "to other enemies.")
-        V.enemys.remove(i)
+        if crit_count == 1:
+            print("It was a critical hit!")
+        elif crit_count > 1:
+            print("You rolled a critical hit", crit_count, "times!")
 
-    if crit_count == 1:
-        print("It was a critical hit!")
-    elif crit_count > 1:
-        print("You rolled a critical hit", crit_count, "times!")
+        print("\033[0m", end = "")
 
-    print("\033[0m", end = "")
-
-def item_use(V, item):
+def item_use(V, item, type):
     print("\033[33;1m", end = "")
     original_item = item
-    while item == 3:
-        item = randint(0, len(V.consumable_item_names) - 1)
-    if item == 0:
-        print("This did absolutely nothing!")
-    elif item == 1:
-        heal = round(0.2 * V.player_max_hp)
-        if heal + V.player_current_hp > V.player_max_hp:
-            heal = V.player_max_hp - V.player_current_hp
-        extra_def = round(0.2 * V.player_base_def)
-        V.player_extra_def += extra_def
-        V.player_current_hp += heal
-        print("You ate a cookie. You regenerated", heal, "HP and gained", extra_def, "defense!")
-    elif item == 2:
-        V.player_poisoned = 0
-        print("You injected antidote. Your PSN'd decreased to 0!")
-    elif item == 4:
-        heal = round(0.5 * V.player_max_hp)
-        if heal + V.player_current_hp > V.player_max_hp:
-            heal = V.player_max_hp - V.player_current_hp
-        V.player_current_hp += heal
-        print("You ate cooked meat. You regenerated", heal, "HP!")
-    elif item == 5:
-        heal = round(0.05 * V.player_max_hp)
-        if heal + V.player_current_hp > V.player_max_hp:
-            heal = V.player_max_hp - V.player_current_hp
-        for i in V.enemys:
-            if i.en_id in [15, 16, 17, 18, 19, 36, 39, 46, 52, 60]:
-                V.player_damage_buff += 20
-        V.player_current_hp += heal
-        print("You drank winter tea. You regenerated ", heal, " HP and your damage is increased by ", V.player_damage_buff, "%!", sep = "")
-    elif item == 6:
-        V.player_current_hp = V.player_max_hp
-        print("You drank a heal potion. You regenerated all of your HP!")
-    elif item == 7:
-        V.player_damage_buff += 30
-        V.player_crit_chance_buff += 100
-        print("You drank a berserk's potion. Your damage is increased by ", V.player_damage_buff, "% and your crit chance is increased by ", V.player_crit_chance_buff, "%!", sep = "")
-    elif item == 8:
-        for i in range(len(V.enemys)):
-            V.enemys[i].stnd += 3
-        print("You threw stun potion at the enemies, you stunned them for 3 turns!")
-    elif item == 9:
-        V.player_current_regen += 5
-        regen_limit = round(V.player_regen * 1.67)
-        if regen_limit < 7:
-            regen_limit = 7
-        if V.player_current_regen > regen_limit:
-            V.player_current_regen = regen_limit
-        print("You drank regeneration potion. Your regeneration is increased by 5%! You have ", V.player_current_regen, "% REG!", sep = "")
-    if original_item in V.player_items:
-        V.player_items.remove(original_item)
+    if type == "fight":
+        while original_item == 3 and item in [3, 10, 11, 12, 13, 14]:
+            item = randint(0, len(V.consumable_item_names) - 1)
+        cancel = False
+        if item == 0:
+            print("This did absolutely nothing!")
+        elif item == 1:
+            heal = round(0.2 * V.player_max_hp)
+            if heal + V.player_current_hp > V.player_max_hp:
+                heal = V.player_max_hp - V.player_current_hp
+            extra_def = round(0.2 * V.player_base_def)
+            V.player_extra_def += extra_def
+            V.player_current_hp += heal
+            print("You ate a cookie. You regenerated", heal, "HP and gained", extra_def, "defense!")
+        elif item == 2:
+            V.player_poisoned = 0
+            print("You injected antidote. Your PSN'd decreased to 0!")
+        elif item == 4:
+            heal = round(0.5 * V.player_max_hp)
+            if heal + V.player_current_hp > V.player_max_hp:
+                heal = V.player_max_hp - V.player_current_hp
+            V.player_current_hp += heal
+            print("You ate cooked meat. You regenerated", heal, "HP!")
+        elif item == 5:
+            heal = round(0.05 * V.player_max_hp)
+            if heal + V.player_current_hp > V.player_max_hp:
+                heal = V.player_max_hp - V.player_current_hp
+            for i in V.enemys:
+                if i.en_id in [15, 16, 17, 18, 19, 36, 39, 46, 52, 60]:
+                    V.player_damage_buff += 20
+            V.player_current_hp += heal
+            print("You drank winter tea. You regenerated ", heal, " HP and your damage is increased by ", V.player_damage_buff, "%!", sep = "")
+        elif item == 6:
+            V.player_current_hp = V.player_max_hp
+            print("You drank a heal potion. You regenerated all of your HP!")
+        elif item == 7:
+            V.player_damage_buff += 30
+            V.player_crit_chance_buff += 100
+            print("You drank a berserk's potion. Your damage is increased by ", V.player_damage_buff, "% and your crit chance is increased by ", V.player_crit_chance_buff, "%!", sep = "")
+        elif item == 8:
+            for i in range(len(V.enemys)):
+                V.enemys[i].stnd += 3
+            print("You threw stun potion at the enemies, you stunned them for 3 turns!")
+        elif item == 9:
+            V.player_current_regen += 5
+            regen_limit = round(V.player_regen * 1.67)
+            if regen_limit < 7:
+                regen_limit = 7
+            if V.player_current_regen > regen_limit:
+                V.player_current_regen = regen_limit
+            print("You drank regeneration potion. Your regeneration is increased by 5%! You have ", V.player_current_regen, "% REG!", sep = "")
+        elif item == 10:
+            psn_addition = round(1 * ((V.player_poison / 5) + 1))
+            V.player_poison += psn_addition
+            print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
+        elif item == 11:
+            if V.player_lifesteal < 99:
+                V.player_lifesteal += round(25 * (100 - V.player_lifesteal) / 100)
+            else:
+                V.player_lifesteal += 1
+            print("You consumed the essence of lifesteal. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
+        elif item == 12:
+            if V.player_enemy_explotano > 50:
+                V.player_enemy_explotano += 3
+            else:
+                V.player_enemy_explotano += 10
+            print("Your weapon gets enchanted by exploding magic. Killed enemies will explode dealing ", V.player_enemy_explotano, "% of their HP to other enemies!", sep = "")
+        elif item == 13:
+            V.player_weapon_wrath += 2
+            print("Your weapon gets enchanted by magic of wrath. You will gain ", V.player_weapon_wrath, "% of DMG and CRT every turn for every enemy!", sep = "")
+        elif item == 14:
+            if len(V.enemys) > 1:
+                print("Choose an enemy")
+                counter = 0
+                for i in V.enemys:
+                    counter += 1
+                    print(enemy_name_color(V, i.en_id) + str(counter) + ".", i.name, end = "")
+                    if i.charm_immune == True:
+                        print(" - immune to charming", end = "")
+                    print("\033[33;1m")
+                print("0. Cancel")
+                while True:
+                    action = input()
+                    if action.isdigit():
+                        action = int(action) - 1
+                        if action >= 0 and action < len(V.enemys):
+                            if V.enemys[action].charm_immune:
+                                print("The enemy is immune to charming!")
+                            else:
+                                print("You threw charm potion at", V.enemys[action].name + "! They are now on your team!")
+                                V.allys.append(V.enemys[action])
+                                V.enemys.remove(V.enemys[action])
+                                break
+                        elif action == -1:
+                            cancel = True
+                            break
+                    elif action.lower() == "cancel":
+                        cancel = True
+                        break
+            else:
+                print("You can't use this potion with less than 2 enemies!")
+                cancel = True
+        if original_item in V.player_items and cancel == False:
+            V.player_items.remove(original_item)
+    elif type == "map":
+        if original_item in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14]:
+            print("You can't use this item outside combat.")
+        else:
+            if original_item == 10:
+                psn_addition = round(1 * ((V.player_poison / 5) + 1))
+                V.player_poison += psn_addition
+                print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
+            elif original_item == 11:
+                if V.player_lifesteal < 99:
+                    V.player_lifesteal += round(25 * (100 - V.player_lifesteal) / 100)
+                else:
+                    V.player_lifesteal += 1
+                print("You pour the flask of lifesteal onto your weapon. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
+            elif original_item == 12:
+                if V.player_enemy_explotano > 50:
+                    V.player_enemy_explotano += 3
+                else:
+                    V.player_enemy_explotano += 10
+                print("Your weapon gets enchanted by exploding magic. Killed enemies will explode dealing ", V.player_enemy_explotano, "% of their HP to other enemies!", sep = "")
+            elif original_item == 13:
+                V.player_weapon_wrath += 2
+                print("Your weapon gets enchanted by magic of wrath. You will gain ", V.player_weapon_wrath, "% of DMG and CRT every turn for every enemy!", sep = "")
+            if original_item in V.player_items:
+                V.player_items.remove(original_item)
     print("\033[0m", end = "")

@@ -3,6 +3,7 @@
 def true_reset(V):
     from enemies_and_fighting import default_enemies
     from areas import default_areas
+    V.version = "V0.3.5"
     V.player_max_hp = 100
     V.player_base_def = 0
     V.player_base_dmg = 5
@@ -43,7 +44,16 @@ def true_reset(V):
     V.player_enemy_explotano = 0
     V.player_extra_life = False
     V.player_spent_life = False
+    V.player_dodge_chance = 0
+    V.player_dodge_count = 0
+    V.player_dodged = False
+    V.player_weapon_wrath = 0
     V.player_items = []
+    V.player_inventory_weapons = []
+    V.player_inventory_weapons_psn = []
+    V.player_inventory_weapons_explotano = []
+    V.player_inventory_weapons_lifesteal = []
+    V.player_inventory_weapons_wrath = []
     V.last_altar = []
     V.debt = 0
     V.shopkeeper_sus = 0
@@ -55,6 +65,17 @@ def true_reset(V):
     V.alchemist_visited = False
     V.bought_from_alchemist = False
     V.brewery_encounters = 0
+    V.reaper_trust = 0
+    V.reaper_encounters = 0
+    V.bounty_target = [-1, -1, -1]
+    V.bounty_target_tracking = [0, 0, 0]
+    V.bounty_target_goal = [0, 0, 0]
+    V.said_dialogue_shopkeeper = []
+    V.said_dialogue_gamble_mimic = []
+    V.said_dialogue_bank_mimic = []
+    V.said_dialogue_boat_person = []
+    V.said_dialogue_alchemist = []
+    V.said_dialogue_change = []
     V.stalker_stealth = 100
     V.vitality_anger = 0
     V.strength_anger = 0

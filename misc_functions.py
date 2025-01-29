@@ -5,6 +5,7 @@ from circular_avoidance import max_x, max_y, min_x, min_y, map_tile_move, npc_ta
 from coloring import represented_area_color
 from upgrades_functions import level_up, xp_to_lvl_up, boss_upgrade
 from shops import shop_items_define
+from enemies_and_fighting import item_use
 
 def final_statistics(V):
     print("Stats:")
@@ -30,6 +31,10 @@ def final_statistics(V):
         print("Poison defense: ", V.player_poison_def, " PSNDEF", sep = "")
     if V.player_lifesteal > 0:
         print("Lifesteal: ", V.player_lifesteal, "%", sep = "")
+    if V.player_weapon_wrath > 0:
+        print("Wrath: ", V.player_weapon_wrath, "% WRT", sep = "", end = "")
+    if V.player_enemy_explotano > 0:
+        print("Enemy Explotano: ", V.player_enemy_explotano, "%", sep = "", end = "")
     if V.player_immortality > 0:
         print("Immortal for ", V.player_immortality, " turns", sep = "")
     if V.player_regen > 0:
@@ -88,6 +93,10 @@ def inventory_statistics(V):
         print(V.player_poison_def, " PSNDEF; ", sep = "", end = "")
     if V.player_lifesteal > 0:
         print(V.player_lifesteal, "% LFSTL; ", sep = "", end = "")
+    if V.player_enemy_explotano > 0:
+        print(V.player_enemy_explotano, "% - enemy explotano", sep = "", end = "")
+    if V.player_weapon_wrath > 0:
+        print(V.player_weapon_wrath, "% WRT", sep = "", end = "")
     if V.player_immortality > 0:
         print(V.player_immortality, " IMM; ", sep = "", end = "")
     if V.player_regen > 0:
@@ -516,7 +525,7 @@ def raid_mode_reset(V):
             V.events[i] = 0
         if V.events[i] in [17, 25, 27]:
             V.events[i] = 1
-        if V.events[i] in [3, 5, 11, 14, 18, 24, 26, 28]:
+        if V.events[i] in [3, 5, 11, 14, 18, 23, 24, 26, 28]:
             V.events[i] = 2
         if V.events[i] in [16]:
             V.events[i] = 25
@@ -861,3 +870,112 @@ You leave the man alone...''')
         print('''You aren't supposed to encouter this event tile in this area! Please notify the developer!
 Type anything to continue...''')
         action = input()
+
+def map_inventory(V):
+    while True:
+        print("\033[33;1mYour weapon -", V.weapon_names[V.player_weapon])
+        if len(V.player_items) > 0:
+            counter = 0
+            print("Consumables:")
+            for i in V.player_items:
+                counter += 1
+                print(str(counter) + ".", V.consumable_item_names[i])
+        inventory_statistics(V)
+        print("\033[0m", end = "")
+
+        print('''\n\nDo you want to use consumables and/or switch weapons?
+1. Yes
+2. No''')
+        action = input()
+        if action == "1" or action.lower() == "yes":
+            while True:
+                print('''What do you want to do exactly?
+1. Change weapons
+2. Consumables
+0. Cancel''')
+                action = input()
+                if action == "1" or "change" in action.lower() or "weapons" in action.lower():
+                    if len(V.player_inventory_weapons) <= 0:
+                        print("You have no other weapons!\nType anything to continue...")
+                        action = input()
+                    else:
+                        while True:
+                            counter = 0
+                            for i in V.player_inventory_weapons:
+                                counter += 1
+                                print(str(counter) + ".", V.weapon_names[i])
+                            print("0. Cancel")
+                            action = input()
+                            if action.isdigit():
+                                action = int(action) - 1
+                                if action > -1 and action < len(V.player_inventory_weapons):
+                                    V.player_weapon, V.player_inventory_weapons[action] = V.player_inventory_weapons[action], V.player_weapon
+                                    V.player_poison, V.player_inventory_weapons_psn[action] = V.player_inventory_weapons_psn[action], V.player_poison
+                                    V.player_enemy_explotano, V.player_inventory_weapons_explotano[action] = V.player_inventory_weapons_explotano[action], V.player_enemy_explotano
+                                    V.player_lifesteal, V.player_inventory_weapons_lifesteal[action] = V.player_inventory_weapons_lifesteal[action], V.player_lifesteal
+                                    V.player_weapon_wrath, V.player_inventory_weapons_wrath[action] = V.player_inventory_weapons_wrath[action], V.player_weapon_wrath
+                                    if V.player_weapon == 1:
+                                        V.player_extra_magic_def_buff = 1.5
+                                    else:
+                                        V.player_extra_magic_def_buff = 0
+                                    print("You changed your weapon to", V.weapon_names[V.player_weapon], end = "")
+                                    if V.player_poison + V.player_enemy_explotano + V.player_lifesteal + V.player_weapon_wrath > 0:
+                                        print(" with", end = "")
+                                    if V.player_poison > 0:
+                                        print(" ", V.player_poison, " PSN", sep = "", end = "")
+                                    if V.player_lifesteal > 0:
+                                        if V.player_poison > 0:
+                                            print(",", end = "")
+                                        print(" ", V.player_lifesteal, "% LFSTL", sep = "", end = "")
+                                    if V.player_enemy_explotano > 0:
+                                        if V.player_poison + V.player_lifesteal > 0:
+                                            print(",", end = "")
+                                        print(" ",V.player_enemy_explotano, "% enemy explotano", sep = "", end = "")
+                                    if V.player_weapon_wrath > 0:
+                                        if V.player_poison + V.player_lifesteal + V.player_enemy_explotano > 0:
+                                            print(",", end = "")
+                                        print(" ",V.player_weapon_wrath, "% wrath", sep = "", end = "")
+                                    print(".")
+                                elif action == -1:
+                                    break
+                            elif action.lower() == "cancel":
+                                break
+                elif action == "2" or "consumable" in action.lower():
+                    if len(V.player_items) > 0:
+                        while True:
+                            counter = 0
+                            for i in V.player_items:
+                                counter += 1
+                                print(str(counter) + ".", V.consumable_item_names[i])
+                            if counter == 0:
+                                break
+                            print("0. Cancel")
+                            print("Choose an item")
+                            item_action = input()
+                            if item_action.isdigit():
+                                item_action = int(item_action)
+                                if item_action > 0 and item_action <= len(V.player_items):
+                                    print("1. Use\n2. Inspect\n0. Cancel")
+                                    while True:
+                                        action = input()
+                                        if action == '1' or action.lower() == "use":
+                                            item_use(V, V.player_items[item_action - 1], "map")
+                                            print("\033[0m\nType anything to continue...")
+                                            action = input()
+                                            break
+                                        elif action == '2' or action.lower() == "inspect":
+                                            print(V.consumable_item_desc[V.player_items[item_action-1]])
+                                            print("\033[0m\nType anything to continue...")
+                                            action = input()
+                                            break
+                                        elif action == '0' or action.lower() == "cancel":
+                                            break
+                                if item_action == 0:
+                                    break
+                    else:
+                        print("You have no consumable items!\nType anything to continue...")
+                        action = input()
+                elif action == "0" or "cancel" in action.lower():
+                    break
+        elif action == "2" or action.lower() == "no":
+            break

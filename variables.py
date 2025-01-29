@@ -9,7 +9,9 @@ class V:
         self.saved = False
         self.SM_skip = False
         self.RM_areas_cheat = False
+        self.version = ""
 
+        self.show_map_UI = True
         self.game_mode = "story"
         self.difficulty = 55 # suggested 0 - 100
         self.original_difficulty = 55
@@ -41,6 +43,8 @@ class V:
         self.remnant_seed = 0
         self.weather_seed = 0
         self.weather_effects_seed = 0
+        self.reaper_seed = 0
+        self.reaper_reward_seed = 0
 
         self.area = "None"
         self.area_id = 0
@@ -92,12 +96,18 @@ class V:
         self.player_dodge_chance = 0
         self.player_dodge_count = 0
         self.player_dodged = False
+        self.player_weapon_wrath = 0
 
         self.player_boat = False
         self.player_has_boat = False
         self.player_boat_hp = 0
         self.player_items = [0] # 1 - cookie, 2 - antidote, 3 - gambler's drink, 4 - cooked meat, 5 - winter tea, 6 - heal potion, 7 - berserk's potion,
-        #8 - stun potion, 9 - regeneration potion
+        #8 - stun potion, 9 - regeneration potion, 10 - poison flask, 11 - lifesteal flask, 12 - flask of enemy explotano
+        self.player_inventory_weapons = []
+        self.player_inventory_weapons_psn = []
+        self.player_inventory_weapons_explotano = []
+        self.player_inventory_weapons_lifesteal = []
+        self.player_inventory_weapons_wrath = []
 
         self.mimic_got_item = False
         self.mimic_gamble_encounters = 0
@@ -119,6 +129,19 @@ class V:
         self.mimic_bank_encounters = 0
         self.bank_money = 0
         self.locking_tutorial = False
+        self.reaper_trust = 0
+        self.reaper_encounters = 0
+        self.bounty_target = []
+        self.bounty_target_tracking = []
+        self.bounty_target_goal = []
+
+        self.said_dialogue_shopkeeper = []
+        self.said_dialogue_gamble_mimic = []
+        self.said_dialogue_bank_mimic = []
+        self.said_dialogue_boat_person = []
+        self.said_dialogue_alchemist = []
+        self.said_dialogue_change = []
+        self.said_dialogue_reaper = []
 
         self.vitality_anger = 0 # in decimals
         self.strength_anger = 0 # in decimals
@@ -129,19 +152,26 @@ class V:
         # PLAYER STATS END
 
         # SHOP ITEMS START
-        self.item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Bottle of Lifesteal", "Bottle of Midas' power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
-                      "Traveller's Hallow", "Enemy Explotano", "Life's Gift", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Band of Agility",
-                      "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion"]
-        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58]
-        self.item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies", "Enemies will get damaged when hit you",
-                             "Dealing damage will heal you", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn", "Kill to grow",
-                             "You will get experience for entering a new area", "Enemies explode on death, dealing damage to other enemies",
+        self.item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Flask of Lifesteal", "Bottle of Midas' power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
+                      "Traveller's Hallow", "Flask of Enemy Explotano", "Life's Gift", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Band of Agility",
+                      "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion", "Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe",
+                      "Flask of Wrath", "Charming Potion", "Reaper's Scythe"]
+        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58, 45, 20, 60, 55, 75, 30, 50, 75]
+        self.item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies (weapon upgrade)", "Enemies will get damaged when hit you",
+                             "Dealing damage will heal you (weapon upgrade)", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn",
+                             "Kill to grow", "You will get experience for entering a new area", "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
                              "If you die, you will be revived with no money or experience", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                              "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                              "Heals 50% HP on use (consumable)", "Increases damage by 50% if snow-related enemies are present (consumable)", "Grants chance to dodge physical attacks",
                              "Heals 100% HP on use (consumable)", "Increases damage by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)",
-                             "Adds 5% REG on use (consumable)"]
+                             "Adds 5% REG on use (consumable)", "Your favourite weapon of all time. Damage ranges between 80%~120%. Crowd factor is 1; poison factor is 1.",
+                             "Extremely weak weapon, but provides 150% MGCDEF and deals 500% more DMG to magic enemies. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
+                             "Very sharp weapon, which can be used to strike enemies twice. Damage ranges between 45%~75%. Crowd factor is 0.5; poison factor is 1",
+                             "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
+                             "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4",
+                             "Increases the damage and critical chance with the amount of enemies (weapon upgrade)", "Makes an enemy fight for you for a battle (consumable)",
+                             "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95"]
         self.item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuff over time", "Guys that attack you, will get damaged for doing so", "Turn damage into heal!",
                                    "Not sure why I don't use this one myself, but you will gain more money", "You will become untouchable, but that will fade away after a turn",
                                    "How do you think undead people live? They use this to regenerate",
@@ -152,27 +182,35 @@ class V:
                                    "Ever-warriors, like you, enjoy eating flesh. I believe it heals half of your health, pal",
                                    "After drinking this tea, you will become stronger if snow enemies are there to witness it", "You will be so quick, that you have a chance to dodge stuff, pal",
                                    "This potion heals all of your wounds, pal", "You become stronger and mightier when you drink this", "Bad guys will do nothing 3 times in a row",
-                                   "This potion gives a regen boost! It's quite strong, pal"]
+                                   "This potion gives a regen boost! It's quite strong, pal", "The weapon that ever-warriors get in the beginning of their life, pal",
+                                   "This wand seems to give you a lot of magic protection and is extremely good against mana guys, pal", "These daggers can be used seperately, pal!",
+                                   "This thing can smash multiple bad guys at once, pal!", "I think, this thing poisons enemies very efficiently, but it seems to be very weak on its own",
+                                   "This thing makes your weapon deal more, the more enemies you have! Isn't that cool, pal?",
+                                   "This thing makes some bad guys like you, and forces them to help you. Neat",
+                                   "Pal, I'll be honest. I have no idea how this weapon, that can reap souls got in my possesion"]
         self.consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion",
-                                 "Regeneration Potion"]
+                                 "Regeneration Potion", "Poison Flask", "FLask of Lifesteal", "Flask of Enemy Explotano", "Flask of Wrath", "Charming Potion"]
         self.consumable_item_desc = ["How in the world do you have a Nothing in your inventory?", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                                 "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                                 "Heals 50% HP on use (consumable)", "Increases damage if snow-related enemies are present", "Heals 100% HP (consumable)",
                                 "Increases damge by 30% and doubles crit chance (consumable)", "Stuns enemies for 3 turns (consumable)",
-                                "Adds 5% REG on use (consumable)"]
+                                "Adds 5% REG on use (consumable)", "Allows sharp weapons to inflict poison onto your enemies (weapon upgrade)",
+                                "Dealing damage will heal you (weapon upgrade)", "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
+                                "Increases the damage and critical chance with the amount of enemies (weapon upgrade)",
+                                "Makes an enemy fight for you for a battle (consumable)"]
         # SHOP ITEMS END
 
         # WEAPONS START
-        self.weapon_names = ["Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe"]
-        self.weapon_damage_ranges = [[80, 120], [50, 80], [95, 135], [90, 120], [5, 10]]
+        self.weapon_names = ["Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe", "Reaper's Scythe"]
+        self.weapon_damage_ranges = [[80, 120], [50, 80], [45, 75], [90, 120], [5, 10], [100, 120]]
         self.weapon_descriptions = ["Your favourite weapon of all time. Damage ranges between 80%~120%. Crowd factor is 1; poison factor is 1.",
-                               "Extremely weak weapon, but provides 150% MGCDEF. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
-                               "Very sharp weapon, which makes deep cuts. Damage ranges between 95%~135%. Crowd factor is 0.5; poison factor is 1.7",
+                               "Extremely weak weapon, but provides 150% MGCDEF and deals 500% more DMG to magic enemies. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
+                               "Very sharp weapon, which can be used to strike enemies twice. Damage ranges between 45%~75%. Crowd factor is 0.5; poison factor is 1",
                                "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
-                               "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4"]
-        self.weapon_poison_factor = [1, 0.2, 1.7, 0.2, 4]
-        self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1]
-        self.weapon_base_costs = [45, 20, 60, 55, 75]
+                               "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4"
+                               "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95"]
+        self.weapon_poison_factor = [1, 0.2, 1, 0.2, 4, 0.95]
+        self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1, 0.6]
         # WEAPONS END
 
         # AREA STATS START
@@ -209,7 +247,7 @@ class V:
         self.current_weather_duration = []
         self.events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile,
         # 9 - non-existent snow pile, 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path,
-        # 16 - main exit, 17 - crystal fight, 18 - crystal altar, 19 - mimic bank, 20 - stalker, 21 - hole down, 22 - hole up, 23 - [REPLACE], 
+        # 16 - main exit, 17 - crystal fight, 18 - crystal altar, 19 - mimic bank, 20 - stalker, 21 - hole down, 22 - hole up, 23 - bounty hunting guy, 
         # 24 - alchemist's brewery, 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 
         # 28 - raid deactivated crystal altar
         self.benefitial_events = []
@@ -432,7 +470,7 @@ RM_areas_cheat: False''')
     def save_run(self):
         with open(self.run_save_file_path, 'w') as file:
             for key, value in self.__dict__.items():
-                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions"]:
+                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions", "map_show_UI"]:
                     continue
                 file.write(f"{key}: {value}\n")
         self.saved = True

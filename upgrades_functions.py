@@ -1,5 +1,5 @@
 
-from random import seed, randint, choice, uniform
+from random import seed, randint, choice, uniform, choices
 
 def stats_altar(V):
     print("You came across an altar.")
@@ -146,15 +146,14 @@ def estimate_def(V):
 def player_remnants(V):
     seed(V.remnant_seed)
     V.remnant_seed = randint(0, 10000)
-    money = round(uniform(5, 15) * (V.score / 2 + 1))
-    spike = round(uniform(1, 2) * (V.score / 3 + 1))
-    poison = round(uniform(1, 1.25) * (V.score / 5 + 1))
+    money = round(uniform(5, 14) * (V.score / 2 + 1))
+    upgrades = choices(population=[1, 2, 4, 6, 11, 15], weights=[10, 10, 5, 5, 7, 7], k=randint(2,3))
     V.player_money += money
-    V.player_spikes += spike
-    V.player_poison += poison
     print('''You came across a warrior's remnants. You picked up their items...
-You got''', money, "coins (your balance is", V.player_money, "coins),", spike, "SPK(your total is", V.player_spikes, "SPK), and", poison, "PSN(your total is", V.player_poison, '''PSN)!
-Type anything to continue...''')
+You got''', money, "coins (your balance is", V.player_money, "coins).")
+    for i in upgrades:
+        shop_grant(V, i)
+    print('''Type anything to continue...''')
     action = input()
 
 def xp_to_lvl_up(V):
@@ -248,23 +247,18 @@ def boss_upgrade(V):
     action = input()
 
 def shop_grant(V, item):
-    print("\n\n\n")
     if item == 0:
         print("You bought nothing! Good job")
     elif item == 1:
-        psn_addition = round(1 * ((V.player_poison / 5) + 1))
-        V.player_poison += psn_addition
-        print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
+        V.player_items.append(10)
+        print("You got a poison flask! You can apply it to your weapon at any time!")
     elif item == 2:
         spk_addition = round(1 * ((V.player_spikes / 2) + 1))
         V.player_spikes += spk_addition
         print("You attached the spikes to your armor, adding", spk_addition, "SPK to it. Enemies will get hit for", V.player_spikes, "DMG when hit you.")
     elif item == 3:
-        if V.player_lifesteal < 99:
-            V.player_lifesteal += round(25 * (100 - V.player_lifesteal) / 100)
-        else:
-            V.player_lifesteal += 1
-        print("You consumed the essence of lifesteal. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
+        V.player_items.append(11)
+        print("You got a flask of lifesteal! You can apply it to your weapon at any time!")
     elif item == 4:
         V.player_gold_boost += 10
         V.shopkeeper_sus -= 0.1
@@ -298,18 +292,16 @@ def shop_grant(V, item):
             V.player_travel += 1
         print("You feel strength in your legs. Total experience gained for entering new area is ", V.player_travel, "%", sep = "")
     elif item == 9:
-        if V.player_enemy_explotano > 50:
-            V.player_enemy_explotano += 3
-        else:
-            V.player_enemy_explotano += 10
-        print("Your weapon gets enchanted by exploding magic. Killed enemies will explode dealing ", V.player_enemy_explotano, "% of their HP to other enemies!", sep = "")
+        V.player_items.append(12)
+        print("You got a flask of enemy explotano! You can apply it to your weapon at any time!")
     elif item == 10:
         if V.player_extra_life == False:
             V.player_extra_life = True
             print("You feel some floatyness in your stomach. You have 2 lives!")
         else:
-            V.player_lifesteal += 20
-            print("Despite consuming Life's gift, you feel the essence of lifesteal. Your total life steal is ", V.player_lifesteal, "% now.", sep = "")
+            V.player_items.append(11)
+            V.player_items.append(11)
+            print("Despite consuming Life's gift, you feel the essence of lifesteal. You notice that you for some reason got 2 new lifesteal flasks.")
     elif item == 11:
         V.player_items.append(1)
         print("You got a cookie!")
@@ -344,6 +336,51 @@ def shop_grant(V, item):
     elif item == 20:
         V.player_items.append(9)
         print("You got a regeneration potion!")
-    print("Type anything to continue...")
-    action = input()
-    print("\n\n\n")
+    elif item == 21:
+        V.player_inventory_weapons.append(0)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a trusty sword! You can equip it outside of combat!")
+    elif item == 22:
+        V.player_inventory_weapons.append(1)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a magic wand! You can equip it outside of combat!")
+    elif item == 23:
+        V.player_inventory_weapons.append(2)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got double daggers! You can equip them outside of combat!")
+    elif item == 24:
+        V.player_inventory_weapons.append(3)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a great hammer! You can equip it outside of combat!")
+    elif item == 25:
+        V.player_inventory_weapons.append(4)
+        V.player_inventory_weapons_psn.append(1)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a syringe! You can equip it outside of combat!")
+    elif item == 26:
+        V.player_items.append(13)
+        print("You got a flask of wrath! You can apply it to your weapon at any time!")
+    elif item == 27:
+        V.player_items.append(14)
+        print("You got a charming potion!")
+    elif item == 28:
+        V.player_inventory_weapons.append(5)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a reaper's scythe! You can equip it outside of combat!")

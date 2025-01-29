@@ -3,10 +3,11 @@ from random import seed, shuffle, randint, choice, choices
 from extra_functions import chance
 from upgrades_functions import level_up, stats_altar, player_remnants
 from coloring import area_color, water_color
-from misc_functions import lost_check, time_events, inventory_statistics, escape, change_interaction
+from misc_functions import lost_check, time_events, map_inventory, escape, change_interaction
 from enemies_and_fighting import fight, fight_choose, bossfight_choose, ally_choose
-from shops import shop, alchemist_shop, mimic_gamble, mimic_bank, death_boat
+from shops import shop, alchemist_shop, mimic_gamble, mimic_bank, death_boat, reaper_bounty
 from circular_avoidance import max_x, max_y, min_x, min_y, stalker_AI
+import keyboard
 
 def default_areas(V):
     V.areas = ["Garden", "Deep Forest", "Cave", "Tundra", "Canyon", "Desert", "Rotten Forest"]
@@ -56,7 +57,7 @@ def default_areas(V):
     V.current_weather = [0]
     V.current_weather_duration = [0]
     V.events = []
-    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 16, 18, 19, 24]
+    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 16, 18, 19, 23, 24]
     V.hurtful_events = [1, 4, 7, 8, 17, 20]
     V.neutral_events = [0, 6, 9, 10, 15, 21, 22, 25, 26, 27, 28]
     V.events_coordinates = []
@@ -242,14 +243,6 @@ def map_print(V):
                         print(area_color(V, event_height, True) + "#", end = "")
                 elif event == 20:
                     print("\033[33;1m?", end = "")
-                    stalker_coords = V.events_coordinates[V.events.index(20)]
-                    distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
-                    if distance > 0:
-                        V.stalker_stealth -= round(12 / distance) + 1
-                    else:
-                        V.stalker_stealth -= 13
-                    if V.stalker_stealth <= 0:
-                        V.events[V.events.index(20)] = 0
                 elif event == 21:
                     if V.water_level > event_height:
                         print(water_color(V) + "L", end = "")
@@ -260,6 +253,11 @@ def map_print(V):
                         print(water_color(V) + "H", end = "")
                     else:
                         print(area_color(V, event_height, True) + "H", end = "")
+                elif event == 23:
+                    if V.water_level > event_height:
+                        print(water_color(V) + "R", end = "")
+                    else:
+                        print(area_color(V, event_height, True) + "R", end = "")
                 elif event == 24:
                     if V.water_level > event_height:
                         print(water_color(V) + "a", end = "")
@@ -285,6 +283,7 @@ def map_generation(V):
     if V.game_mode in ["infinite", "story"]:
         if V.score >= 0:
             good_events.append(3)
+            good_events.append(23)
         if V.score >= 3:
             good_events.append(5)
         if V.score >= 5:
@@ -295,6 +294,7 @@ def map_generation(V):
             good_events.append(24)
     elif V.game_mode == "raid":
         good_events.append(3)
+        good_events.append(23)
         if V.area_id > 0:
             good_events.append(5)
             good_events.append(11)
@@ -2360,6 +2360,12 @@ def map_movement(V):
                     distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
                     if distance < V.vision_range - 0.25 + V.player_coordinates[2] * 1.5:
                         stalker_AI(V, event)
+                        if distance > 0:
+                            V.stalker_stealth -= round(12 / distance) + 1
+                        else:
+                            V.stalker_stealth -= 13
+                        if V.stalker_stealth <= 0:
+                            V.events[V.events.index(20)] = 0
         V.no_update_coordinates = []
         if V.player_coordinates in V.events_coordinates:
             event = V.events[V.events_coordinates.index(V.player_coordinates)]
@@ -2568,9 +2574,139 @@ Type anything to continue''')
             V.player_coordinates[2] -= 1
         elif event == 22:
             V.player_coordinates[2] += 1
+        elif event == 23:
+            reaper_bounty(V)
         elif event == 24:
             alchemist_shop(V)
         map_print(V)
+        if V.show_map_UI:
+            if V.player_has_boat == False:
+                print('''\nWhere do you want to move?
+W. ↑
+A. ←
+D. →
+S. ↓
+Y. O
+I. - Inventory
+G. - Map Help''')
+            else:
+                print('''\nWhere do you want to move?
+W. ↑
+A. ←
+D. →
+S. ↓
+Y. O
+B. - Switch Boat Mode
+I. - Inventory
+G. - Map Help''')
+        else:
+            print("H. - Show Map UI")
+        while True:
+            while True:
+                action = keyboard.read_event(suppress=True)
+                if action.event_type == keyboard.KEY_DOWN:
+                    break
+            if action.name.lower() in ["w", "up"]:
+                if [V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] - 1, V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] - 1, V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
+                    V.player_coordinates[1] -= 1
+                    break
+                else:
+                    print("You can't move there!")
+            if action.name.lower() in ["a", "left"]:
+                if [V.player_coordinates.copy()[0] - 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0] - 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
+                    V.player_coordinates[0] -= 1
+                    break
+                else:
+                    print("You can't move there!")
+            if action.name.lower() in ["d", "right"]:
+                if [V.player_coordinates.copy()[0] + 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0] + 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
+                    V.player_coordinates[0] += 1
+                    break
+                else:
+                    print("You can't move there!")
+            if action.name.lower() in ["s", "down"]:
+                if [V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] + 1, V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] + 1, V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
+                    V.player_coordinates[1] += 1
+                    break
+                else:
+                    print("You can't move there!")
+            if action.name.lower() in ["y", "space"]:
+                break
+            if action.name.lower() == "b":
+                if V.player_has_boat:
+                    if V.player_boat:
+                        if event != 10:
+                            V.player_boat = False
+                            map_print_update(V)
+                            print()
+                        else:
+                            print("You can't stop using the boat here!")
+                    else:
+                        V.player_boat = True
+                        map_print_update(V)
+                        print()
+            if action.name.lower() == "i":
+                map_inventory(V)
+                map_print_update(V)
+            if action.name.lower() == "h":
+                if V.show_map_UI == True:
+                    V.show_map_UI = False
+                else:
+                    V.show_map_UI = True
+                map_print_update(V)
+            if action.name.lower() == "g":
+                if V.player_boat == False and V.player_has_boat == False:
+                    print('''Yellow \033[33;1mP\033[0m is you. You can move freely on circles.
+Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
+Pressing H will result in hiding map UI. Pressing Escape will result in pausing the game(use this when alt tabbing)''')
+                else:
+                    print('''Yellow \033[33;1mb\033[0m is you. You can move freely on circles and tildas.
+Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
+Pressing H will result in hiding map UI. Pressing Escape will result in pausing the game(use this when alt tabbing)''')
+                other_action = input()
+                map_print_update(V)
+            if action.name.lower() == "esc":
+                while True:
+                    print('''You are in a kind of pause menu. What do you need to do?
+1. Continue
+2. Save
+3. Restart''')
+                    other_action = input()
+                    if other_action == "1" or "cont" in other_action.lower():
+                        map_print_update(V)
+                        break
+                    if other_action == "3" or "restart" in other_action.lower():
+                        print('''Are you sure you want to restart? You will not be able to continue this run.
+Type in the action
+1. No
+2. Yes''')
+                        other_action = input()
+                        if other_action == "2" or other_action.lower() == "yes":
+                            V.lost = 1
+                            break
+                    if other_action == "2" or other_action.lower() == "save":
+                        if V.meta_game_mode != "daily":
+                            print('''Are you sure you want to save this run and continue later? The game will be closed.
+Type in the action
+1. No
+2. Yes''')
+                            other_action = input()
+                            if other_action == "2" or other_action.lower() == "yes":
+                                V.save_run()
+                                V.lost = 1
+                                break
+                        else:
+                            print('''You cannot save in daily run...
+Type anything to continue...''')
+                            other_action = input()
+                if V.lost == 1:
+                    break
+        if V.lost == 1:
+            break
+
+def map_print_update(V):
+    map_print(V)
+    if V.show_map_UI:
         if V.player_has_boat == False:
             print('''\nWhere do you want to move?
 W. ↑
@@ -2579,7 +2715,7 @@ D. →
 S. ↓
 Y. O
 I. - Inventory
-H. - Map Help''')
+G. - Map Help''')
         else:
             print('''\nWhere do you want to move?
 W. ↑
@@ -2587,90 +2723,8 @@ A. ←
 D. →
 S. ↓
 Y. O
-B. - Switch boat mode
+B. - Switch Boat Mode
 I. - Inventory
-H. - Map Help''')
-        while True:
-            action = input()
-            if action.lower() == "w" or action.lower() == "up":
-                if [V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] - 1, V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] - 1, V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
-                    V.player_coordinates[1] -= 1
-                    break
-                else:
-                    print("You can't move there!")
-            if action.lower() == "a" or action.lower() == "left":
-                if [V.player_coordinates.copy()[0] - 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0] - 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
-                    V.player_coordinates[0] -= 1
-                    break
-                else:
-                    print("You can't move there!")
-            if action.lower() == "d" or action.lower() == "right":
-                if [V.player_coordinates.copy()[0] + 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0] + 1, V.player_coordinates.copy()[1], V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
-                    V.player_coordinates[0] += 1
-                    break
-                else:
-                    print("You can't move there!")
-            if action.lower() == "s" or action.lower() == "down":
-                if [V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] + 1, V.player_coordinates.copy()[2]] in V.events_coordinates and (V.events[V.events_coordinates.index([V.player_coordinates.copy()[0], V.player_coordinates.copy()[1] + 1, V.player_coordinates.copy()[2]])] != 10 or (V.player_boat == True and V.water_level > 0)):
-                    V.player_coordinates[1] += 1
-                    break
-                else:
-                    print("You can't move there!")
-            if action.lower() == "y" or "stay" in action.lower() or "still" in action.lower():
-                break
-            if action.lower() == "b" or "boat" in action.lower():
-                if V.player_has_boat:
-                    if V.player_boat:
-                        if event != 10:
-                            V.player_boat = False
-                            break
-                        else:
-                            print("You can't stop using the boat here!")
-                    else:
-                        V.player_boat = True
-                        break
-            if action.lower() == "i" or action.lower() == "inventory":
-                print("\033[33;1mYour weapon -", V.weapon_names[V.player_weapon])
-                if len(V.player_items) > 0:
-                    counter = 0
-                    print("Consumables:")
-                    for i in V.player_items:
-                        counter += 1
-                        print(str(counter) + ".", V.consumable_item_names[i])
-                inventory_statistics(V)
-                print("\033[0m", end = "")
-            if action.lower() == "h" or "map" in action.lower() or "help" in action.lower():
-                if V.player_boat == False and V.player_has_boat == False:
-                    print('''Yellow \033[33;1mP\033[0m is you. You can move freely on circles.
-Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
-Type in "save" to save the run''')
-                else:
-                    print('''Yellow \033[33;1mb\033[0m is you. You can move freely on circles and tildas.
-Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
-Type in "save" to save the run''')
-            if "restart" in action.lower():
-                print('''Are you sure you want to restart? You will not be able to continue this run.
-Type in the action
-1. No
-2. Yes''')
-                action = input()
-                if action == "2" or action.lower() == "yes":
-                    V.lost = 1
-                    break
-            if action.lower() == "save":
-                if V.meta_game_mode != "daily":
-                    print('''Are you sure you want to save this run and continue later? The game will be closed.
-Type in the action
-1. No
-2. Yes''')
-                    action = input()
-                    if action == "2" or action.lower() == "yes":
-                        V.save_run()
-                        V.lost = 1
-                        break
-                else:
-                    print('''You cannot save in daily run...
-Type anything to continue...''')
-                    action = input()
-        if V.lost == 1:
-            break
+G. - Map Help''')
+    else:
+        print("H. - Show Map UI")

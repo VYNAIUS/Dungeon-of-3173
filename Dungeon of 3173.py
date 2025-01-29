@@ -12,8 +12,14 @@ from circular_avoidance import *
 from misc_functions import *
 from shops import *
 from upgrades_functions import *
+#import keyboard
+#                THIS IS USED FOR PRACTICE!! I USE THIS IN areas.py!!!
+#while True:
+#    event = keyboard.read_event(suppress=True)
+#    if event.event_type == keyboard.KEY_DOWN:
+#        break
 
-print("V0.3.4")
+print("V0.3.5")
 V = variables.V()
 V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2, fight_AI_magic_basic_2,
                fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
@@ -241,7 +247,7 @@ def daily_run():
     V.weather_amount = randint(1, 6)
     mutator_factor = mutator_factor + (V.weather_amount * (-0.1) + 0.6)
     V.global_seed = randint(0, 10000)
-    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.reaper_seed, V.reaper_reward_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
     mode = choice(["story", "infinite", "raid"])
     print("\nDaily Run Seed -", V.daily_seed, "\nGame Mode -", mode, "\nSeed -", V.global_seed, "\nDifficulty -", V.difficulty, "\nWeather amount -", V.weather_amount)
     print('''
@@ -274,7 +280,7 @@ def daily_run_retry():
     V.weather_amount = randint(1, 6)
     mutator_factor = mutator_factor + (V.weather_amount * (-0.1) + 0.6)
     V.global_seed = randint(0, 10000)
-    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+    V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.reaper_seed, V.reaper_reward_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
     mode = choice(["story", "infinite", "raid"])
     if mode == "infinite":
         V.game_mode = "infinite"
@@ -430,6 +436,8 @@ Type in the number or the action itself...''')
 def game():
     retry = 0
     option_moment = 0
+    V.global_seed = randint(0, 10000)
+    true_reset(V)
     while True:
         if V.continue_run:
             print('''
@@ -504,7 +512,7 @@ Type in the gamemode you want to play...''')
                 continue
             if V.game_mode not in ["daily", "credits"] and V.continue_run == False:
                 mutators_init()
-                V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+                V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.reaper_seed, V.reaper_reward_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
             if V.game_mode == "story":
                 story_mode()
             elif V.game_mode == "infinite":
@@ -518,7 +526,7 @@ Type in the gamemode you want to play...''')
             else:
                 print("There was an error initiating gamemodes...")
         else:
-            V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
+            V.map_seed, V.weather_seed, V.weather_effects_seed, V.altar_seed, V.shop_seed, V.gamble_seed, V.remnant_seed, V.enemy_encouter_seed, V.reaper_seed, V.reaper_reward_seed = V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed, V.global_seed
             if V.meta_game_mode == "story":
                 story_mode()
             elif V.meta_game_mode == "infinite":

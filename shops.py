@@ -1,10 +1,11 @@
 
-from random import seed, randint, choice
+from random import seed, randint, choice, choices
 from extra_functions import chance
 from reset_functions import reset_player
 from enemies_and_fighting import fight
 from upgrades_functions import shop_grant
 from circular_avoidance import npc_talk
+from coloring import enemy_name_color
 
 def shop_items_define(V):
     seed(V.shop_seed)
@@ -13,10 +14,7 @@ def shop_items_define(V):
     possible_alchemist_items = [13, 15, 17, 18, 19, 20]
     V.current_shop_items = []
     V.current_alchemist_items = []
-    possible_weapons = [0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4]
-    while V.player_weapon in possible_weapons:
-        possible_weapons.remove(V.player_weapon)
-    V.is_weapon_bought = 0
+    possible_weapons = [21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 25]
     for i in range(3):
         item = choice(possible_shop_items)
         possible_shop_items.remove(item)
@@ -24,7 +22,7 @@ def shop_items_define(V):
         item = choice(possible_alchemist_items)
         possible_alchemist_items.remove(item)
         V.current_alchemist_items.append(item)
-    V.shop_weapon = choice(possible_weapons)
+    V.current_shop_items.append(choice(possible_weapons))
     V.leave = 0
     if V.bought_from_alchemist == False and V.alchemist_visited:
         V.alchemist_anger += 0.4
@@ -54,9 +52,6 @@ def peaceful_shop(V):
         for i in V.current_shop_items:
             counter += 1
             print(counter, ". ", V.item_names[i], " - \033[38;2;200;200;0m", cost(V, i), " coins\033[0m", sep = "")
-        if V.is_weapon_bought == 0:
-            counter += 1
-            print(counter, ". ", V.weapon_names[V.shop_weapon], " - \033[38;2;200;200;0m", cost(V, V.shop_weapon, 1), " coins\033[0m", sep="")
         counter += 1
         print(counter, ". Inspect", sep = "")
         print(counter + 1, ". Talk", sep = "")
@@ -69,16 +64,13 @@ def peaceful_shop(V):
                 if action > 0 and action <= len(V.current_shop_items):
                     shop_buy(V, action - 1, "shop")
                     break
-                elif action - 1 == len(V.current_shop_items) and V.is_weapon_bought == 0:
-                    shop_weapon_buy(V, V.shop_weapon)
+                elif action - 1 == len(V.current_shop_items):
+                    item_info(V, "shop")
                     break
-                elif (action - 2 == len(V.current_shop_items) and V.is_weapon_bought == 0) or (action - 1 == len(V.current_shop_items) and V.is_weapon_bought == 1):
-                    item_info(V, V.shop_weapon, "shop")
-                    break
-                elif (action - 3 == len(V.current_shop_items) and V.is_weapon_bought == 0) or (action - 2 == len(V.current_shop_items) and V.is_weapon_bought == 1):
+                elif action - 2 == len(V.current_shop_items):
                     npc_talk(V, "shopkeeper")
                     break
-                elif (action - 4 >= len(V.current_shop_items) and V.is_weapon_bought == 0) or (V.is_weapon_bought == 1 and action - 3 >= len(V.current_shop_items)):
+                elif action - 3 >= len(V.current_shop_items):
                     V.leave = 1
                     break
             else:
@@ -106,27 +98,19 @@ def cost(V, item, type = 0):
                 cost += cost // 10000000000000
     return cost
 
-def item_info(V, weapon, shop_type = "shop"):
+def item_info(V, shop_type = "shop"):
     print("Which item is the confusing one?")
     if shop_type == "shop":
         counter = 0
         for i in V.current_shop_items:
             counter += 1
             print(counter, ". ", V.item_names[i], sep = "")
-        if V.is_weapon_bought == 0:
-            counter += 1
-            print(counter, ". ", V.weapon_names[weapon], sep="")
         action = input()
         if action.isdigit():
             action = int(action)
             if action > 0 and action <= len(V.current_shop_items):
                 print()
                 print(V.item_descriptions[V.current_shop_items[action - 1]])
-                print("\nType anything to continue...")
-                action = input()
-            elif action - 1 == len(V.current_shop_items) and V.is_weapon_bought == 0:
-                print()
-                print(V.weapon_descriptions[weapon])
                 print("\nType anything to continue...")
                 action = input()
     elif shop_type == "alchemist":
@@ -148,7 +132,11 @@ def shop_buy(V, item, shop_type = "shop"):
         item_id = V.current_shop_items[item]
         if V.player_money >= cost(V, item_id):
             V.player_money -= cost(V, item_id)
+            print("\n\n\n")
             shop_grant(V, item_id)
+            print("Type anything to continue...")
+            action = input()
+            print("\n\n\n")
             V.item_bought[item_id] += 1
             V.current_shop_items[item] = 0
             V.shopkeeper_sus -= 0.05
@@ -165,7 +153,11 @@ What will you do?
             if action == "1":
                 print("You stole", V.item_names[item_id])
                 V.debt += cost(V, item_id)
+                print("\n\n\n")
                 shop_grant(V, item_id)
+                print("Type anything to continue...")
+                action = input()
+                print("\n\n\n")
                 V.current_shop_items[item] = 0
                 V.shopkeeper_sus += 0.125
                 V.leave = 1
@@ -179,7 +171,11 @@ What will you do?
             if V.alchemist_anger < 0:
                 V.alchemist_anger = 0
             V.player_money -= cost(V, item_id)
+            print("\n\n\n")
             shop_grant(V, item_id)
+            print("Type anything to continue...")
+            action = input()
+            print("\n\n\n")
             V.item_bought[item_id] += 1
             V.current_alchemist_items[item] = 0
         else:
@@ -193,7 +189,6 @@ def shop_weapon_buy(V, weapon):
             V.player_extra_magic_def_buff = 1.5
         else:
             V.player_extra_magic_def_buff = 0
-        V.is_weapon_bought = 1
         print("You bought", V.weapon_names[weapon])
     else:
         print('''You don't have enough money to buy this item!
@@ -212,7 +207,6 @@ What will you do?
                 V.player_extra_magic_def_buff = 0
             V.shopkeeper_sus += 0.5
             V.leave = 1
-            V.is_weapon_bought = 1
         elif action == "2":
             print("You put the item back down and continued shopping...")
 
@@ -231,7 +225,7 @@ Your balance is\033[38;2;200;200;0m''', V.player_money,'''coins\033[0m
                 print("Type in the action")
                 action = input()
                 if action == "1" and V.player_money >= V.debt:
-                    player_money -= V.debt
+                    V.player_money -= V.debt
                     print("You paid \033[38;2;100;220;100mthe shopkeeper\033[38;2;200;200;0m", V.debt, "coins.\033[0m Your balance is now\033[38;2;200;200;0m", V.player_money, '''coins.
 \033[38;2;100;220;100m"Alright. Come back later. My shop isn't ready yet,"\033[0m he said and let you go.
 You continued on your journey...\n\n\n''')
@@ -247,7 +241,7 @@ You continued on your journey...\n\n\n''')
                         V.shopkeeper_deaths += 1
                         V.cur_shopkeeper_dead = True
                     break
-                elif action == "2" and player_money >= V.debt:
+                elif action == "2" and V.player_money >= V.debt:
                     print('''\033[38;2;100;220;100m"Greedy? I will take it away by force, then."\033[0m''')
                     fight(V, [33])
                     if V.lost == 1:
@@ -326,7 +320,7 @@ He presents you the goods.''')
                         shop_buy(V, action - 1, "alchemist")
                         break
                     elif action - 1 == len(V.current_alchemist_items):
-                        item_info(V, V.shop_weapon, "alchemist")
+                        item_info(V, "alchemist")
                         break
                     elif action - 2 == len(V.current_alchemist_items):
                         npc_talk(V, "alchemist")
@@ -437,7 +431,11 @@ It continues, \033[38;2;200;240;0m"Can you meet me later? I don't feel like vomi
                 print("Type in the action")
                 action = input()
                 if action == "1":
+                    print("\n\n\n")
                     shop_grant(V, item)
+                    print("Type anything to continue...")
+                    action = input()
+                    print("\n\n\n")
                     V.mimic_got_item = True
                     V.mimic_given_items += 1
                     break
@@ -500,7 +498,6 @@ After an awkwardly long pause, it continues,
         print('''You come across the familiar steel chest. You see the key lying right next to it.
 You unlock the chest and let it speak.''')
     elif V.mimic_bank_encounters > 0 and V.bank_locked == False:
-        V.mimic_bank_encounters += 1
         print('''You come across the familiar steel chest. It springs to life.''')
     V.bank_first_time = False
     if V.bank_locked == False:
@@ -739,3 +736,214 @@ Your base damage is now''', V.player_base_dmg, '''DMG!''')
                 break
 
     V.death_encounters += 1
+
+def reaper_bounty(V):
+    if V.reaper_encounters == 0:
+        print('''You come across a wooden board with carvings on it. A tall man stands next to it.
+\033[38;2;230;50;0m"Another one of your kind. I WOULD KILL YOU, if it wasn't a taboo,"\033[0m says the man. He continues without hesitation,
+\033[38;2;230;50;0m"My name has been lost to time, and now I have the nickname of the re-- a bounty chieftain."\033[0m
+He pulls out a dagger and says, \033[38;2;230;50;0m"Pull out your hand."\033[0m
+Pull out your hand?
+1. Yes
+2. No''')
+        agree = False
+        while True:
+            action = input()
+            if action == '1' or action.lower() == "yes":
+                agree = True
+                break
+            elif action == '2' or action.lower() == "no":
+                agree = False
+                break
+        if agree:
+            print('''You hesitantly pull out your hand. The man quickly grabs it and makes a small cut in it.''')
+        else:
+            print('''The man says, \033[38;2;230;50;0m"Doubting? JUST GIVE ME YOUR HAND!"\033[0m He grabs your hand anyway and makes a small cut in it.''')
+        print('''He picks up a droplet of your blood and smears it along the board.
+\033[38;2;230;50;0m"There. Now you can read the board, and I can track how many creatures you have killed."\033[0m
+He lets go off your hand and backs off slightly. You notice, that you can in fact read the carvings on it.
+Type anything to continue...''')
+        action = input()
+        reaper_bounty_define(V, 1)
+        reaper_bounty_define(V, 2)
+        reaper_bounty_define(V, 3)
+        V.reaper_encounters += 1
+    elif V.reaper_encounters >= 1:
+        print('''You come across the board with the man, standing next to it.''')
+        if V.reaper_trust < 0.1:
+            print('''\033[38;2;230;50;0m"Hello, again. I hope you will get something done in the near future."\033[0m''')
+        elif V.reaper_trust < 0.3:
+            print('''\033[38;2;230;50;0m"Hello, again. Your travels have been fine, I assume."\033[0m''')
+        elif V.reaper_trust < 0.6:
+            print('''\033[38;2;230;50;0m"Hello, again. How have you-- oh right, I forgot. Sorry."\033[0m''')
+        elif V.reaper_trust < 0.9:
+            print('''\033[38;2;230;50;0m"Welcome back. Did you come to check on the board or to visit me?"\033[0m''')
+        else:
+            print('''\033[38;2;230;50;0m"Welcome back, friend. How have you been? I hope good."\033[0m''')
+        if V.bounty_target_tracking[0] == V.bounty_target_goal[0]:
+            money = round((V.score + V.score_increase) * 10)
+            V.player_money += money
+            reaper_bounty_define(V, 1)
+            print('''The man comes up to you and says,
+\033[38;2;230;50;0m"Good job. You killed those beasts, and that deserves some sort of reward."\033[0m
+He hands you a small bag with coins inside. You got''', money, "coins! Your current balance", V.player_money, "coins!")
+            print("Type anything to continue...")
+            action = input()
+        if V.bounty_target_tracking[1] == V.bounty_target_goal[1]:
+            reaper_bounty_define(V, 2)
+            print('''The man comes up to you and says,
+\033[38;2;230;50;0m"Good job. You have killed quite formidable beasts. That is more than enough for a reward. Take this instead."\033[0m''')
+            seed(V.reaper_reward_seed)
+            V.reaper_reward_seed = randint(0, 1000)
+            shop_grant(V, choice(26, 27))
+            print("Type anything to continue...")
+            action = input()
+        if V.bounty_target_tracking[2] == V.bounty_target_goal[2]:
+            reaper_bounty_define(V, 3)
+            print('''The man comes up to you and says,
+\033[38;2;230;50;0m"I won't ask how you did it, or how you are still alive. Just take this gift. Take good care of it."\033[0m''')
+            shop_grant(V, 28)
+            print("Type anything to continue...")
+            action = input()
+    while True:
+        print("The board:")
+        print(enemy_name_color(V, V.bounty_target[0]) + "1.", V.enemys_name[V.bounty_target[0]], "-", str(V.bounty_target_tracking[0]) + "/" + str(V.bounty_target_goal[0]), "killed.")
+        print(enemy_name_color(V, V.bounty_target[1]) + "2.", V.enemys_name[V.bounty_target[1]], "-", str(V.bounty_target_tracking[1]) + "/" + str(V.bounty_target_goal[1]), "killed.")
+        print(enemy_name_color(V, V.bounty_target[2]) + "3.", V.enemys_name[V.bounty_target[2]], "-", str(V.bounty_target_tracking[2]) + "/" + str(V.bounty_target_goal[2]), "killed.")
+        print("\033[0m4. Talk")
+        print("5. Leave")
+        action = input()
+        if action == "1" or action.lower() in V.enemys_name[V.bounty_target[0]].lower():
+            reaper_enemy_talk(V, V.bounty_target[0])
+        elif action == "2" or action.lower() in V.enemys_name[V.bounty_target[1]].lower():
+            reaper_enemy_talk(V, V.bounty_target[1])
+        elif action == "3" or action.lower() in V.enemys_name[V.bounty_target[2]].lower():
+            reaper_enemy_talk(V, V.bounty_target[2])
+        elif action == "4" or action.lower() == "talk":
+            npc_talk(V, "reaper")
+        elif action.lower() == "leave":
+            break
+        else:
+            if action.isdigit():
+                action = int(action)
+                if action >= 5:
+                    break
+
+def reaper_enemy_talk(V, enemy_id):
+    print('''You point at one of the carvings. The man looks at the carving and says,\033[38;2;230;50;0m''')
+    if enemy_id == 0:
+        print('''"That bush had been causing me some trouble, back when I was a bounty hunter. It's usually in the Eternal Garden or in the Bandits' Forest."''')
+    elif enemy_id == 3:
+        print('''"If the bush man was only a nuisance, this thing... I HATE IT. Just like the bush man, I've seen it only in the Eternal Garden and in the Bandits' Forest."''')
+    elif enemy_id == 4:
+        print('''"This spirit is angered when you are way too 'innocent', which is such a stupid term. I think those weird altars can make it angry. Just kill it."''')
+    elif enemy_id == 12:
+        print('''"That serpent is quite unnerving. One of those has eaten my brother. I hope, that you will avenge me."''')
+    elif enemy_id == 17:
+        print('''"I HATE SNOWMEN! They are a stupid attempt at replacement of bounty hunters, which if you couldn't notice I take pride in."''')
+    elif enemy_id == 20:
+        if V.reaper_trust > 0.6:
+            print('''"Death has told me that she feels disgust, knowing her canyon got infested with these spiders. I wanted to take action myself, but I am far too weak."''')
+        else:
+            print('''"Uhh... Back in my childhood I enjoyed walking around in the Deathly Canyon, but now... these spiders... uh... don't let me relive the childhood memories. Yes, that's why."''')
+    elif enemy_id == 31:
+        print('''"Regular ents are nothing compared to these. Instead of protecting the Holy Forest, they now protect the... uh... Rotten Forest. Get it?"''')
+    elif enemy_id == 38:
+        print('''"This spirit is angered when you are way too 'healthy', I guess. I don't know how to describe it. Just use altars to be more healthy."''')
+    elif enemy_id == 39:
+        print('''"This spirit is angered when you are way too 'strong', which is quite self explanatory. Why do I want you to kill it? Yes."''')
+    elif enemy_id == 40:
+        print('''"This spirit is angered when you are way too 'mighty', which I have no idea what it means. Use altars, I think?"''')
+    elif enemy_id == 41:
+        print('''"This spirit is angered when you are way too 'protected', which is defense, I assume. Use altars for this."''')
+    elif enemy_id == 42:
+        if V.reaper_trust > 0.3:
+            print('''"Have you seen your doppleganger? Kill it. That's it."''')
+        else:
+            print('''"I am not implying. I am outright telling you what to do. And you have to do it twice."''')
+    elif enemy_id == 45:
+        print('''"They swarmed me once, which is why I have so many scars on my face. I've seen them only in the Stale Cave, and some in Bandits' Forest."''')
+    elif enemy_id == 46:
+        print('''"Unlike regular snowmen, these are constructs of war. They use some magic wand, called 'shotgun', I think. I've seen them only in the Barren Tundra."''')
+    elif enemy_id == 55:
+        print('''"I'm always down for a revolution, but not with these heretics. They are a group of orphans, that roam the... Rotten Forest. That's a good one."''')
+    elif enemy_id == 63:
+        print('''"It isn't a mistake, that's what their name actually is. I've had some issues with them in the Suffering Sands, but my father... perhaps, not now."''')
+    elif enemy_id == 68:
+        print('''"That disgusting insect was the bane of my existence, when I used to do bounty hunting in the Suffering Sands."''')
+    else:
+        print('''"Well, the developer of this game is so bad, that he forgot to write a dialogue line for this creature.\nWhen you see him, tell him about this and the fact, that it is caused by creature id''', str(enemy_id) + ''', okay?"''')
+    print("\033[0m", end = "")
+    print("Type anything to continue...")
+    action = input()
+
+def reaper_bounty_define(V, index = 1):
+    if index == 1:
+        previous = V.bounty_target[0]
+        seed(V.reaper_seed)
+        if V.game_mode in ["infinite", "story"]:
+            while previous == V.bounty_target[0]:
+                V.bounty_target[0] = choices([0, 45, 17, 20, 63, 55], [20, 20, 14, 14, 20, 12])[0]
+        elif V.game_mode in ["raid"]:
+            if V.area_id == 0:
+                V.bounty_target[0] = 0
+            elif V.area_id == 1:
+                V.bounty_target[0] = choice([0, 45])
+            elif V.area_id == 2:
+                V.bounty_target[0] = 45
+            elif V.area_id == 3:
+                V.bounty_target[0] = 17
+            elif V.area_id == 4:
+                V.bounty_target[0] = 20
+            elif V.area_id == 5:
+                V.bounty_target[0] = 63
+            elif V.area_id == 6:
+                V.bounty_target[0] = 55
+        if V.bounty_target[0] in [0, 63]:
+            V.bounty_target_goal[0] = 7
+        elif V.bounty_target[0] in [45, 17]:
+            V.bounty_target_goal[0] = 9
+        elif V.bounty_target[0] in [20, 55]:
+            V.bounty_target_goal[0] = 12
+        V.bounty_target_tracking[0] = 0
+    if index == 2:
+        previous = V.bounty_target[1]
+        seed(V.reaper_seed)
+        if V.game_mode in ["infinite", "story"]:
+            while previous == V.bounty_target[1]:
+                V.bounty_target[1] = choices([3, 12, 46, 68, 31], [28, 24, 20, 15, 13])[0]
+        elif V.game_mode in ["raid"]:
+            if V.area_id == 0:
+                V.bounty_target[1] = 3
+            elif V.area_id == 1:
+                V.bounty_target[1] = 3
+            elif V.area_id == 2:
+                V.bounty_target[1] = 12
+            elif V.area_id == 3:
+                V.bounty_target[1] = 46
+            elif V.area_id == 4:
+                V.bounty_target[1] = 12
+            elif V.area_id == 5:
+                V.bounty_target[1] = 68
+            elif V.area_id == 6:
+                V.bounty_target[1] = 31
+        if V.bounty_target[1] in [3]:
+            V.bounty_target_goal[1] = 3
+        elif V.bounty_target[1] in [68]:
+            V.bounty_target_goal[1] = 7
+        elif V.bounty_target[1] in [12, 46, 31]:
+            V.bounty_target_goal[1] = 5
+        V.bounty_target_tracking[0] = 0
+    if index == 3:
+        previous = V.bounty_target[2]
+        seed(V.reaper_seed)
+        if V.game_mode in ["infinite", "story", "raid"]:
+            while previous == V.bounty_target[2]:
+                V.bounty_target[2] = choices([4, 38, 39, 40, 41, 42], [10, 20, 20, 15, 15, 20])[0]
+            if V.bounty_target[2] in [42]:
+                V.bounty_target_goal[2] = 2
+            elif V.bounty_target[2] in [4, 38, 39, 40, 41]:
+                V.bounty_target_goal[2] = 1
+            V.bounty_target_tracking[0] = 0
+    seed(V.reaper_seed)
+    V.reaper_seed = randint(0, 1000)
