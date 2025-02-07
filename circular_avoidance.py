@@ -85,23 +85,104 @@ def map_tile_move(V, coordinates, direction, step = 1):
                     V.events[new_event_index], V.events[old_event_index] = event_type, 0
                     V.no_update_coordinates.append(new_coordinates)
                     return True
+    if direction == "ul":
+        new_coordinates = [coordinates[0] - step, coordinates[1] - step, coordinates[2]]
+        if new_coordinates in V.events_coordinates:
+            for i in range(step):
+                test_coords = [coordinates[0] - i, coordinates[1], coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                test_coords = [coordinates[0], coordinates[1] - i, coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                bad_path = True
+            if bad_path == False:
+                new_event_index = V.events_coordinates.index(new_coordinates)
+                if V.events[new_event_index] in [0, 6, 9, 15, 25, 26, 27, 28]:
+                    V.events[new_event_index], V.events[old_event_index] = event_type, 0
+                    V.no_update_coordinates.append(new_coordinates)
+                    return True
+    if direction == "dl":
+        new_coordinates = [coordinates[0] - step, coordinates[1] + step, coordinates[2]]
+        print(coordinates)
+        print(new_coordinates)
+        if new_coordinates in V.events_coordinates:
+            for i in range(step):
+                test_coords = [coordinates[0] - i, coordinates[1], coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                test_coords = [coordinates[0], coordinates[1] + i, coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                bad_path = True
+            if bad_path == False:
+                new_event_index = V.events_coordinates.index(new_coordinates)
+                if V.events[new_event_index] in [0, 6, 9, 15, 25, 26, 27, 28]:
+                    V.events[new_event_index], V.events[old_event_index] = event_type, 0
+                    V.no_update_coordinates.append(new_coordinates)
+                    return True
+    if direction == "dr":
+        new_coordinates = [coordinates[0] + step, coordinates[1] + step, coordinates[2]]
+        if new_coordinates in V.events_coordinates:
+            for i in range(step):
+                test_coords = [coordinates[0] + i, coordinates[1], coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                test_coords = [coordinates[0], coordinates[1] + i, coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                bad_path = True
+            if bad_path == False:
+                new_event_index = V.events_coordinates.index(new_coordinates)
+                if V.events[new_event_index] in [0, 6, 9, 15, 25, 26, 27, 28]:
+                    V.events[new_event_index], V.events[old_event_index] = event_type, 0
+                    V.no_update_coordinates.append(new_coordinates)
+                    return True
+    if direction == "ur":
+        new_coordinates = [coordinates[0] + step, coordinates[1] - step, coordinates[2]]
+        if new_coordinates in V.events_coordinates:
+            for i in range(step):
+                test_coords = [coordinates[0] + i, coordinates[1], coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                test_coords = [coordinates[0], coordinates[1] - i, coordinates[2]]
+                if test_coords in V.events_coordinates and V.events[V.events_coordinates.index(test_coords)] != 10:
+                    continue
+                bad_path = True
+            if bad_path == False:
+                new_event_index = V.events_coordinates.index(new_coordinates)
+                if V.events[new_event_index] in [0, 6, 9, 15, 25, 26, 27, 28]:
+                    V.events[new_event_index], V.events[old_event_index] = event_type, 0
+                    V.no_update_coordinates.append(new_coordinates)
+                    return True
     return False
 
-def stalker_AI(V, event):
+def stalker_AI(V, stalker_coordinates):
     if V.stalker_stealth % 2 == 0:
-        stalker_coordinates = V.events_coordinates[event]
         if stalker_coordinates != V.player_coordinates:
             movement_options = []
             if stalker_coordinates[0] < V.player_coordinates[0]:
-                movement_options.append("l")
+                movement_options = movement_options + ["l"]
+                if stalker_coordinates[1] < V.player_coordinates[1]:
+                    movement_options = movement_options + ["ul"]
+                elif stalker_coordinates[1] > V.player_coordinates[1]:
+                    movement_options = movement_options + ["dl"]
+                else:
+                    movement_options = movement_options + ["ul", "dl"]
             elif stalker_coordinates[0] > V.player_coordinates[0]:
-                movement_options.append("r")
+                movement_options = movement_options + ["r"]
+                if stalker_coordinates[1] < V.player_coordinates[1]:
+                    movement_options = movement_options + ["ur"]
+                elif stalker_coordinates[1] > V.player_coordinates[1]:
+                    movement_options = movement_options + ["dr"]
+                else:
+                    movement_options = movement_options + ["ur", "dr"]
             else:
                 movement_options = movement_options + ["l", "r"]
             if stalker_coordinates[1] < V.player_coordinates[1]:
-                movement_options.append("u")
+                movement_options = movement_options + ["u"]
             elif stalker_coordinates[1] > V.player_coordinates[1]:
-                movement_options.append("d")
+                movement_options = movement_options + ["d"]
             else:
                 movement_options = movement_options + ["u", "d"]
             while len(movement_options) > 0:
@@ -109,8 +190,9 @@ def stalker_AI(V, event):
                 movement_options.remove(direction)
                 if map_tile_move(V, stalker_coordinates, direction, 1):
                     break
-                elif map_tile_move(V, stalker_coordinates, direction, 2):
-                    break
+                elif direction in ["u", "d", "r", "l"]:
+                    if map_tile_move(V, stalker_coordinates, direction, 2):
+                        break
 
 def npc_talk(V, npc_type):
     if npc_type == "shopkeeper":
@@ -120,6 +202,8 @@ def npc_talk(V, npc_type):
                     "Have you seen the bounty chieftain? I think he is one of the Gods' followers. I don't know, which one though."]
         if V.events_heights[V.events.index(3)] < V.water_level:
             dialogue.append("I am sorry for the flood. It wasn't like this before.")
+            if V.area_id == 6:
+                dialogue.append("Why can I persist in this water? Don't worry about it.")
         if V.area_id == 6:
             dialogue.append("Don't touch the water here. It will hurt you badly.")
         if V.death_encounters > 0:
@@ -173,7 +257,8 @@ def npc_talk(V, npc_type):
         dialogue = choice(dialogue)
         if not dialogue in V.said_dialogue_gamble_mimic:
             V.said_dialogue_gamble_mimic.append(dialogue)
-        print("\033[38;2;200;240;0m", dialogue, "\033[0m", sep = "")
+        print("The golden chest notices your stare and says,")
+        print('\033[38;2;200;240;0m"', dialogue, '"\033[0m', sep = "")
     if npc_type == "death":
         if V.area_id != 6:
             dialogue = ["Do you remember the shopkeeper? I have talked to him a few times. I think he dislikes me after I realised he is an orphan.",
@@ -238,7 +323,7 @@ def npc_talk(V, npc_type):
         if V.mimic_bank_encounters > 2:
             dialogue.append("I sometimes I wonder if it should be you instead of him. But then I remember the sad fate that awaits you. I'm sorry, my friend.")
         if V.stalker_stealth < 100:
-            dialogue.append("My friend, what is that your doppleganger stalking you? Is it trying to get your attention? I hope not.")
+            dialogue.append("My friend, why is that doppleganger of yours stalking you? Is it trying to get your attention? I hope not.")
         if V.mimic_gamble_encounters > 0:
             dialogue.append("My friend, where did you get those shinies? Are they from my cousin? I knew you two would get along very well!")
         if V.death_encounters > 0:
@@ -263,6 +348,8 @@ def npc_talk(V, npc_type):
     if npc_type == "alchemist":
         dialogue = []
         if V.alchemist_anger <= 0.6:
+            if V.alchemist_anger <= 0.3 and V.brewery_encounters > 10:
+                dialogue.append("Haff I mentioned, zat you are my favorite cuztomer? Well, now I haff.")
             if V.alchemist_defeated > 0:
                 dialogue.append("For ze record, I'm not zelling impentralability potionz. But wiz zem, not even Death herzelf can defeat me!")
             if V.mimic_bank_encounters > 0:
@@ -294,6 +381,7 @@ def npc_talk(V, npc_type):
         dialogue = []
         if V.reaper_trust < 0.05:
             dialogue.append("Why are you looking at me? Do you want me to talk? Alright. I feel disgust looking at you. Happy? You'd better be.")
+            dialogue.append("What? Don't like my speaking style? Go cry about it. Oh right, YOU CAN'T.")
         elif V.reaper_trust >= 0.1:
             dialogue = dialogue + ["I'm quite surprised with the amount of progress you managed to achieve. Keep it up.",
                                    "Are you yet to see the alchemist? Honestly, he sells really good potions. You should buy some of them."]

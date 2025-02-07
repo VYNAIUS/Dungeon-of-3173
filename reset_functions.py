@@ -3,7 +3,6 @@
 def true_reset(V):
     from enemies_and_fighting import default_enemies
     from areas import default_areas
-    V.version = "V0.3.5"
     V.player_max_hp = 100
     V.player_base_def = 0
     V.player_base_dmg = 5

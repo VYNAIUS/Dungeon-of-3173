@@ -87,7 +87,7 @@ def default_enemies(V):
                        "'Death comes for all of us. And those who cheat her, have to fight her'", "Greatest Cycle's creation yet, it is ready to consume you",
                        "'Once one cycle ends, something changes, allowing for a new cycle to be born'", "'Once one cycle ends, something changes, allowing for a new cycle to be born'",
                        "These heretics worship false idols of Great J", "These vengeful spirits, that resemble frogs, are the last resort of many amphibian heretics",
-                       "Elite amphibian heretic, who learned how manipulate and create frogs", "The great knight that protects the Garden's grounds",
+                       "Elite amphibian heretic, who learned how to manipulate and create frogs", "The great knight that protects the Garden's grounds",
                        "A great wizard that infused himself with corrupted crystals of the Stale Cave", "There is little explanation of how this bear has visible abs",
                        "Male Spidernachs are considerably smaller than their counterparts", "This frog has been empowered by magic of amphibian heretics",
                        "This worm like creature is quite common during dry weather", "A somewhat immortal alchemist that robs his customers when they buy nothing for too long",
@@ -116,6 +116,7 @@ def default_enemies_credits(V):
     V.enemys_power_level = [[1]]
     V.enemys_name = ["VYNAIUS", "Chat GPT", "Family", "Friends"]
     V.enemys_name_colors = [[230, 230, 230], [60, 60, 160], [0, 240, 160], [0, 240, 240]]
+    V.enemys_charm_immunity = [False, False, False, False]
     V.enemys_elements = [[], [], [], []]
     V.enemys_base_hp = [20, 25, 30, 40]
     V.enemys_base_dmg = [2, 3, 4, 5]
@@ -312,6 +313,12 @@ def enemy_hit(V, attacker = 0):
         V.enemys[attacker].hp -= V.player_spikes
         if V.enemys[attacker].hp < 0:
             V.enemys[attacker].hp = 0
+        if V.player_spikes_armor_break > 0:
+            V.enemys[attacker].defense -= V.player_spikes_armor_break
+    if V.player_weapon == 6:
+        V.enemys[attacker].hp -= V.player_base_def + V.player_extra_def
+        if V.enemys[attacker].hp < 0:
+            V.enemys[attacker].hp = 0
     if V.player_dealt_damage > 0:
         print(V.enemys[attacker].name, "dealt", V.player_dealt_damage, "DMG! You have", V.player_current_hp, "HP left!")
         if V.enemys[attacker].psn > 0:
@@ -328,8 +335,9 @@ def enemy_hit(V, attacker = 0):
     if V.player_spikes > 0:
         print(V.enemys[attacker].name, "suffered", V.player_spikes, "DMG from your spikes! They have", V.enemys[attacker].hp, "HP left!")
         if V.player_spikes_armor_break > 0:
-            V.enemys[attacker].defense -= V.player_spikes_armor_break
             print(V.enemys[attacker].name, "lost", V.player_spikes_armor_break, "DEF!")
+    if V.player_weapon == 6:
+        print(V.enemys[attacker].name, "suffered", V.player_base_def + V.player_extra_def, "DMG from your shield! They have", V.enemys[attacker].hp, "HP left!")
 
     print("\033[0m", end = "")
 
@@ -366,6 +374,10 @@ def enemy_magic_hit(V, attacker = 0):
     V.player_current_hp -= dealt_damage
     if V.player_current_hp < 0:
         V.player_current_hp = 0
+    if V.player_weapon == 6:
+        V.enemys[attacker].hp -= V.player_base_magic_def + V.player_extra_magic_def
+        if V.enemys[attacker].hp < 0:
+            V.enemys[attacker].hp = 0
     if dealt_damage > 0:
         print(V.enemys[attacker].name, "dealt", dealt_damage, "magic DMG! You have", V.player_current_hp, "HP left!")
     else:
@@ -374,6 +386,8 @@ def enemy_magic_hit(V, attacker = 0):
         print("It was a critical hit!")
     elif crit_count > 1:
         print("They rolled a critical hit", crit_count, "times!")
+    if V.player_weapon == 6:
+        print(V.enemys[attacker].name, "suffered", V.player_base_magic_def + V.player_extra_magic_def, "DMG from your shield! They have", V.enemys[attacker].hp, "HP left!")
 
     print("\033[0m", end = "")
 

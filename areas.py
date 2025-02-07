@@ -11,9 +11,9 @@ import keyboard
 
 def default_areas(V):
     V.areas = ["Garden", "Deep Forest", "Cave", "Tundra", "Canyon", "Desert", "Rotten Forest"]
-    V.areas_colors = [[0, 255, 100], [32, 150, 32], [140, 140, 140], [200, 200, 230], [150, 180, 150], [190, 210, 0], [125, 125, 125]]
-    V.water_colors_0 = [[0, 200, 255], [0, 100, 150], [0, 150, 150], [0, 150, 150], [0, 170, 100], [0, 255, 255], [0, 255, 100]]
-    V.water_colors_1 = [[0, 100, 128], [0, 50, 75], [0, 75, 75], [0, 75, 75], [0, 85, 50], [0, 128, 128], [0, 128, 50]]
+    V.areas_colors = [[0, 255, 100], [32, 200, 32], [140, 140, 140], [200, 200, 230], [150, 180, 150], [190, 210, 0], [125, 125, 125]]
+    V.water_colors_0 = [[0, 200, 255], [0, 150, 200], [0, 150, 150], [0, 150, 150], [0, 170, 100], [0, 255, 255], [0, 255, 100]]
+    V.water_colors_1 = [[0, 100, 128], [0, 75, 100], [0, 75, 75], [0, 75, 75], [0, 85, 50], [0, 128, 128], [0, 128, 50]]
     V.path_lengths = [[3, 3], [0, 3], [0, 2], [2, 3], [1, 3], [3, 4], [0, 3]] # [min, max]
     V.height_variaty = [[0, 0], [-1, 1], [-2, 2], [-1, 3], [-1, 2], [-1, 1], [-2, 1]]
     V.wall_min_thickness = [1, 3, 2, 1, 1, 1, 2]
@@ -25,7 +25,7 @@ def default_areas(V):
     V.area_max_y = [15, 10, 8, 10, 5, 12, 12]
     V.start_positions = [["ul", "ml", "dl"], ["ul", "um", "ur", "dl", "dm", "dr"], ["mm"], ["um", "dm", "ml"], ["ul", "ur"],
                        ["ul", "ur", "dl", "dr"], ["ul", "um", "ur", "ml", "mr", "dl", "dm", "dr"]]
-    V.area_patterns = [[[["small boxes"], [1], [0]], [["basic", "basic water"], [1, 1], [0, 0]], [["small boxes", "basic"], [0.65, 1], [0, 0]]],
+    V.area_patterns = [[[["small boxes"], [1], [0]], [["basic", "small boxes", "basic water"], [0.35, 1, 1], [0, 0, 0]], [["small boxes", "basic"], [0.65, 1], [0, 0]]],
                      
                      [[["basic", "basic water"], [1, 1], [0, 0]], [["basic", "basic water", "isolated remnants"], [1, 1, 1], [0, 0, 0]]],
                      
@@ -39,7 +39,7 @@ def default_areas(V):
                      [[["basic", "holes down", "basic", "holes up", "basic", "basic water", "basic water"], [0.3, 0.1, 0.5, 0.3, 1, 1, 1], [0, 0, -1, -1, 0, 0, -1]],
                       [["basic", "holes down", "basic", "holes down", "basic", "holes up", "basic", "holes up", "basic", "basic water"], [0.15, 0.5, 0.1, 0.5, 0.3, 0.5, 0.1, 0.5, 1, 1], [0, 0, -1, -1, -2, -2, -1, -1, 0, 0]]],
                      
-                     [[["basic", "basic water"], [1, 1], [0, 0]]]]
+                     [[["basic", "basic water"], [1, 1], [0, 0]]]] # [[] - pattern, [] - % of events, [] - layer] - area
     V.area_pattern_chances = [[3, 1, 2], [3, 1], [1, 2], [1], [1], [3, 2], [1]]
     V.remnants_spawns = [[0, 4, 3], [0, 2, 0], [0, 0, 0], [0, 1, 1], [0, 4, 0], [0, 6, 1], [0, 3, 0]] # first value - min, second value - max, third value - average
     V.snow_pile_spawns = [0, 0, 0.05, 0.1, 0, 0, 0]
@@ -137,7 +137,7 @@ def map_print(V):
         if V.player_boat_hp <= 0:
             print("\n\033[38;2;255;0;0mThe boat will break when you step on land!", end = "")
     print("\033[0m")
-    print("MAP:" + area_color(V))
+    print("MAP:" + area_color(V, 5, False, True))
     for x in range(min_x(V), max_x(V) + 1):
         print("-", end = "")
     print()
@@ -155,78 +155,74 @@ def map_print(V):
                 event_height = V.events_heights[V.events_coordinates.index([x, y, l])] + l * 2.5
                 if event in [0, 9, 25, 26]:
                     if V.water_level > event_height:
-                        print(water_color(V) + "~", end = "")
-                    elif V.area_id == 2 or V.area_id == 6:
-                        print(area_color(V, event_height, True) + "○", end = "")
-                    elif V.game_time < 18:
-                        print(area_color(V, event_height, True) + "•", end = "")
+                        print(water_color(V, 0, True) + "~", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "○", end = "")
+                        print(area_color(V, event_height, True, True) + "•", end = "")
                 elif event == 1:
                     if V.water_level > event_height:
-                        print(water_color(V) + "×", end = "")
+                        print(water_color(V, 0, True) + "×", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "×", end = "")
+                        print(area_color(V, event_height, True, True) + "×", end = "")
                 elif event == 2:
                     if V.water_level > event_height:
-                        print(water_color(V) + "†", end = "")
+                        print(water_color(V, 0, True) + "†", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "†", end = "")
+                        print(area_color(V, event_height, True, True) + "†", end = "")
                 elif event == 3:
                     if V.water_level > event_height:
-                        print(water_color(V) + "$", end = "")
+                        print(water_color(V, 0, True) + "$", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "$", end = "")
+                        print(area_color(V, event_height, True, True) + "$", end = "")
                 elif event == 4:
                     if V.water_level > event_height:
-                        print(water_color(V) + "B", end = "")
+                        print(water_color(V, 0, True) + "B", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "B", end = "")
+                        print(area_color(V, event_height, True, True) + "B", end = "")
                 elif event == 5:
                     if V.water_level > event_height:
-                        print(water_color(V) + "⌂", end = "")
+                        print(water_color(V, 0, True) + "⌂", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "⌂", end = "")
+                        print(area_color(V, event_height, True, True) + "⌂", end = "")
                 elif event == 6:
                     if V.water_level > event_height:
-                        print(water_color(V) + "~", end = "")
+                        print(water_color(V, 0, True) + "~", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "~", end = "")
+                        print(area_color(V, event_height, True, True) + "~", end = "")
                 elif event == 7:
                     if V.water_level > event_height:
-                        print(water_color(V) + "Λ", end = "")
+                        print(water_color(V, 0, True) + "Λ", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "Λ", end = "")
+                        print(area_color(V, event_height, True, True) + "Λ", end = "")
                 elif event == 8:
                     if V.water_level > event_height:
-                        print(water_color(V) + "A", end = "")
+                        print(water_color(V, 0, True) + "A", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "A", end = "")
+                        print(area_color(V, event_height, True, True) + "A", end = "")
                 elif event == 10:
                     if V.water_level > event_height:
-                        print(water_color(V, 1) + "~", end = "")
+                        print(water_color(V, 1, True) + "~", end = "")
                     else:
                         print(" ", end = "")
                 elif event == 11:
                     if V.water_level > event_height:
-                        print(water_color(V) + "D", end = "")
+                        print(water_color(V, 0, True) + "D", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "D", end = "")
+                        print(area_color(V, event_height, True, True) + "D", end = "")
                 elif event in [12, 16]:
                     if V.water_level > event_height:
-                        print(water_color(V) + "E", end = "")
+                        print(water_color(V, 0, True) + "E", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "E", end = "")
+                        print(area_color(V, event_height, True, True) + "E", end = "")
                 elif event == 13:
                     if V.water_level > event_height:
-                        print(water_color(V) + "C", end = "")
+                        print(water_color(V, 0, True) + "C", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "C", end = "")
+                        print(area_color(V, event_height, True, True) + "C", end = "")
                 elif event == 14:
                     if V.water_level > event_height:
-                        print(water_color(V) + "P", end = "")
+                        print(water_color(V, 0, True) + "P", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "P", end = "")
+                        print(area_color(V, event_height, True, True) + "P", end = "")
                 elif event in [15, 27, 28]:
                     if V.water_level > event_height:
                         print("\033[38;2;255;50;255m~", end = "")
@@ -238,35 +234,35 @@ def map_print(V):
                     print("\033[38;2;255;50;255m†", end = "")
                 elif event == 19:
                     if V.water_level > event_height:
-                        print(water_color(V) + "#", end = "")
+                        print(water_color(V, 0, True) + "#", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "#", end = "")
+                        print(area_color(V, event_height, True, True) + "#", end = "")
                 elif event == 20:
                     print("\033[33;1m?", end = "")
                 elif event == 21:
                     if V.water_level > event_height:
-                        print(water_color(V) + "L", end = "")
+                        print(water_color(V, 0, True) + "L", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "L", end = "")
+                        print(area_color(V, event_height, True, True) + "L", end = "")
                 elif event == 22:
                     if V.water_level > event_height:
-                        print(water_color(V) + "H", end = "")
+                        print(water_color(V, 0, True) + "H", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "H", end = "")
+                        print(area_color(V, event_height, True, True) + "H", end = "")
                 elif event == 23:
                     if V.water_level > event_height:
-                        print(water_color(V) + "R", end = "")
+                        print(water_color(V, 0, True) + "R", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "R", end = "")
+                        print(area_color(V, event_height, True, True) + "R", end = "")
                 elif event == 24:
                     if V.water_level > event_height:
-                        print(water_color(V) + "a", end = "")
+                        print(water_color(V, 0, True) + "a", end = "")
                     else:
-                        print(area_color(V, event_height, True) + "a", end = "")
+                        print(area_color(V, event_height, True, True) + "a", end = "")
                 else:
                     print(event)
 
-        print("\n" + water_color(V), end = "")
+        print("\n" + water_color(V, 0, True), end = "")
     for x in range(min_x(V), max_x(V) + 1):
         print("-", end = "")
     print("\033[0m")
@@ -2359,7 +2355,7 @@ def map_movement(V):
                 if stalker_coords[2] == V.player_coordinates[2] and not stalker_coords in V.no_update_coordinates:
                     distance = ((V.player_coordinates[0] - stalker_coords[0]) ** 2 + (V.player_coordinates[1] - stalker_coords[1]) ** 2) ** 0.5
                     if distance < V.vision_range - 0.25 + V.player_coordinates[2] * 1.5:
-                        stalker_AI(V, event)
+                        stalker_AI(V, stalker_coords)
                         if distance > 0:
                             V.stalker_stealth -= round(12 / distance) + 1
                         else:
@@ -2373,6 +2369,7 @@ def map_movement(V):
         else:
             print("You are somehow out of bounds!")
             event = 0
+            current_height = 0
         if current_height < V.water_level:
             if V.player_boat == False:
                 V.player_oxygen -= 1

@@ -19,8 +19,8 @@ from upgrades_functions import *
 #    if event.event_type == keyboard.KEY_DOWN:
 #        break
 
-print("V0.3.5")
 V = variables.V()
+print("V0.3.6")
 V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2, fight_AI_magic_basic_2,
                fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
                fight_AI_healer_magic_basic_1, fight_AI_transform_basic_1, fight_AI_transform_summoner_basic_2, fight_AI_basic_defend,
@@ -436,8 +436,6 @@ Type in the number or the action itself...''')
 def game():
     retry = 0
     option_moment = 0
-    V.global_seed = randint(0, 10000)
-    true_reset(V)
     while True:
         if V.continue_run:
             print('''

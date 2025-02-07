@@ -226,7 +226,7 @@ def time_events(V, num = 0):
     if V.game_time > 23:
         seed(V.weather_seed)
         V.game_time -= 24
-        if V.vision_range != -1 and chance(0.4) and not 20 in V.events:
+        if V.vision_range != -1 and chance(1.4) and not 20 in V.events:
             V.stalker_stealth = 100
             epic_nodes = list(range(len(V.events)))
             while len(epic_nodes) > 10:

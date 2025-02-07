@@ -14,7 +14,7 @@ def shop_items_define(V):
     possible_alchemist_items = [13, 15, 17, 18, 19, 20]
     V.current_shop_items = []
     V.current_alchemist_items = []
-    possible_weapons = [21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 25]
+    possible_weapons = [21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 25, 29]
     for i in range(3):
         item = choice(possible_shop_items)
         possible_shop_items.remove(item)
@@ -255,7 +255,9 @@ You continued on your journey...\n\n\n''')
             V.shopkeeper_sus = 0
     else:
         print('''When you came across the shop, it was locked. The sign at the entrance said,
-\033[38;2;100;220;100m"Please, come back in the morning!"\033[0m You decided to continue your journey...\n\n\n''')
+\033[38;2;100;220;100m"Please, come back in the morning!"\033[0m
+Type anything to continue...''')
+        action = input()
 
 def alchemist_shop(V):
     if not chance(V.alchemist_anger - 1):
@@ -412,44 +414,48 @@ It continues, \033[38;2;200;240;0m"Can you meet me later? I don't feel like vomi
         if V.mimic_got_item == True:
             break
         V.leave = 0
+        change_item = True
         while V.mimic_got_item == False:
-            seed(V.gamble_seed)
-            remember_seed = V.gamble_seed
-            V.gamble_seed = randint(0, 10000)
-            while V.gamble_seed == remember_seed:
+            if change_item:
+                seed(V.gamble_seed)
+                remember_seed = V.gamble_seed
                 V.gamble_seed = randint(0, 10000)
-            if chance(0.6):
-                item = choice(common_items)
-            elif chance(0.75):
-                item = choice(uncommon_items)
-            else:
-                item = choice(rare_items)
-            print('\033[38;2;200;240;0m"How about ', V.item_names[item], '?"\033[0m', sep ="")
+                while V.gamble_seed == remember_seed:
+                    V.gamble_seed = randint(0, 10000)
+                if chance(0.6):
+                    item = choice(common_items)
+                elif chance(0.75):
+                    item = choice(uncommon_items)
+                else:
+                    item = choice(rare_items)
+                change_item = False
+            print('\033[38;2;200;240;0m"So, how about ', V.item_names[item], '?"\033[0m', sep ="")
             print("Your balance is", V.player_money, "coins")
             print("1. Take it\n2. Pay", change_cost, "coins to reroll\n3. Inspect\n4. Talk")
-            while True:
-                print("Type in the action")
+            print("Type in the action")
+            action = input()
+            if action == "1":
+                print("\n\n\n")
+                shop_grant(V, item)
+                print("Type anything to continue...")
                 action = input()
-                if action == "1":
-                    print("\n\n\n")
-                    shop_grant(V, item)
-                    print("Type anything to continue...")
-                    action = input()
-                    print("\n\n\n")
-                    V.mimic_got_item = True
-                    V.mimic_given_items += 1
-                    break
-                elif action == "2":
-                    if V.player_money >= change_cost:
-                       V.player_money -= change_cost
-                       print('''\033[38;2;200;240;0m"Alright, gimme a second, pal."\033[0m''')
-                       break
-                    else:
-                        print('''\033[38;2;200;240;0m"Ay, ay, ay! Don't you scam me like that. I can clearly tell that you don't have enough. Just take the item."\033[0m''')
-                elif action == "3":
-                    print('\033[38;2;200;240;0m"', V.item_descriptions_mimic[item], '"\033[0m', sep = "")
-                elif action == "4":
-                    npc_talk(V, "mimic_gamble")
+                print("\n\n\n")
+                V.mimic_got_item = True
+                V.mimic_given_items += 1
+                break
+            elif action == "2":
+                if V.player_money >= change_cost:
+                    V.player_money -= change_cost
+                    change_item = True
+                    print('''\033[38;2;200;240;0m"Alright, gimme a second, pal."\033[0m''')
+                else:
+                    print('''\033[38;2;200;240;0m"Ay, ay, ay! Don't you scam me like that. I can clearly tell that you don't have enough. Just take the item."\033[0m''')
+            elif action == "3":
+                print('\033[38;2;200;240;0m"', V.item_descriptions_mimic[item], '"\033[0m', sep = "")
+                print("Type anything to continue...")
+                action = input()
+            elif action == "4":
+                npc_talk(V, "mimic_gamble")
         if V.mimic_given_items <= 5:
             change_cost = round(10 * (V.mimic_given_items / 1.8 + 1))
             for i in range(V.score):
@@ -761,7 +767,7 @@ Pull out your hand?
             print('''The man says, \033[38;2;230;50;0m"Doubting? JUST GIVE ME YOUR HAND!"\033[0m He grabs your hand anyway and makes a small cut in it.''')
         print('''He picks up a droplet of your blood and smears it along the board.
 \033[38;2;230;50;0m"There. Now you can read the board, and I can track how many creatures you have killed."\033[0m
-He lets go off your hand and backs off slightly. You notice, that you can in fact read the carvings on it.
+He lets go of your hand and backs off slightly. You notice that you can in fact read the carvings on it.
 Type anything to continue...''')
         action = input()
         reaper_bounty_define(V, 1)

@@ -384,3 +384,10 @@ def shop_grant(V, item):
         V.player_inventory_weapons_lifesteal.append(0)
         V.player_inventory_weapons_wrath.append(0)
         print("You got a reaper's scythe! You can equip it outside of combat!")
+    elif item == 29:
+        V.player_inventory_weapons.append(6)
+        V.player_inventory_weapons_psn.append(0)
+        V.player_inventory_weapons_explotano.append(0)
+        V.player_inventory_weapons_lifesteal.append(0)
+        V.player_inventory_weapons_wrath.append(0)
+        print("You got a shield! You can equip it outside of combat!")

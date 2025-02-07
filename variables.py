@@ -1,3 +1,5 @@
+from reset_functions import true_reset
+
 class V:
     def __init__(self):
         
@@ -9,7 +11,18 @@ class V:
         self.saved = False
         self.SM_skip = False
         self.RM_areas_cheat = False
-        self.version = ""
+        self.version = "blank"
+
+        self.dont_save = ["dont_save", "SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions", "map_show_UI",
+"bounty_hunter_name_0", "bounty_hunter_name_1", "enemys", "enemy_areas", "enemy_is_boss", "enemys_power_level", "enemys_name", "nemys_name_colors",
+"enemys_elements", "enemys_charm_immunity", "enemys_base_hp", "enemys_base_dmg", "enemys_base_def", "enemys_base_crit", "enemys_base_spk",
+"enemys_base_psn", "enemys_base_immortality", "enemys_descriptions", "enemys_patterns", "enemys_spawners", "enemy_unconsumable", "enemy_unelite",
+"bosses_for_areas", "hunters_appeared", "areas", "areas_colors", "water_colors_0", "water_colors_1", "path_lengths", "height_variaty",
+"wall_min_thickness", "turn_right_prob", "turn_down_prob", "turn_left_prob", "turn_up_prob", "area_max_x", "area_max_y", "start_positions",
+"area_patterns", "area_pattern_chances", "remnants_spawns", "snow_pile_spawns", "river_prob", "river_thickness", "escape_river_prob",
+"pond_prob", "pond_radius", "weathers", "weather_chances", "weathers_durations", "base_vision_ranges", "benefitial_events", "hurtful_events",
+"neutral_events", "item_names", "item_base_costs", "item_descriptions", "item_descriptions_mimic", "consumable_item_names", "consumable_item_desc",
+"weapon_names", "weapon_damage_ranges", "weapon_descriptions", "weapon_poison_factor", "weapon_crowd_factor"]
 
         self.show_map_UI = True
         self.game_mode = "story"
@@ -32,7 +45,8 @@ class V:
         self.queue_action = 0
         self.queue_action_enemy = 0
 
-        self.global_seed = 0
+        from random import randint
+        self.global_seed = randint(0, 10000)
         self.daily_seed = 0
 
         self.map_seed = 0
@@ -155,9 +169,9 @@ class V:
         self.item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Flask of Lifesteal", "Bottle of Midas' power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
                       "Traveller's Hallow", "Flask of Enemy Explotano", "Life's Gift", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Band of Agility",
                       "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion", "Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe",
-                      "Flask of Wrath", "Charming Potion", "Reaper's Scythe"]
-        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58, 45, 20, 60, 55, 75, 30, 50, 75]
-        self.item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                      "Flask of Wrath", "Charming Potion", "Reaper's Scythe", "Shield"]
+        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58, 45, 20, 60, 55, 75, 30, 50, 75, 40]
+        self.item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies (weapon upgrade)", "Enemies will get damaged when hit you",
                              "Dealing damage will heal you (weapon upgrade)", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn",
                              "Kill to grow", "You will get experience for entering a new area", "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
@@ -171,12 +185,13 @@ class V:
                              "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
                              "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4",
                              "Increases the damage and critical chance with the amount of enemies (weapon upgrade)", "Makes an enemy fight for you for a battle (consumable)",
-                             "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95"]
+                             "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95",
+                             "Shield Men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.1"]
         self.item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuff over time", "Guys that attack you, will get damaged for doing so", "Turn damage into heal!",
                                    "Not sure why I don't use this one myself, but you will gain more money", "You will become untouchable, but that will fade away after a turn",
                                    "How do you think undead people live? They use this to regenerate",
                                    "Oh, I don't know about this one, pal. When you kill something, you take part of their powers", "Do a world tour and become more experienced!",
-                                   "Enemies go boom and make other enemies go 'ouch'. Does that sound convincing?", "Another life, pal. But you will be revived broke and unexpirienced",
+                                   "Enemies go boom and make other enemies go 'ouch'. Does that sound convincing?", "Another life, pal. But you will be revived broke and unexperienced",
                                    "They say that if you eat this, you will regenerate and stuff. But I can't test it myself, pal",
                                    "Don't you hate being poisoned? Well, this will help with getting rid of it, pal!", "This one is like me! Try to drink it and it turns into something random!",
                                    "Ever-warriors, like you, enjoy eating flesh. I believe it heals half of your health, pal",
@@ -187,7 +202,8 @@ class V:
                                    "This thing can smash multiple bad guys at once, pal!", "I think, this thing poisons enemies very efficiently, but it seems to be very weak on its own",
                                    "This thing makes your weapon deal more, the more enemies you have! Isn't that cool, pal?",
                                    "This thing makes some bad guys like you, and forces them to help you. Neat",
-                                   "Pal, I'll be honest. I have no idea how this weapon, that can reap souls got in my possesion"]
+                                   "Pal, I'll be honest. I have no idea how this weapon, that can reap souls got in my possesion",
+                                   "This legendary weapon is able to use your defense as offense! Ain't that cool?"]
         self.consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion",
                                  "Regeneration Potion", "Poison Flask", "FLask of Lifesteal", "Flask of Enemy Explotano", "Flask of Wrath", "Charming Potion"]
         self.consumable_item_desc = ["How in the world do you have a Nothing in your inventory?", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
@@ -201,16 +217,17 @@ class V:
         # SHOP ITEMS END
 
         # WEAPONS START
-        self.weapon_names = ["Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe", "Reaper's Scythe"]
-        self.weapon_damage_ranges = [[80, 120], [50, 80], [45, 75], [90, 120], [5, 10], [100, 120]]
+        self.weapon_names = ["Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe", "Reaper's Scythe", "Shield"]
+        self.weapon_damage_ranges = [[80, 120], [50, 80], [45, 75], [90, 120], [5, 10], [100, 120], [10, 30]]
         self.weapon_descriptions = ["Your favourite weapon of all time. Damage ranges between 80%~120%. Crowd factor is 1; poison factor is 1.",
                                "Extremely weak weapon, but provides 150% MGCDEF and deals 500% more DMG to magic enemies. Damage ranges between 50%~80%. Crowd factor is 1; poison factor is 0.2",
                                "Very sharp weapon, which can be used to strike enemies twice. Damage ranges between 45%~75%. Crowd factor is 0.5; poison factor is 1",
                                "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
                                "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4"
-                               "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95"]
-        self.weapon_poison_factor = [1, 0.2, 1, 0.2, 4, 0.95]
-        self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1, 0.6]
+                               "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95",
+                               "Shield Men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.2"]
+        self.weapon_poison_factor = [1, 0.2, 1, 0.2, 4, 0.95, 0.2]
+        self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1, 0.6, 0.9]
         # WEAPONS END
 
         # AREA STATS START
@@ -299,7 +316,7 @@ class V:
         self.bosses_for_areas = []
         self.hunters_appeared = []
         # ENEMYS STATS END
-
+        true_reset(self)
 
         import os
         import sys
@@ -448,8 +465,34 @@ RM_areas_cheat: False''')
                 value = turn_text_into_stuff(value)
                 setattr(self, key, value)
             self.continue_run = True
+            while len(self.item_bought) < len(self.item_names):
+                self.item_bought.append(0)
+
+            if self.version != "V0.3.6":    
+                with open(self.run_save_file_path, 'w') as file:
+                    for key, value in self.__dict__.items():
+                        if key in self.dont_save:
+                            continue
+                        file.write(f"{key}: {value}\n")
+
+                true_reset(self)
+                        
+                if os.path.exists(self.run_save_file_path):
+                    print("Opening a new format of saved run!")
+                    data = {}
+                    with open(self.run_save_file_path, 'r') as file:
+                        for line in file:
+                            key, value = line.strip().split(': ', 1)
+                            data[key] = value
+                    for key, value in data.items():
+                        value = turn_text_into_stuff(value)
+                        setattr(self, key, value)
+                    self.continue_run = True
+                    while len(self.item_bought) < len(self.item_names):
+                        self.item_bought.append(0)
 
         self.saved = False
+        self.version = "V0.3.6"
 
         import subprocess
         def enable_ansi_escape_codes():
@@ -470,7 +513,7 @@ RM_areas_cheat: False''')
     def save_run(self):
         with open(self.run_save_file_path, 'w') as file:
             for key, value in self.__dict__.items():
-                if key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions", "map_show_UI"]:
+                if key in self.dont_save:
                     continue
                 file.write(f"{key}: {value}\n")
         self.saved = True
