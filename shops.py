@@ -939,7 +939,7 @@ def reaper_bounty_define(V, index = 1):
             V.bounty_target_goal[1] = 7
         elif V.bounty_target[1] in [12, 46, 31]:
             V.bounty_target_goal[1] = 5
-        V.bounty_target_tracking[0] = 0
+        V.bounty_target_tracking[1] = 0
     if index == 3:
         previous = V.bounty_target[2]
         seed(V.reaper_seed)
@@ -950,6 +950,6 @@ def reaper_bounty_define(V, index = 1):
                 V.bounty_target_goal[2] = 2
             elif V.bounty_target[2] in [4, 38, 39, 40, 41]:
                 V.bounty_target_goal[2] = 1
-            V.bounty_target_tracking[0] = 0
+            V.bounty_target_tracking[2] = 0
     seed(V.reaper_seed)
     V.reaper_seed = randint(0, 1000)
