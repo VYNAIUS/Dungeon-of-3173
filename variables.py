@@ -468,7 +468,7 @@ RM_areas_cheat: False''')
             while len(self.item_bought) < len(self.item_names):
                 self.item_bought.append(0)
 
-            if self.version != "V0.3.6":    
+            if self.version != "V0.3.6.1":    
                 with open(self.run_save_file_path, 'w') as file:
                     for key, value in self.__dict__.items():
                         if key in self.dont_save:
@@ -492,7 +492,7 @@ RM_areas_cheat: False''')
                         self.item_bought.append(0)
 
         self.saved = False
-        self.version = "V0.3.6"
+        self.version = "V0.3.6.1"
 
         import subprocess
         def enable_ansi_escape_codes():

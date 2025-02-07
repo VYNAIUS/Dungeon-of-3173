@@ -786,7 +786,7 @@ Type anything to continue...''')
             print('''\033[38;2;230;50;0m"Welcome back. Did you come to check on the board or to visit me?"\033[0m''')
         else:
             print('''\033[38;2;230;50;0m"Welcome back, friend. How have you been? I hope good."\033[0m''')
-        if V.bounty_target_tracking[0] == V.bounty_target_goal[0]:
+        if V.bounty_target_tracking[0] >= V.bounty_target_goal[0]:
             money = round((V.score + V.score_increase) * 10)
             V.player_money += money
             reaper_bounty_define(V, 1)
@@ -795,7 +795,7 @@ Type anything to continue...''')
 He hands you a small bag with coins inside. You got''', money, "coins! Your current balance", V.player_money, "coins!")
             print("Type anything to continue...")
             action = input()
-        if V.bounty_target_tracking[1] == V.bounty_target_goal[1]:
+        if V.bounty_target_tracking[1] >= V.bounty_target_goal[1]:
             reaper_bounty_define(V, 2)
             print('''The man comes up to you and says,
 \033[38;2;230;50;0m"Good job. You have killed quite formidable beasts. That is more than enough for a reward. Take this instead."\033[0m''')
@@ -804,7 +804,7 @@ He hands you a small bag with coins inside. You got''', money, "coins! Your curr
             shop_grant(V, choice(26, 27))
             print("Type anything to continue...")
             action = input()
-        if V.bounty_target_tracking[2] == V.bounty_target_goal[2]:
+        if V.bounty_target_tracking[2] >= V.bounty_target_goal[2]:
             reaper_bounty_define(V, 3)
             print('''The man comes up to you and says,
 \033[38;2;230;50;0m"I won't ask how you did it, or how you are still alive. Just take this gift. Take good care of it."\033[0m''')
