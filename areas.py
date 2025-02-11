@@ -1,6 +1,6 @@
 ﻿
 from random import seed, shuffle, randint, choice, choices
-from extra_functions import chance
+from extra_functions import chance, is_window_active
 from upgrades_functions import level_up, stats_altar, player_remnants
 from coloring import area_color, water_color
 from misc_functions import lost_check, time_events, map_inventory, escape, change_interaction
@@ -2600,6 +2600,9 @@ G. - Map Help''')
             print("H. - Show Map UI")
         while True:
             while True:
+                if is_window_active() == False:
+                    action.name = "esc"
+                    break
                 action = keyboard.read_event(suppress=True)
                 if action.event_type == keyboard.KEY_DOWN:
                     break

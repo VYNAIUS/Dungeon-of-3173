@@ -20,11 +20,11 @@ from upgrades_functions import *
 #        break
 
 V = variables.V()
-print("V0.3.6")
-V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2, fight_AI_magic_basic_2,
-               fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
-               fight_AI_healer_magic_basic_1, fight_AI_transform_basic_1, fight_AI_transform_summoner_basic_2, fight_AI_basic_defend,
-               fight_AI_basic_shotgunner, fight_AI_stalker, fight_AI_alchemist, fight_AI_3173, fight_AI_cycle]
+print("V0.3.7")
+V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2,
+               fight_AI_magic_basic_2, fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
+               fight_AI_healer_magic_basic_1, fight_AI_transform_basic_1, fight_AI_transform_summoner_basic_2, fight_AI_basic_defend, fight_AI_basic_shotgunner,
+               fight_AI_stalker, fight_AI_alchemist, fight_AI_3173, fight_AI_cycle]
 
 def infinite_mode():
     if V.continue_run == False:
@@ -85,6 +85,7 @@ Type anything to continue...''')
     else:
         print("\033[34;3mYou have saved yourself...\033[0m\nType anything to close the game...")
         action = input()
+    meta_save(V)
 
 def story_mode():
     if V.continue_run == False:
@@ -150,10 +151,10 @@ Type anything to continue...''')
         else:
             V.SM_completed = True
             print("\033[33;3mYou have won...\033[0m\n")
-            meta_save(V)
     else:
         print("\033[34;3mYou have saved yourself...\033[0m\nType anything to close the game...")
         action = input()
+    meta_save(V)
 
 def raid_mode_area_choose():
     if V.continue_run == False:
@@ -238,6 +239,7 @@ Type anything to continue...''')
     else:
         print("\033[34;3mYou have saved yourself...\033[0m\nType anything to close the game...")
         action = input()
+    meta_save(V)
 
 def daily_run():
     seed(V.daily_seed)
@@ -344,7 +346,8 @@ def mutators_choose():
             print("1. Difficulty - Unknown (", V.difficulty, ")", sep = "")
         if V.SM_completed or V.SM_skip:
             print("2. Weather Amount -", V.weather_amount)
-            print("3. More...")
+            print("3. Scaling Style -", V.scaling_style)
+            print("4. More...")
         else:
             print("2. Locked")
         print("9. Play the game")
@@ -390,7 +393,13 @@ def mutators_choose():
                 else:
                     V.weather_amount = randint(1, 5)
                 break
-            elif (action == "3" or "more" in action.lower()) and (V.SM_completed or V.SM_skip):
+            elif (action == "3" or "scal" in action.lower()) and (V.SM_completed or V.SM_skip):
+                if V.scaling_style == "legacy":
+                    V.scaling_style = "V0.3.7"
+                else:
+                    V.scaling_style = "legacy"
+                break
+            elif (action == "4" or "more" in action.lower()) and (V.SM_completed or V.SM_skip):
                 print("I really wasn't happy with the mutators that did exist. I will make better ones later!\nType anything to continue...")
                 action = input()
                 break
@@ -400,9 +409,13 @@ def mutators_choose():
                 break
 
 def meta_options():
+    global crash
     while True:
+        if crash:
+            break
         print('''1. Gameplay
-2. Quit to title
+2. Visuals
+9. Quit to title
 Type in the number or the action itself...''')
         action = input()
         if action.lower() in ["1", "gameplay"]:
@@ -429,28 +442,68 @@ Type in the number or the action itself...''')
                         V.RM_areas_cheat = True
                 elif action.lower() in ["9", "back"]:
                     break
-        elif action == "2" or "quit" in action.lower() or "title" in action.lower():
+        elif action.lower() in ["2", "visuals"]:
+            while True:
+                print("1. Map Gamma/Brightness -", V.V_gamma)
+                print("2. Graphics Quality - Low")
+                print("9. Back")
+                print("Type in the number or the action itself...")
+                action = input()
+                if action.lower() in ["1", "map", "gamma", "brightness"] or "gamma" in action.lower() or "bright" in action.lower():
+                    print("Please insert a float value between 0 and 2. Leave blank if you want to reset it.")
+                    action = input()
+                    try:
+                        action = float(action)
+                        V.V_gamma = action
+                    except:
+                        V.V_gamma = 1
+                elif action.lower() in ["2", "graphics", "quality"] or "graphics" in action.lower() or "quality" in action.lower():
+                    crash = True
+                    print('''An error has occured: your device cannot render higher quality graphics!
+The game will be closed to reset the settings!
+Type anything to continue...''')
+                    action = input()
+                    break
+                elif action.lower() in ["9", "back"]:
+                    break
+        elif action == "9" or "quit" in action.lower() or "title" in action.lower():
             break
     meta_save(V)
 
+def extras():
+    while True:
+        print('''1. Bestiary
+9. Quit to title''')
+        action = input()
+        if action.lower() in ["1", "bestiary"]:
+            bestiary(V)
+        elif action == "9" or "quit" in action.lower() or "title" in action.lower():
+            break
+
 def game():
+    global crash
     retry = 0
     option_moment = 0
     while True:
+        if crash:
+            break
         if V.continue_run:
-            print('''
-
-Do you want to continue your saved run?(Your run will be deleted if you won't continue it!)
+            print("\n\n")
+            if V.warning == True:
+                print("WARNING! THIS RUN IS LAUNCHED FROM A FUTURE VERSION AND MAY BREAK THE GAME! CONTINUE WITH CAUTION!")
+            print('''Do you want to continue your saved run?(Your run will be deleted if you won't continue it!)
 1. Yes
 2. No
 Type in the action...''')
             while True:
                 action = input()
                 if action.lower() in ["1", "yes"]:
+                    V.warning = False
                     break
                 elif action.lower() in ["2", "no"]:
                     V.continue_run = False
                     V.delete_run()
+                    V.warning = False
                     break
         if V.continue_run == False:
             V.global_seed = randint(0, 10000)
@@ -465,6 +518,7 @@ Type in the action...''')
 3. Raid Mode
 4. Daily Run
 5. Credits
+8. Extras
 9. Options
 
 Type in the gamemode you want to play...''')
@@ -475,6 +529,7 @@ Type in the gamemode you want to play...''')
 3. Locked
 4. Locked
 5. Locked
+8. Extras
 9. Options
 
 Beat the Story Mode to unlock other game modes.
@@ -500,6 +555,10 @@ Type in the gamemode you want to play...''')
                 elif (action == "5" or "credits" in action.lower()) and (V.SM_completed or V.SM_skip):
                     V.meta_game_mode = "credits"
                     V.game_mode = "credits"
+                    break
+                elif (action == "8" or "extras" in action.lower()):
+                    extras()
+                    option_moment = 1
                     break
                 elif (action == "9" or "options" in action.lower()):
                     meta_options()
@@ -553,5 +612,6 @@ Type in the action...''')
         else:
             break
 
+crash = False
 meta_save(V)
 game()

@@ -1,5 +1,8 @@
 
 
+from audioop import add
+
+
 def enemy_name_color(V, enemy_id = 0):
     string = "\033[38;2"
     for i in range(3):
@@ -30,6 +33,7 @@ def area_color(V, height = 5, affected_by_weather = False, affected_by_time = Fa
                 factor = 0.45
     else:
         factor = 1
+    factor = factor * V.V_gamma
     for i in range(3):
         #try:
             if affected_by_weather and (1 in V.current_weather or 6 in V.current_weather or 7 in V.current_weather or 8 in V.current_weather):
@@ -88,12 +92,19 @@ def water_color(V, water_type = 0, affected_by_time = False):
             factor = 0.45
     else:
         factor = 1
+    factor = factor * V.V_gamma
     for i in range(3):
         try:
+            additive_string = 0
             if water_type == 0:
-                string = string + ";" + str(round(V.water_colors_0[V.area_id][i] * factor))
+                additive_string = round(V.water_colors_0[V.area_id][i] * factor)
             elif water_type == 1:
-                string = string + ";" + str(round(V.water_colors_1[V.area_id][i] * factor))
+                additive_string = round(V.water_colors_1[V.area_id][i] * factor)
+            if additive_string < 0:
+                additive_string = 0
+            elif additive_string > 255:
+                additive_string = 255
+            string = string + ";" + str(additive_string)
         except:
             string = string + ";50"
     string = string + "m"

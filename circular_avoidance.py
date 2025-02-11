@@ -1,5 +1,6 @@
 
 from random import choice
+from coloring import enemy_name_color, represented_area_color
 
 def max_x(V):
     cur_max = 0
@@ -104,8 +105,6 @@ def map_tile_move(V, coordinates, direction, step = 1):
                     return True
     if direction == "dl":
         new_coordinates = [coordinates[0] - step, coordinates[1] + step, coordinates[2]]
-        print(coordinates)
-        print(new_coordinates)
         if new_coordinates in V.events_coordinates:
             for i in range(step):
                 test_coords = [coordinates[0] - i, coordinates[1], coordinates[2]]
@@ -216,6 +215,10 @@ def npc_talk(V, npc_type):
             dialogue.append("There is tension in the air. Your journey is ending soon.")
         if V.player_consume > 0:
             dialogue.append("I am feeling drained. It wasn't happening before you were here.")
+        if V.shopkeeper_deaths == 1:
+            dialogue.append("I've been left unconscious recently. Can you find them?")
+        elif V.shopkeeper_deaths > 1:
+            dialogue.append("Somebody keeps leaving me unconscious. I can't understand who.")
         removal_dialogue = []
         for i in dialogue:
             if i in V.said_dialogue_shopkeeper:
@@ -397,7 +400,7 @@ def npc_talk(V, npc_type):
                 dialogue.append('''A really long while ago, I was a bounty hunter myself. But then, I WAS CAST OUT of the group."\n"And you know what's the reason? I was too 'INHUMANE' with my killing methods. Cowards.''')
                 if V.reaper_trust >= 0.3:
                     dialogue.append("I have to confess to you. I am not a bounty chieftain. I am the reaper. I've used to punish those, who cheat Death, but now... I am not allowed.")
-                    dialogue.append("Yourself is your own reflection. I've only seen a few ever-warriors that have defeated them, but I believe all others, including you, have them.")
+                    dialogue.append("Yourself is your own reflection. I've only seen a few ever-warriors that have defeated them, but I believe all others, including you, have them stalking.")
                     if V.reaper_trust >= 0.6:
                         dialogue.append('''I wasn't the reaper my entire life. After getting cast out, I searched for purpose in my life. And then I met Death, who then tasked me with collecting souls."\n"And that's what I've been doing, UNTIL THE 'GREAT CYCLE'.''')
                         if V.death_defeated:
@@ -419,3 +422,131 @@ def npc_talk(V, npc_type):
     print("Type anything to continue...")
     action = input()
         
+
+
+def bestiary(V):
+    page = 0
+    while True:
+        print("\n\n")
+        starting_index = page * 10
+        index = starting_index
+        while index < starting_index + 10 and index < len(V.bestiary_order):
+            print(str(index + 1) + ". ", end = "")
+            if V.bestiary_order[index] in V.bestiary_entries:
+                actual_enemy_index = V.bestiary_order[index]
+                print(enemy_name_color(V, actual_enemy_index) + V.enemys_name[actual_enemy_index] + "\033[0m")
+            else:
+                print("???")
+            index += 1
+        if starting_index != 0:
+            print("A. Previous Page")
+        if index != len(V.bestiary_order):
+            print("D. Next Page")
+        print("0. Back")
+        print("Type in the number of the action or the action itself.")
+        action = input()
+        if action.lower() in ["0", "back"]:
+            break
+        elif (action == "a" or "previous" in action.lower()) and starting_index != 0:
+            page -= 1
+        elif (action == "d" or "next" in action.lower()) and index != len(V.bestiary_order):
+            page += 1
+        elif action.strip() == "":
+            pass
+        elif action.isdigit():
+            action = int(action) - 1
+            if action in range(len(V.bestiary_order)):
+                enemy_index = V.bestiary_order[action]
+                if enemy_index in V.bestiary_entries:
+                    bestiary_entry(V, enemy_index)
+                else:
+                    print("This bestiary entry is locked!")
+        else:
+            for i in V.bestiary_order:
+                if i in V.bestiary_entries and action.lower() in V.enemys_name[i].lower():
+                    bestiary_entry(V, i)
+                    break
+
+def bestiary_entry(V, enemy_id):
+    print("\n\n")
+    print(enemy_name_color(V, enemy_id) + V.enemys_name[enemy_id] + ":\033[0m")
+    print("> HP:", V.enemys_base_hp[enemy_id])
+    print("> DMG:", V.enemys_base_dmg[enemy_id])
+    print("> DEF:", V.enemys_base_def[enemy_id])
+    print("> CRT: ", round(V.enemys_base_crit[enemy_id] * 100), "%", sep = "")
+    if V.enemys_base_spk[enemy_id] > 0:
+        print("> SPK:", V.enemys_base_spk[enemy_id])
+    if V.enemys_base_psn[enemy_id] > 0:
+        print("> PSN:", V.enemys_base_psn[enemy_id])
+    if V.enemys_base_immortality[enemy_id] > 0:
+        print("> IMM:", V.enemys_base_immortality[enemy_id])
+    if V.enemys_spawners[enemy_id][0] == 1:
+        print("> On death spawns: ", end = "")
+        spawn_counter = 0
+        for i in V.enemys_spawners[enemy_id]:
+            if spawn_counter > 1:
+                print(", ", end = "")
+            spawn_counter += 1
+            if spawn_counter == 1:
+                continue
+            print(enemy_name_color(V, i) + V.enemys_name[i], end = "")
+        print("\033[0m")
+
+
+    print("--------------")
+    print("Defeated:", V.enemies_killed[enemy_id], "time(s)")
+    print("> Power level:", V.enemys_power_level[enemy_id])
+    if V.enemy_is_boss[enemy_id]:
+        print("* A boss!")
+    if enemy_id in V.enemy_unconsumable and V.consume_discovered:
+        print("* Unconsumable")
+    print("> AI:", V.enemy_patterns_names[V.enemys_patterns[enemy_id]])
+    if V.enemy_areas[enemy_id] == []:
+        print("Can be found only in special encounters")
+    else:
+        print("Can be found in: ", end = "")
+        area_count = 0
+        for i in V.enemy_areas[enemy_id]:
+            if area_count > 0:
+                print("\033[0m, ", end = "")
+            if str(i).isdigit():
+                if i <= 6:
+                    print(represented_area_color(V, i) + V.areas[i], end = "")
+            elif i == "drought":
+                print("\033[38;2;230;230;100mDrought", end = "")
+            area_count += 1
+        print("\033[0m")
+    print("--------------")
+    print("Inspection Description:", enemy_name_color(V, enemy_id) + V.enemys_descriptions[enemy_id] + "\033[0m")
+    print("Elements: ", end = "")
+    if len(V.enemys_elements[enemy_id]) == 0:
+        print("None")
+    else:
+        element_count = 0
+        for i in V.enemys_elements[enemy_id]:
+            if element_count > 0:
+                print("\033[0m, ", end = "")
+            if i == 0:
+                print("\033[38;2;0;255;0mVitality", end = "")
+            elif i == 1:
+                print("\033[38;2;255;0;0mStrength", end = "")
+            elif i == 2:
+                print("\033[38;2;0;200;255mProtection", end = "")
+            elif i == 3:
+                print("\033[38;2;255;128;0mMight", end = "")
+            elif i == 4:
+                print("\033[38;2;190;0;205mInnocence", end = "")
+            elif i == 5:
+                print("\033[38;2;250;250;0mMana", end = "")
+            elif i == 6:
+                print("\033[38;2;0;255;255mMagic Protection", end = "")
+            element_count += 1
+        print("\033[0m")
+    if enemy_id in V.reaper_included_enemys:
+        reaper_enemy_index = V.reaper_included_enemys.index(enemy_id)
+        if V.reaper_enemy_description_unlocks[reaper_enemy_index]:
+            print('''Bounty Chieftain's description:
+\033[38;2;230;50;0m"''' + V.reaper_enemy_descriptions[reaper_enemy_index] + '''"\033[0m''')
+
+    print("\nType anything to continue...")
+    action = input()

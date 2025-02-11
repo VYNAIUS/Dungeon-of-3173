@@ -7,28 +7,36 @@ class V:
         self.TD_area_unlocks = []
         self.TD_max_raids = []
         self.SM_completed = False
+        self.consume_discovered = False
         self.continue_run = False
         self.saved = False
         self.SM_skip = False
         self.RM_areas_cheat = False
+        self.V_gamma = 1
+        self.bestiary_entries = []
+        self.enemies_killed = [0] * 74
+        self.reaper_enemy_description_unlocks = [False] * 17
         self.version = "blank"
+        self.warning = False
 
-        self.dont_save = ["dont_save", "SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "enemy_AIs", "ally_actions", "map_show_UI",
-"bounty_hunter_name_0", "bounty_hunter_name_1", "enemys", "enemy_areas", "enemy_is_boss", "enemys_power_level", "enemys_name", "nemys_name_colors",
-"enemys_elements", "enemys_charm_immunity", "enemys_base_hp", "enemys_base_dmg", "enemys_base_def", "enemys_base_crit", "enemys_base_spk",
-"enemys_base_psn", "enemys_base_immortality", "enemys_descriptions", "enemys_patterns", "enemys_spawners", "enemy_unconsumable", "enemy_unelite",
-"bosses_for_areas", "hunters_appeared", "areas", "areas_colors", "water_colors_0", "water_colors_1", "path_lengths", "height_variaty",
+        self.dont_save = ["dont_save", "consume_discovered", "SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "V_gamma",
+"bestiary_entries", "enemies_killed", "reaper_enemy_description_unlocks", "warning", "enemy_AIs", "ally_actions", "map_show_UI", "bounty_hunter_name_0",
+"bounty_hunter_name_1", "enemys", "enemy_areas", "enemy_is_boss", "enemys_power_level", "enemys_name", "nemys_name_colors", "enemys_elements",
+"enemys_charm_immunity", "enemys_base_hp", "enemys_base_dmg", "enemys_base_def", "enemys_base_crit", "enemys_base_spk", "enemys_base_psn",
+"enemys_base_immortality", "enemys_descriptions", "enemys_patterns", "enemys_spawners", "enemy_unconsumable", "enemy_unelite", "bosses_for_areas",
+"reaper_included_enemys", "reaper_enemy_descriptions", "areas", "areas_colors", "water_colors_0", "water_colors_1", "path_lengths", "height_variaty",
 "wall_min_thickness", "turn_right_prob", "turn_down_prob", "turn_left_prob", "turn_up_prob", "area_max_x", "area_max_y", "start_positions",
-"area_patterns", "area_pattern_chances", "remnants_spawns", "snow_pile_spawns", "river_prob", "river_thickness", "escape_river_prob",
-"pond_prob", "pond_radius", "weathers", "weather_chances", "weathers_durations", "base_vision_ranges", "benefitial_events", "hurtful_events",
-"neutral_events", "item_names", "item_base_costs", "item_descriptions", "item_descriptions_mimic", "consumable_item_names", "consumable_item_desc",
-"weapon_names", "weapon_damage_ranges", "weapon_descriptions", "weapon_poison_factor", "weapon_crowd_factor"]
+"area_patterns", "area_pattern_chances", "remnants_spawns", "snow_pile_spawns", "river_prob", "river_thickness", "escape_river_prob", "pond_prob",
+"pond_radius", "weathers", "weather_chances", "weathers_durations", "base_vision_ranges", "benefitial_events", "hurtful_events", "neutral_events",
+"item_names", "item_base_costs", "item_descriptions", "item_descriptions_mimic", "consumable_item_names", "consumable_item_desc", "weapon_names",
+"weapon_damage_ranges", "weapon_descriptions", "weapon_poison_factor", "weapon_crowd_factor"]
 
         self.show_map_UI = True
         self.game_mode = "story"
         self.difficulty = 55 # suggested 0 - 100
         self.original_difficulty = 55
         self.weather_amount = 1
+        self.scaling_style = "blank"
         self.score_increase = 0
         self.score = 0
         self.raid_counter = 0
@@ -186,7 +194,7 @@ class V:
                              "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4",
                              "Increases the damage and critical chance with the amount of enemies (weapon upgrade)", "Makes an enemy fight for you for a battle (consumable)",
                              "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95",
-                             "Shield Men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.1"]
+                             "Shield men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.1"]
         self.item_descriptions_mimic = ["It's literally nothing, pal", "This thing kills stuff over time", "Guys that attack you, will get damaged for doing so", "Turn damage into heal!",
                                    "Not sure why I don't use this one myself, but you will gain more money", "You will become untouchable, but that will fade away after a turn",
                                    "How do you think undead people live? They use this to regenerate",
@@ -225,7 +233,7 @@ class V:
                                "Decent crowd control weapon. Damage ranges between 70%~150%. Crowd factor is 3; poison factor is 0.2",
                                "Infinitely weak weapon on its own, but very good at injecting poison. Damage ranges between 5%~10%. Crowd factor is 0.1; posion factor is 4"
                                "Sharp weapon, that forces killed enemies' souls to fight for you. Damage ranges between 100%~120%. Crowd factor is 0.6; poison factor is 0.95",
-                               "Shield Men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.2"]
+                               "Shield men's weapon that uses DEF as a counter attack. Damage ranges betwen 10%~30%. Crowd factor is 0.9; poison factor is 0.2"]
         self.weapon_poison_factor = [1, 0.2, 1, 0.2, 4, 0.95, 0.2]
         self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1, 0.6, 0.9]
         # WEAPONS END
@@ -287,8 +295,6 @@ class V:
         # AREA STATS END
 
         # ENEMYS STATS START
-        self.bounty_hunter_name_0 = []
-        self.bounty_hunter_name_1 = []
         self.enemys = []
         self.fight_turn = 0
         self.original_enemy_count = 0
@@ -315,6 +321,8 @@ class V:
         self.enemy_unelite = []
         self.bosses_for_areas = []
         self.hunters_appeared = []
+        self.reaper_included_enemys = []
+        self.bestiary_order = []
         # ENEMYS STATS END
         true_reset(self)
 
@@ -415,11 +423,14 @@ class V:
             pass
         else:
             with open(self.meta_save_file_path, 'w') as file:
-                file.write('''SM_completed: False
+                file.write('''consume_discovered: False
+SM_completed: False
 TD_unlocks: [True, True, False, False, False, False, False]
 TD_high_scores: [0, 0, 0, 0, 0, 0, 0]
 SM_skip: False
-RM_areas_cheat: False''')
+RM_areas_cheat: False
+V_gamma: 1
+bestiary_entires: []''')
             print("New save file has been created!")
         data = {}
         with open(self.meta_save_file_path, 'r') as file:
@@ -468,7 +479,12 @@ RM_areas_cheat: False''')
             while len(self.item_bought) < len(self.item_names):
                 self.item_bought.append(0)
 
-            if self.version != "V0.3.6.1":    
+            if self.version != "V0.3.7":
+                if not self.version in ["blank", "V0.3.6", "V0.3.6.1", "V0.3.7"]:
+                    self.warning = True
+                if self.version in ["blank", "V0.3.6", "V0.3.6.1"]:
+                    self.scaling_style = "legacy"
+                    print("Set scaling style to legacy")
                 with open(self.run_save_file_path, 'w') as file:
                     for key, value in self.__dict__.items():
                         if key in self.dont_save:
@@ -492,7 +508,7 @@ RM_areas_cheat: False''')
                         self.item_bought.append(0)
 
         self.saved = False
-        self.version = "V0.3.6.1"
+        self.version = "V0.3.7"
 
         import subprocess
         def enable_ansi_escape_codes():

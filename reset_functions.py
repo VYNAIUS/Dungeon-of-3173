@@ -95,6 +95,7 @@ def true_reset(V):
 def settings_reset(V):
     V.weather_amount = 1
     V.original_difficulty = 55
+    V.scaling_style = "V0.3.7"
     
 def reset_player(V):
     V.player_max_hp = 100
@@ -105,4 +106,11 @@ def reset_player(V):
     V.player_poison = 0
     V.player_spikes = 0
     V.player_money = 0
+    V.player_items = []
+    V.player_weapon = 0
+    V.player_inventory_weapons = []
+    V.player_inventory_weapons_psn = []
+    V.player_inventory_weapons_explotano = []
+    V.player_inventory_weapons_lifesteal = []
+    V.player_inventory_weapons_wrath = []
     print("You lost everything but your life.")

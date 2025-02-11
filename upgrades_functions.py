@@ -60,17 +60,28 @@ def stats_altar(V):
         elif action.lower() == "magic protection" and "\033[38;2;0;255;255mMagic Protection" in current_upgrades:
             altar_grant(V, "\033[38;2;0;255;255mMagic Protection")
             break
+    print("Type anything to continue...")
+    action = input()
     print("\n\n\n")
 
 def altar_grant(V, item):
     if item == "\033[38;2;0;255;0mVitality":
-        V.player_max_hp = round(V.player_max_hp * 1.15)
+        if V.scaling_style == "legacy":
+            V.player_max_hp = round(V.player_max_hp * 1.15)
+        elif V.scaling_style == "V0.3.7":
+            V.player_max_hp = round(V.player_max_hp * 1.075)
         print("\033[38;2;0;255;0mYour max health is now", V.player_max_hp, "HP!")
     elif item == "\033[38;2;255;0;0mStrength":
-        if V.player_base_dmg < 20:
-            V.player_base_dmg = round(V.player_base_dmg * 1.2)
-        else:
-            V.player_base_dmg = round(V.player_base_dmg * 1.15)
+        if V.scaling_style == "legacy":
+            if V.player_base_dmg < 20:
+                V.player_base_dmg = round(V.player_base_dmg * 1.2)
+            else:
+                V.player_base_dmg = round(V.player_base_dmg * 1.15)
+        elif V.scaling_style == "V0.3.7":
+            if V.player_base_dmg < 20:
+                V.player_base_dmg = round(V.player_base_dmg * 1.1)
+            else:
+                V.player_base_dmg = round(V.player_base_dmg * 1.075)
         print("\033[38;2;255;0;0mYour damage is now", V.player_base_dmg, "DMG!")
     elif item == "\033[38;2;255;128;0mMight":
         if V.player_crit_chance > 300:
@@ -81,14 +92,20 @@ def altar_grant(V, item):
             V.player_crit_chance += 5
         print("\033[38;2;255;128;0mYour chance to get critical hit is now ", V.player_crit_chance, "%!", sep = "")
     elif item == "\033[38;2;0;200;255mProtection":
-        def_multiplier = (V.player_base_def / 60) + 1
+        if V.scaling_style == "legacy":
+            def_multiplier = (V.player_base_def / 60) + 1
+        elif V.scaling_style == "V0.3.7":
+            def_multiplier = (V.player_base_def / 120) + 1
         V.player_base_def = round(V.player_base_def + def_multiplier * 3)
         print("\033[38;2;0;200;255mYour defense is now", V.player_base_def, "DEF!")
     elif item == "\033[38;2;190;0;205mInnocence":
         V.max_power_level -= round(V.max_power_level * 0.1, 2)
         print("\033[38;2;190;0;205mLess enemies will consider you a threat.")
     elif item == "\033[38;2;0;255;255mMagic Protection":
-        def_multiplier = (V.player_base_magic_def / 50) + 1
+        if V.scaling_style == "legacy":
+            def_multiplier = (V.player_base_magic_def / 50) + 1
+        elif V.scaling_style == "V0.3.7":
+            def_multiplier = (V.player_base_magic_def / 100) + 1
         V.player_base_magic_def = round(V.player_base_magic_def + def_multiplier * 3)
         print("\033[38;2;0;255;255mYour magic defense is now", V.player_base_magic_def, "DEF!")
     print("\033[0m", end = "")
@@ -110,9 +127,9 @@ def altar_grant(V, item):
         V.might_anger = V.player_crit_chance / 205 - 0.5
 
     if estimate_def(V) < V.player_base_def + V.player_base_magic_def:
-        V.protection_anger = (V.player_base_def + V.player_base_magic_def) / estimate_def(V)
+        V.protection_anger = (V.player_base_def) / estimate_def(V)
     else:
-        V.protection_anger = (V.player_base_def + V.player_base_magic_def) / estimate_def(V) - 0.5
+        V.protection_anger = (V.player_base_def) / estimate_def(V) - 0.5
 
     estimate_power_level = 1
     for i in range(V.max_power_level_increase):
@@ -125,21 +142,30 @@ def altar_grant(V, item):
 def estimate_max_hp(V):
     hp = 100
     for i in range(V.score + int(V.score_increase) + 10):
-        hp += 300 - V.difficulty
+        if V.scaling_style == "legacy":
+            hp += 300 - V.difficulty
+        elif V.scaling_style == "V0.3.7":
+            hp += 150 - V.difficulty
         hp = hp
     return hp
 
 def estimate_dmg(V):
     dmg = 5
     for i in range(V.score + int(V.score_increase) + 10):
-        dmg += 80 - V.difficulty
+        if V.scaling_style == "legacy":
+            dmg += 120 - V.difficulty
+        elif V.scaling_style == "V0.3.7":
+            dmg += 110 - V.difficulty
         dmg = int(dmg)
     return dmg
 
 def estimate_def(V):
     defense = 0
     for i in range(V.score + int(V.score_increase) + 10):
-        defense += 77 - V.difficulty
+        if V.scaling_style == "legacy":
+            defense += 120 - V.difficulty
+        elif V.scaling_style == "V0.3.7":
+            defense += 105 - V.difficulty
         defense = int(defense)
     return defense
 
@@ -147,7 +173,11 @@ def player_remnants(V):
     seed(V.remnant_seed)
     V.remnant_seed = randint(0, 10000)
     money = round(uniform(5, 14) * (V.score / 2 + 1))
-    upgrades = choices(population=[1, 2, 4, 6, 11, 15], weights=[10, 10, 5, 5, 7, 7], k=randint(2,3))
+    items = [1, 2, 4, 6, 11, 15]
+    item_chances = [10, 10, 5, 5, 7, 7]
+    if V.player_weapon == 4:
+        item_chances[1] += 5
+    upgrades = choices(population=items, weights=item_chances, k=randint(2,3))
     V.player_money += money
     print('''You came across a warrior's remnants. You picked up their items...
 You got''', money, "coins (your balance is", V.player_money, "coins).")
@@ -171,14 +201,24 @@ def level_up(V):
     if i > 0:
         print("You leveled up! Your level is ", V.player_level, "!", sep = "")
         for k in range(i):
-            V.player_max_hp += V.player_max_hp // 10 + 1
-            V.player_base_dmg += V.player_base_dmg // 20 + 1
-            V.player_base_def += V.player_base_def // 10 + 1
-            V.player_base_magic_def += V.player_base_magic_def // 10 + 1
-            if V.player_crit_chance < 100:
-                V.player_crit_chance += V.player_crit_chance // 20 + 1
-            else:
-                V.player_crit_chance += 1
+            if V.scaling_style == "legacy":
+                V.player_max_hp += V.player_max_hp // 10 + 1
+                V.player_base_dmg += V.player_base_dmg // 20 + 1
+                V.player_base_def += V.player_base_def // 10 + 1
+                V.player_base_magic_def += V.player_base_magic_def // 10 + 1
+                if V.player_crit_chance < 100:
+                    V.player_crit_chance += V.player_crit_chance // 20 + 1
+                else:
+                    V.player_crit_chance += 1
+            elif V.scaling_style == "V0.3.7":
+                V.player_max_hp += round(V.player_max_hp * 0.05) + 1
+                V.player_base_dmg += round(V.player_base_dmg * 0.05) + 1
+                V.player_base_def += round(V.player_base_def * 0.05) + 1
+                V.player_base_magic_def += round(V.player_base_magic_def * 0.05) + 1
+                if V.player_crit_chance < 100:
+                    V.player_crit_chance += round(V.player_crit_chance * 0.05) + 1
+                else:
+                    V.player_crit_chance += 7
         print("A lot of your base stats have been increased!\n\n\n")
 
 def boss_upgrade(V):
@@ -253,14 +293,17 @@ def shop_grant(V, item):
         V.player_items.append(10)
         print("You got a poison flask! You can apply it to your weapon at any time!")
     elif item == 2:
-        spk_addition = round(1 * ((V.player_spikes / 2) + 1))
+        if V.scaling_style == "legacy":
+            spk_addition = round(1 * ((V.player_spikes / 2) + 1))
+        elif V.scaling_style == "V0.3.7":
+            spk_addition = round(1 * ((V.player_spikes / 4) + 1))
         V.player_spikes += spk_addition
         print("You attached the spikes to your armor, adding", spk_addition, "SPK to it. Enemies will get hit for", V.player_spikes, "DMG when hit you.")
     elif item == 3:
         V.player_items.append(11)
         print("You got a flask of lifesteal! You can apply it to your weapon at any time!")
     elif item == 4:
-        V.player_gold_boost += 10
+        V.player_gold_boost += 5
         V.shopkeeper_sus -= 0.1
         if V.shopkeeper_sus < 0:
             V.shopkeeper_sus = 0
@@ -276,9 +319,13 @@ def shop_grant(V, item):
             V.player_regen += 1
             print("You feel marked by some curse. Your total regeneration is ", V.player_regen, "%!", sep = "")
         else:
-            V.player_lifesteal += 4
-            print("Despite consuming mark of the undead, you feel the essence of lifesteal. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
+            V.player_items.append(11)
+            V.player_items.append(11)
+            print("Despite consuming mark of the undead, you feel the essence of lifesteal. You notice that you for some reason got 2 new lifesteal flasks.")
     elif item == 7:
+        V.consume_discovered = True
+        from extra_functions import meta_save
+        meta_save(V)
         if V.player_consume < 7:
             V.player_consume += 1
             print("You consume consume. You will absorb ", V.player_consume, "% of enemies' stats on kill", sep = "")
@@ -286,10 +333,10 @@ def shop_grant(V, item):
             V.player_gold_boost += 20
             print("Despite consuimg consume, you feel as if you are becoming richer. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
     elif item == 8:
-        if V.player_travel < 90:
-            V.player_travel += round(30 * (100 - V.player_travel) / 100)
+        if V.player_travel < 100:
+            V.player_travel += round(15 * (200 - V.player_travel) / 100)
         else:
-            V.player_travel += 1
+            V.player_travel += 10
         print("You feel strength in your legs. Total experience gained for entering new area is ", V.player_travel, "%", sep = "")
     elif item == 9:
         V.player_items.append(12)

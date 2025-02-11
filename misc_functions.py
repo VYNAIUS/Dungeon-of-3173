@@ -130,7 +130,9 @@ def lost_check(V, boss = False, death = False):
         V.player_money = 0
         V.player_xp = 0
         V.lost = 0
-        print("\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n")
+        print('''\033[31;3mYou lost one of your lives. But you refuse to die...\033[0m\n\n\n
+Type anything to continue...''')
+        action = input()
         return False
     else:
         if boss:
@@ -226,16 +228,17 @@ def time_events(V, num = 0):
     if V.game_time > 23:
         seed(V.weather_seed)
         V.game_time -= 24
-        if V.vision_range != -1 and chance(1.4) and not 20 in V.events:
-            V.stalker_stealth = 100
-            epic_nodes = list(range(len(V.events)))
-            while len(epic_nodes) > 10:
-                stalker_node = choice(epic_nodes)
-                stalker_coords = V.events_coordinates[stalker_node]
-                if V.events[stalker_node] in [0, 6, 15] and (stalker_coords[2] != V.player_coordinates[2] or ((stalker_coords[0] - V.player_coordinates[0]) ** 2 + (stalker_coords[0] - V.player_coordinates[0]) ** 2) ** 0.5 > V.vision_range):
-                    V.events[stalker_node] = 20
-                    break
-                epic_nodes.remove(stalker_node)
+        if V.vision_range != -1 and not 20 in V.events:
+            if (V.bounty_target[2] == 42 and chance(0.8)) or chance(0.4):
+                V.stalker_stealth = 100
+                epic_nodes = list(range(len(V.events)))
+                while len(epic_nodes) > 10:
+                    stalker_node = choice(epic_nodes)
+                    stalker_coords = V.events_coordinates[stalker_node]
+                    if V.events[stalker_node] in [0, 6, 15] and (stalker_coords[2] != V.player_coordinates[2] or ((stalker_coords[0] - V.player_coordinates[0]) ** 2 + (stalker_coords[0] - V.player_coordinates[0]) ** 2) ** 0.5 > V.vision_range):
+                        V.events[stalker_node] = 20
+                        break
+                    epic_nodes.remove(stalker_node)
         V.bank_money += round(V.bank_money * 0.5)
         V.forest_enemy_spawn = 0
         shop_items_define(V)

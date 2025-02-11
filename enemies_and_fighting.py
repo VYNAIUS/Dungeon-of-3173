@@ -6,8 +6,6 @@ from upgrades_functions import xp_to_lvl_up
 
 def default_enemies(V):
     seed(V.global_seed)
-    V.bounty_hunter_name_0 = ["Axel", "Blaze", "Dagger", "Echo", "Flint", "Gage", "Hawk", "Jax", "Kane", "Lex", "Mace", "Nash", "Orin", "Pax", "Quinn", "Raze", "Slade", "Thorn", "Vex", "Wolf"]
-    V.bounty_hunter_name_1 = ["Black", "Blade", "Cage", "Fang", "Grim", "Hunt", "Iron", "Jade", "Knight", "Locke", "Raven", "Shadow", "Stone", "Strike", "Thorne", "Viper", "Ward", "Whisper", "Wolf", "Wylde"]
     V.enemys = []
     V.enemy_areas = [[0, 1], [0], [0], [0, 1], [], [0], [1], [1], [1, 5], [1], [2], [2], [2, 4, 6], [6], [2], [3], [3], [3], [3], [3], [4], [2, 4], [4], [4], [4], [5], [5],
                [5], [5], [2, 6], [6], [6], [6], [], [], [0, 1, 3, 5], [1, 2, 3, 6], [1, 4, 5, 6], [], [], [], [], [], [0], [1, 2], [2], [3], [4], [5], [5],
@@ -19,16 +17,14 @@ def default_enemies(V):
     V.enemys_power_level = [1, 0.9, 0.75, 1.35, 1.7, 3, 1.02, 0.95, 1.05, 3, 1.07, 0.95, 1.45, 0.55, 3, 1, 1.05, 0.6, 1.12, 3, 0.85, 1.15, 1, 1.4, 3, 1, 1.1, 1.07,
                       3, 1.15, 1.1, 1.45, 3, 6, 0.1, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 0.7, 0.8, 1.3, 4.5, 6.9, 3.9, 4.8, 1.02, 0.5,
                       1.2, 3.3, 3, 3.15, 1.8, 2.7, 0.35, 4.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 3.09, 3, 4.5]
-    V.enemys_name = ["Bush Man", "Weird Plant", "Arachno-flower", "Ent", "Spirit of Fear", "Treant", "Thug", "Bandit", "Dark Mage", "Bandit Chieftain", "Skeleton Warrior",
-               "Undead Miner", "Bone Serpent", "Skeleton", "Soul Catcher", "Snowman Knifer", "Ice Elemental", "Snowman", "Snow Mage", "Yeti", "Spiderling",
-               "Cave Spider", "Gargoyle", "Matriarch", "Spider Queen", "Cactus", "Desert Spider", "Sandwitch", "Cactus Golem", "Necromancer", "Poison Spider",
-               "Rotten Ent", "Undead Paladin", "Shopkeeper", "Soul", choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1),
-               choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1), choice(V.bounty_hunter_name_0) + " " + choice(V.bounty_hunter_name_1),
-               "Spirit of Vitality", "Spirit of Strength", "Spirit of Might", "Spirit of Protection", "Yourself", "Venomous Roser", "Crystal Assassin",
-               "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Jerboa", "Tumbleweeder", "Dark Knight", "Death", "The 3173rd", "Change", "Cycle",
-               "Amphibian Heretic", "Spectral Frog", "Amphibromancer", "Rose Knight", "Crystal Wizard", "Buff Polar Bear", "Spider King", "False Idol", "Wrom",
-               "Insane Alchemist", "Antlion Parasite", "Antlion Larva", "Antlion Larva", "Antlion", "Vine Bookster", "Plant Mage", "Shield Thug", "Jerboa",
-               "Mature Antlion Parasite"]
+    V.enemys_name = ["Bush Man", "Weird Plant", "Arachno-flower", "Ent", "Spirit of Fear", "Treant", "Thug", "Bandit", "Dark Mage", "Bandit Chieftain",
+               "Skeleton Warrior", "Undead Miner", "Bone Serpent", "Skeleton", "Soul Catcher", "Snowman Knifer", "Ice Elemental", "Snowman", "Snow Mage", "Yeti",
+               "Spiderling", "Cave Spider", "Gargoyle", "Matriarch", "Spider Queen", "Cactus", "Desert Spider", "Sandwitch", "Cactus Golem", "Necromancer",
+               "Poison Spider", "Rotten Ent", "Undead Paladin", "Shopkeeper", "Soul", "Echo Cage", "Mace Hunt", "Thorne Viper", "Spirit of Vitality", "Spirit of Strength",
+               "Spirit of Might", "Spirit of Protection", "Yourself", "Venomous Roser", "Crystal Assassin", "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Jerboa", "Tumbleweeder",
+               "Dark Knight", "Death", "The 3173rd", "Change", "Cycle", "Amphibian Heretic", "Spectral Frog", "Amphibromancer", "Rose Knight", "Crystal Wizard",
+               "Buff Polar Bear", "Spider King", "False Idol", "Wrom", "Insane Alchemist", "Antlion Parasite", "Antlion Larva", "Antlion Larva", "Antlion", "Vine Bookster",
+               "Plant Mage", "Shield Thug", "Jerboa", "Mature Antlion Parasite"]
     V.enemys_name_colors = [[0, 170, 0], [0, 230, 0], [180, 200, 0], [180, 100, 0], [140, 0, 155], [190, 90, 0], [200, 185, 105], [200, 175, 120], [70, 70, 70],
                       [200, 185, 125], [210, 210, 170], [170, 165, 140], [170, 200, 170], [210, 210, 210], [75, 220, 220], [240, 240, 240], [40, 220, 220],
                       [240, 240, 240], [135, 220, 220], [190, 190, 190], [50, 65, 90], [90, 95, 110], [130, 140, 130], [50, 160, 90], [70, 200, 140],
@@ -39,7 +35,7 @@ def default_enemies(V):
                       [255, 50, 255], [255, 200, 200], [100, 210, 100], [75, 250, 75], [250, 220, 100], [200, 0, 150], [210, 200, 160], [190, 200, 160],
                       [190, 200, 160], [170, 180, 140], [0, 200, 50], [100, 255, 0], [150, 150, 150], [150, 150, 100], [210, 200, 160]]
     V.enemys_elements = [[6], [6], [6], [2, 6], [4, 5], [2, 6], [2], [2], [5], [1, 2], [0], [0], [0, 6], [0], [5, 6], [1], [5], [], [1, 5], [1], [3], [5], [3], [0], [3],
-                       [4], [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 6, 5], [6], [6], [], [0], [1], [3], [4],
+                       [4], [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [3, 5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 5], [6], [6], [], [0], [1], [3], [4],
                        [4], [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1], [4], [4], [4], [4], [5, 6], [5, 6], [2], [4], [4]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
     V.enemys_charm_immunity = [False, False, False, False, True, True, False, False, False, True, False, False, False, False, True, False, False, False, False, True,
                                False, False, False, False, True, False, False, False, True, False, False, False, True, True, True, True, True, True, True, True, True,
@@ -61,54 +57,92 @@ def default_enemies(V):
                        0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     V.enemys_base_immortality = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0,
                                0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0.7, 0, 0, 0, 0, 0.07, 0, 0.1, 0, 0]
-    V.enemys_descriptions = ["That's a weird looking bush", "Boring plant, uses roots as its legs", "This plant usually accompanies its other siblings",
-                       "This tree moves surprisingly quickly for its size", "This spirit punishes those, who abuse altars' magic of innocence",
-                       "It is ent but stronger", "This bandit is capable of killing dangerous foes", "This person is for some reason aggressive",
-                       "This mage is able to pierce through regular armor", "This bandit is capable of killing really powerful foes",
-                       "Was a warrior before death and still is after death", "A qualified gravedigger", "This serpent seems to have consumed several humans",
-                       "A dead traveller", "Ancient contraption used for fighting ghosts and evil spirits",
+    V.enemys_descriptions = ["A territorial plant, that is usually kept in the Garden's grounds", "Weak but agile plant, protecting the Garden's grounds at any cost",
+                       "Small, nimble, predatory plant, that usually accompanies its siblings", "Moving tree, that attacks any intruder of the Eternal Garden",
+                       "This spirit punishes those, who abuse altars' magic of innocence", "Great ent that has dedicated its life to protect the Eternal Garden",
+                       "A person exploiting the abandoned Forest of Protection to gain", "A person trying to get a quick income, robbing anyone they see",
+                       "Mage empowered by the forbidden source of magic decided to call themselves a dark mage",
+                       "Giving out the orders to bandit group in the abandoned Forest of Protection, they don't seem to be that strong",
+                       "Was a warrior before death and still is after death", "A dead resident of the Everchanging Cave and now a resident of the Stale Cave",
+                       "An ancient serpent that has died fighting off explorers", "A dead traveller", "Ancient contraption used for fighting souls and spirits",
                        "This snowman appears to be possessed... and has a knife", "Floating icicles that are orbiting some magical light blue sphere",
-                       "This snowman appears to be possessed", "This mage is able to summon snowmen to their aid", "This snow gorilla is a formidable threat",
-                       "Agile and venomous little spider", "This spider is pretty rare to see in well lit areas", "Stone statue turned into a living creature",
-                       "Lazy spider capable of reproducing quickly", "Past matriarch mutated into Spidernach's form",
+                       "This snowman appears to be possessed", "Combining their mana and love for snow, this mage summons snowmen to their aid",
+                       "A descendant of one of Exposure's pets", "Agile and venomous little spider, that scurries in the Infested Canyon",
+                       "A lover dark places, this spider is a distant descendant of Spidernach", "Another representation of Death, that mindlessly attacks anything",
+                       "Lazy spider, capable of reproducing quickly", "Past matriarch mutated into Spidernach's form",
                        "Thorny moving cactus attacks any intruder of their territory", "This spider has evolved to burry itself underground and come out to catch prey",
-                       "Uses powers of Suffering Sands to heal allies and attack intruders", "Infestacious cactus has grown over an ancient stone golem",
-                       "Dark mage who is able to summon the dead to their aid", "Extremely poisonous spider capable of killing large prey",
+                       "A wicth, that uses powers of Suffering Sands to heal allies and attack intruders", "Infestacious cactus has grown over an ancient stone golem",
+                       "Dark mage who is able to summon the dead to their aid",
+                       "Cave spider's distant cousin, that has been altered by the poisonous water of the now dead Holy Forest",
                        "Corrupted by eternal life, this ent will fight to protect the Holy Forest",
                        "Once great paladin and now a force mindlessly protecting the Holy Forest", "Orphan that has chosen the path of acceptance of his place in this world",
-                       "A soul brought back into this world", "A bounty hunter who seems to use defense a lot",
-                       "A bounty hunter who seems to specify in damage", "A bounty hunter who seems to be proficient in poison and spikes",
+                       "A soul brought back into this world", "Carrying out the orders of Bandit Chieftain, this bounty hunter uses patience and defense to kill targets",
+                       "Carrying out the orders of Bandit Chieftain, this bounty hunter uses sheer force to kill targets",
+                       "Carrying out the orders of Bandit Chieftain, this bounty hunter uses lasting effect of poison and spikes to kill targets",
                        "This spirit punishes those, who abuse altars' magic of vitality", "This spirit punishes those, who abuse altars' magic of strength",
                        "This spirit punishes those, who abuse altars' magic of might", "This spirit punishes those, who abuse altars' magic of protection and magic protection",
                        "...", "Thorny, venomous predator, that leaves its prey slowly dying", "Empowered by corrupt crystals of the Stale Cave, they seek out powerful foes",
                        "Crystals infused with life force of corrupt crystals", "This snowman appears to be possessed... and has a freaking shotgun",
-                       "This mage is adept at healing arachnids", "Unassuming rodent. What can go wrong?", "A big bug that uses tumbleweed as a nest",
-                       "Corrupted by eternal life, this knight mindlessly protects the Holy Forest",
+                       "Dedicating their life to spiders, this mage is great at healing arachnids", "Unassuming rodent. What can go wrong?",
+                       "A big bug that uses tumbleweed to disguise itself", "Corrupted by eternal life, this knight mindlessly protects the Holy Forest",
                        "'Death comes for all of us. And those who cheat her, have to fight her'", "Greatest Cycle's creation yet, it is ready to consume you",
                        "'Once one cycle ends, something changes, allowing for a new cycle to be born'", "'Once one cycle ends, something changes, allowing for a new cycle to be born'",
                        "These heretics worship false idols of Great J", "These vengeful spirits, that resemble frogs, are the last resort of many amphibian heretics",
-                       "Elite amphibian heretic, who learned how to manipulate and create frogs", "The great knight that protects the Garden's grounds",
-                       "A great wizard that infused himself with corrupted crystals of the Stale Cave", "There is little explanation of how this bear has visible abs",
-                       "Male Spidernachs are considerably smaller than their counterparts", "This frog has been empowered by magic of amphibian heretics",
-                       "This worm like creature is quite common during dry weather", "A somewhat immortal alchemist that robs his customers when they buy nothing for too long",
-                       "This incredibly large parasite can make others transform", "This larva may mature when provoked", "This larva may mature when provoked",
-                       "Mature antlion, ready to fight, hunt and kill for its colony", "This mage uses powers of Vine's Book to protect the Garden's grounds",
-                       "This mage is obsessed with preserving plant life of the Garden's grounds", "This thug stole the armour from one of the legendary shield men",
-                       "Unassuming rodent. What can go wrong?", "This incredibly large parasite forces its own offsprings to grow"]
+                       "Elite amphibian heretic, who learned how to manipulate and create vengeful spirits", "The great knight that protects the Garden's grounds",
+                       "A great wizard that infused himself with corrupted crystals of the Stale Cave", "One of Exposure's favorites amongst the speices of the Barren Tundra",
+                       "Male spider, transformed into Spidernach's form, but is considerably smaller than its female counterpart",
+                       "This frog has been empowered by manipulation of amphibian heretics", "This wormlike creature is quite common during dry weather",
+                       "A somewhat immortal alchemist that robs his customers when they buy nothing for too long",
+                       "Incredibly large parasite that is able to force others to transform", "This innocent larva may mature when provoked",
+                       "This innocent larva may mature when provoked", "Mature antlion, ready to fight, hunt and kill for its colony",
+                       "This mage uses powers of Vine's Book to protect the Garden's grounds", "This mage is obsessed with preserving plant life of the Garden's grounds",
+                       "This thug stole the armour from one of the legendary shield men", "Unassuming rodent. What can go wrong?",
+                       "One of the broodmothers of the colony, that forces its own offsprings to mature"]
     V.enemys_patterns = [1, 1, 1, 2, 5, 2, 1, 1, 3, 2, 1, 1, 2, 1, 4, 1, 3, 1, 6, 2, 1, 1, 1, 7,
                    7, 1, 1, 9, 2, 6, 8, 2, 5, 2, 5, 13, 1, 2, 10, 5, 5, 5, 15, 2,
                    1, 1, 14, 9, 0, 2, 2, 4, 17, 3, 18, 2, 1, 6, 2, 4, 2, 8,
                    4, 1, 16, 11, 8, 8, 2, 3, 9, 13, 0, 12] # for reference use start of Dungeon_of_3173.py
+    V.enemy_patterns_names = ["None", "Attack only", "Attack & Defend", "Magic Attack only", "Magic Attack & Defend",
+                              "Magic & Physical Attack + Defend", "Magic Attack & Summoner", "Lazy Summoner", "Lazy Attack only", "Magic Attack & Healer",
+                              "Magic & Physical Attack + Healer", "Attack & Transformator", "Attack, Defend, Transformator & Summoner", "Defender", "Shotgunner",
+                              "Yourself", "Alchemist", "3173rd", "Cycle"]
     V.enemys_spawners = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [1, 13, 13], [0], [0], [0], [0], [0], [0, 17], [0], [0], [0], [0],
                        [0, 20, 20], [0, 20, 20], [0], [0], [0, 25, 26, 27, 28, 48, 49, 65, 66, 67, 68], [0], [0, 13], [0], [0], [0], [0], [0], [0], [0], [0],
                        [0, 0, 1, 2, 3, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 33, 43, 44, 45, 46, 47, 48, 49, 50,
                        52, 58, 59, 60, 61, 65, 66, 67, 68, 69, 70, 71],
                        [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [1, 65], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
                        [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0], [0], [0], [1, 68], [0], [0], [0, 0, 1, 2, 4, 43, 58], [0], [1, 73], [0, 66, 67]]
-    V.enemy_unconsumable = [4, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67]
+    V.enemy_unconsumable = [4, 33, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67]
     V.enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
     V.bosses_for_areas = [[5, 58], [9, 71], [14, 59], [19, 60], [24, 61], [28, 72, 73], [32, 62]]
     V.hunters_appeared = [False, False, False]
+    V.reaper_included_enemys = [0, 3, 4, 12, 17, 20, 31, 38, 39, 40, 41, 42, 45, 46, 55, 63, 68]
+    V.reaper_enemy_descriptions = ["That bush had been causing me some trouble, back when I was a bounty hunter. It's usually in the Eternal Garden or in the Bandits' Forest.",
+                                   "If the bush man was only a nuisance, this thing... I HATE IT. Just like the bush man, I've seen it only in the Eternal Garden and in the Bandits' Forest.",
+                                   "This spirit is angered when you are way too 'innocent', which is such a stupid term. I think those weird altars can make it angry. Just kill it.",
+                                   "That serpent is quite unnerving. One of those has eaten my brother. I hope, that you will avenge me.",
+                                   "I HATE SNOWMEN! They are a stupid attempt at replacement of bounty hunters, whom if you couldn't notice I take great pride in.",
+                                   "Death has told me that she feels disgust, knowing her canyon got infested with these spiders. I wanted to take action myself, but I am far too weak.",
+                                   "Regular ents are nothing compared to these. Instead of protecting the Holy Forest, they now protect the... uh... Rotten Forest. Get it?",
+                                   "This spirit is angered when you are way too 'healthy', I guess. I don't know how to describe it. Just use altars to be more healthy.",
+                                   "This spirit is angered when you are way too 'strong', which is quite self explanatory. Why do I want you to kill it? Yes.",
+                                   "This spirit is angered when you are way too 'mighty', which I have no idea what it means. Use altars, I think?",
+                                   "This spirit is angered when you are way too 'protected', which is defense, I assume. Use altars for this.",
+                                   "Yourself is your own reflection. I've only seen a few ever-warriors that have defeated them, but I believe all others, including you, have them stalking.",
+                                   "They swarmed me once, which is why I have so many scars on my face. I've seen them only in the Stale Cave, and some in Bandits' Forest.",
+                                   "Unlike regular snowmen, these are constructs of war. They use some magic wand, called 'shotgun', I think. I've seen them only in the Barren Tundra.",
+                                   "I'm always down for a revolution, but not with these heretics. They are a group of orphans, that roam the... Rotten Forest. That's a good one.",
+                                   "It isn't a mistake, that's what their name actually is. I've had some issues with them in the Suffering Sands, but my father... perhaps, not now.",
+                                   "That disgusting insect was the bane of my existence, when I used to do bounty hunting in the Suffering Sands."]
+    V.bestiary_order = [0, 1, 2, 43, 70, 69, 3, 5, 58,
+                        6, 7, 8, 9, 71,
+                        45, 13, 10, 11, 21, 44, 29, 12, 14, 59,
+                        17, 15, 16, 46, 18, 19, 60,
+                        20, 22, 23, 47, 61, 24,
+                        63, 25, 49, 66, 67, 48, 26, 65, 27, 68, 28, 72, 73,
+                        56, 30, 55, 57, 50, 31, 32, 62,
+                        34, 33, 64, 35, 36, 37, 42, 51, 53,
+                        4, 38, 39, 40, 41, 52, 54]
 
 def default_enemies_credits(V):
     V.enemy_areas = [[0]]
@@ -220,7 +254,7 @@ class Enemies:
             self.money = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (13 * V.difficulty))
             self.xp = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (10 * V.difficulty))
         elif enemy_id == 42 and not summoned:
-            self.money = V.player_money
+            self.money = round(V.player_money / (V.player_gold_boost + 100))
             self.xp = V.player_xp
         else:
             self.money = 0
@@ -548,8 +582,10 @@ def health_multiplier(V, enemy_id = 0):
                 hp_multi = int(hp_multi)
                 hp_multi += round(hp_multi // 100000000) + ((V.difficulty - 50) * 1000)
             else:
-                hp_multi *= 1.05 + uniform(0.0006 * V.difficulty + 0.01, 0.0006 * V.difficulty + 0.06)
-                #hp_multi *= 1.05 + (randint(-50 + V.difficulty, -40 + V.difficulty) / 100)
+                if V.scaling_style == "legacy":
+                    hp_multi *= 1.05 + uniform(0.0006 * V.difficulty + 0.01, 0.0006 * V.difficulty + 0.06)
+                elif V.scaling_style == "V0.3.7":
+                    hp_multi *= 1.025 + uniform(0.0003 * V.difficulty + 0.01, 0.0003 * V.difficulty + 0.03)
                 hp_multi = round(hp_multi, 10)
     return hp_multi
 
@@ -571,8 +607,10 @@ def damage_multiplier(V, enemy_id = 0):
                 dmg_multi = int(dmg_multi)
                 dmg_multi += round(dmg_multi // 100000000) + ((V.difficulty - 50) * 1000) 
             else:
-                dmg_multi *= 1 + uniform(V.difficulty * 0.00075 + 0.01, V.difficulty * 0.00075 + 0.04)
-                #dmg_multi *= 1 + (randint(-460 + V.difficulty * 10, -430 + V.difficulty * 10) / 1000)
+                if V.scaling_style == "legacy":
+                    dmg_multi *= 1 + uniform(V.difficulty * 0.00075 + 0.01, V.difficulty * 0.00075 + 0.04)
+                elif V.scaling_style == "V0.3.7":
+                    dmg_multi *= 1 + uniform(V.difficulty * 0.000375 + 0.01, V.difficulty * 0.000375 + 0.02)
                 dmg_multi = round(dmg_multi, 10)
     return dmg_multi
 
@@ -588,8 +626,10 @@ def defense_multiplier(V, enemy_id = 0):
                 def_multi = int(def_multi)
                 def_multi += round(def_multi // 100000000) + ((V.difficulty - 50) * 1000)
             else:
-                def_multi *= 1 + uniform(0.0001 * V.difficulty + 0.005, 0.0001 * V.difficulty + 0.065)
-                #def_multi *= 1 + (randint(-50 + V.difficulty, -43 + V.difficulty) / 100)
+                if V.scaling_style == "legacy":
+                    def_multi *= 1 + uniform(0.0001 * V.difficulty + 0.005, 0.0001 * V.difficulty + 0.065)
+                elif V.scaling_style == "V0.3.7":
+                    def_multi *= 1 + uniform(0.00005 * V.difficulty + 0.0025, 0.00005 * V.difficulty + 0.0325)
                 def_multi = round(def_multi, 10)
     return def_multi
 
@@ -606,8 +646,12 @@ def defense_addition(V, enemy_id = 0):
                 for i in range(V.score // (250 // V.difficulty)):
                     def_add += 1
             else:
-                for i in range(round(V.score * (V.difficulty // 250))):
-                    def_add += 1
+                if V.scaling_style == "legacy":
+                    for i in range(round(V.score * (V.difficulty // 250))):
+                        def_add += 1
+                elif V.scaling_style == "V0.3.7":
+                    for i in range(round(V.score * (V.difficulty // 500))):
+                        def_add += 1
     return def_add
 
 def crit_multiplier(V, enemy_id = 0):
@@ -620,7 +664,10 @@ def crit_multiplier(V, enemy_id = 0):
     else:
         for i in range(V.score):
             if crit_multi < 10000000:
-                crit_multi *= 1 + uniform(0.00008 * V.difficulty + 0.0001, 0.00008 * V.difficulty + 0.0002)
+                if V.scaling_style == "legacy":
+                    crit_multi *= 1 + uniform(0.00008 * V.difficulty + 0.0001, 0.00008 * V.difficulty + 0.0002)
+                elif V.scaling_style == "V0.3.7":
+                    crit_multi *= 1 + uniform(0.00004 * V.difficulty + 0.00005, 0.00004 * V.difficulty + 0.0001)
             else:
                 break
     return crit_multi
@@ -638,8 +685,10 @@ def spike_multiplier(V, enemy_id = 0):
                 spk_multi = int(spk_multi)
                 spk_multi += round(spk_multi // 100000000)
             else:
-                spk_multi *= 1 + uniform(0.00058 * V.difficulty + 0.001, 0.00058 * V.difficulty + 0.021)
-                #spk_multi *= 1 + (randint(3, 5) / 100)
+                if V.scaling_style == "legacy":
+                    spk_multi *= 1 + uniform(0.00058 * V.difficulty + 0.001, 0.00058 * V.difficulty + 0.021)
+                elif V.scaling_style == "V0.3.7":
+                    spk_multi *= 1 + uniform(0.00029 * V.difficulty + 0.0005, 0.00029 * V.difficulty + 0.0105)
                 spk_multi = round(spk_multi, 10)
     return spk_multi
 
@@ -656,8 +705,10 @@ def poison_multiplier(V, enemy_id = 0):
                 psn_multi = int(psn_multi)
                 psn_multi += round(psn_multi // 100000000)
             else:
-                psn_multi *= 1 + uniform(0.00058 * V.difficulty + 0.001, 0.00058 * V.difficulty + 0.021)
-                #psn_multi *= 1 + (randint(3, 5) / 100)
+                if V.scaling_style == "legacy":
+                    psn_multi *= 1 + uniform(0.00058 * V.difficulty + 0.001, 0.00058 * V.difficulty + 0.021)
+                elif V.scaling_style == "V0.3.7":
+                    psn_multi *= 1 + uniform(0.00029 * V.difficulty + 0.0005, 0.00029 * V.difficulty + 0.0105)
                 psn_multi = round(psn_multi, 10)
     return psn_multi
 
@@ -674,8 +725,10 @@ def immortality_multiplier(V, enemy_id = 0):
                 imm_multi = int(imm_multi)
                 imm_multi += round(imm_multi // 100000000)
             else:
-                imm_multi *= 1 + uniform(0.00018 * V.difficulty + 0.001, 0.00018 * V.difficulty + 0.011)
-                #imm_multi *= 1 + (randint(1, 2) / 100)
+                if V.scaling_style == "legacy":
+                    imm_multi *= 1 + uniform(0.00018 * V.difficulty + 0.001, 0.00018 * V.difficulty + 0.011)
+                elif V.scaling_style == "V0.3.7":
+                    imm_multi *= 1 + uniform(0.00009 * V.difficulty + 0.0005, 0.00009 * V.difficulty + 0.0055)
                 imm_multi = round(imm_multi, 10)
     return imm_multi
 
@@ -1053,6 +1106,8 @@ def fight(V, enemy_ids = [0], ally_ids = []):
     k = 0
     for i in ally_ids:
         V.allys.append(Enemies(V, i, False, 0, 0, False))
+        if not i in V.bestiary_entries:
+            V.bestiary_entries.append(i)
     while True:
         while True:
             print("\033[33;1mYour stats: ", V.player_current_hp, "/", V.player_max_hp, " HP; ", round(V.player_base_dmg * ((V.player_damage_buff / 100) + 1)), " DMG; ", round(V.player_crit_chance * ((V.player_crit_chance_buff / 100) + 1)), "% CRT; ", V.player_base_def, "+", V.player_extra_def, " DEF", sep = "", end = "")
@@ -1061,7 +1116,10 @@ def fight(V, enemy_ids = [0], ally_ids = []):
             if V.player_poison_def > 0:
                 print("; ", V.player_poison_def, " PSNDEF", sep = "", end = "")
             if V.player_regen + V.player_current_regen > 0:
-                print("; ", V.player_current_regen, "% REG", sep = "", end = "")
+                if round(V.player_current_regen) == V.player_current_regen:
+                    print("; ", round(V.player_current_regen), "% REG", sep = "", end = "")
+                else:
+                    print("; ", V.player_current_regen, "% REG", sep = "", end = "")
             if V.player_spikes > 0:
                 print("; ", V.player_spikes, " SPK", sep = "", end = "")
             if V.player_poison > 0:
@@ -1354,14 +1412,14 @@ def fight(V, enemy_ids = [0], ally_ids = []):
             break
 
         if V.player_current_regen > 0:
-            regen = round((V.player_current_regen / 100) * V.player_max_hp)
+            regen = round((V.player_current_regen / 100) * V.player_max_hp + 0.1)
             if regen + V.player_current_hp > V.player_max_hp:
                 regen -= regen + V.player_current_hp - V.player_max_hp 
             V.player_current_hp += regen
             if regen > 0:
                 print("\033[33;1mYou regenerated", regen, "HP! You have", V.player_current_hp, "HP left!\033[0m")
-                print("\033[33;1mYour REG has been decreased by 1% for this battle!\033[0m")
-                V.player_current_regen -= 1
+                print("\033[33;1mYour REG has been decreased by 0.5% for this battle!\033[0m")
+                V.player_current_regen -= 0.5
 
         if V.player_weapon_wrath > 0:
             V.player_damage_buff += V.player_weapon_wrath
@@ -1438,6 +1496,8 @@ def fight(V, enemy_ids = [0], ally_ids = []):
             if V.player_weapon == 5:
                 print("\033[38;2;90;120;255m" + V.enemys[V.enemys.index(i)].name + "'s soul left their host!")
                 V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = V.enemys.index(i)))
+                if not 34 in V.bestiary_entries:
+                    V.bestiary_entries.append(34)
             V.money_gain += i.money
             V.xp_gain += i.xp
             if i.en_id == V.bounty_target[0]:
@@ -1469,7 +1529,10 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                         if k.hp <= 0:
                             enemy_deletions.append(k)
                 if exploding_damage > 0:
-                    print(i.name, "exploded and dealt", exploding_damage, "to other enemies.")
+                    print(i.name, "exploded and dealt", exploding_damage, "DMG to other enemies!")
+            if not i.en_id in V.bestiary_entries:
+                V.bestiary_entries.append(i.en_id)
+            V.enemies_killed[i.en_id] += 1
             V.enemys.remove(i)
         V.player_current_immortality -= 1
         enemy_deletions = []
@@ -1496,8 +1559,8 @@ def fight(V, enemy_ids = [0], ally_ids = []):
         print("\033[0mYou have won! You have earned \033[38;2;200;200;0m", V.money_gain, " coins!\033[0m Your balance is \033[38;2;200;200;0m", V.player_money, " coins!\033[0m You have collected \033[38;2;100;0;200m", V.xp_gain, " XP!\033[0m Your total experience is \033[38;2;100;0;200m", V.player_xp, "/", xp_to_lvl_up(V), "XP!\033[0m\n\n\n", sep = "")
     else:
         print("You have encountered a bug! Notify developer!")
-        print("Type anything to continue...")
-        action = input()
+    print("Type anything to continue...")
+    action = input()
 
 def player_hit(V, target = 0):
 
@@ -1558,6 +1621,8 @@ def player_hit(V, target = 0):
                 if V.player_weapon == 5:
                     print("\033[38;2;90;120;255m" + V.enemys[target].name + "'s soul left their host!")
                     V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = target))
+                    if not 34 in V.bestiary_entries:
+                        V.bestiary_entries.append(34)
                 V.money_gain += V.enemys[target].money
                 V.xp_gain += V.enemys[target].xp
                 if not V.enemys[target].en_id in V.enemy_unconsumable:
@@ -1589,7 +1654,10 @@ def player_hit(V, target = 0):
                             if k.hp <= 0:
                                 enemys_deletion.append(k)
                     if exploding_damage > 0:
-                        print(V.enemys[target].name, "exploded and dealt", exploding_damage, "to other enemies.")
+                        print(V.enemys[target].name, "exploded and dealt", exploding_damage, "DMG to other enemies!")
+                if not V.enemys[target].en_id in V.bestiary_entries:
+                    V.bestiary_entries.append(V.enemys[target].en_id)
+                V.enemies_killed[V.enemys[target].en_id] += 1
                 V.enemys.remove(V.enemys[target])
 
         else: # Broad Hit
@@ -1642,8 +1710,10 @@ def player_hit(V, target = 0):
                     if spawn > 1:
                         V.enemys.append(Enemies(V, enemy_id = k,summoned = True, summoner_id = enemy_id))
             if V.player_weapon == 5:
-                print("\033[38;2;90;120;255m" + V.enemys[V.enemy_id].name + "'s soul left their host!")
+                print("\033[38;2;90;120;255m" + V.enemys[enemy_id].name + "'s soul left their host!")
                 V.allys.append(Enemies(V, enemy_id = 34, summoned = True, summoner_id = enemy_id))
+                if not 34 in V.bestiary_entries:
+                    V.bestiary_entries.append(34)
             V.money_gain += i.money
             V.xp_gain += i.xp
             if not i.en_id in V.enemy_unconsumable:
@@ -1675,7 +1745,10 @@ def player_hit(V, target = 0):
                         if k.hp <= 0:
                             enemys_deletion.append(k)
                 if exploding_damage > 0:
-                    print(i.name, "exploded and dealt", exploding_damage, "to other enemies.")
+                    print(i.name, "exploded and dealt", exploding_damage, "DMG to other enemies!")
+            if not i.en_id in V.bestiary_entries:
+                V.bestiary_entries.append(i.en_id)
+            V.enemies_killed[i.en_id] += 1
             V.enemys.remove(i)
 
         if crit_count == 1:
@@ -1740,14 +1813,17 @@ def item_use(V, item, type):
                 V.player_current_regen = regen_limit
             print("You drank regeneration potion. Your regeneration is increased by 5%! You have ", V.player_current_regen, "% REG!", sep = "")
         elif item == 10:
-            psn_addition = round(1 * ((V.player_poison / 5) + 1))
+            if V.scaling_style == "legacy":
+                psn_addition = round(1 * ((V.player_poison / 5) + 1))
+            elif V.scaling_style == "V0.3.7":
+                psn_addition = round(1 * ((V.player_poison / 7.5) + 1))
             V.player_poison += psn_addition
             print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
         elif item == 11:
-            if V.player_lifesteal < 99:
-                V.player_lifesteal += round(25 * (100 - V.player_lifesteal) / 100)
+            if V.player_lifesteal < 100:
+                V.player_lifesteal += round(12.5 * (200 - V.player_lifesteal) / 100)
             else:
-                V.player_lifesteal += 1
+                V.player_lifesteal += 10
             print("You consumed the essence of lifesteal. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
         elif item == 12:
             if V.player_enemy_explotano > 50:
@@ -1779,6 +1855,8 @@ def item_use(V, item, type):
                             else:
                                 print("You threw charm potion at", V.enemys[action].name + "! They are now on your team!")
                                 V.allys.append(V.enemys[action])
+                                if not V.enemys[action].en_id in V.bestiary_entries:
+                                    V.bestiary_entries.append(V.enemys[action].en_id)
                                 V.enemys.remove(V.enemys[action])
                                 break
                         elif action == -1:
@@ -1797,14 +1875,17 @@ def item_use(V, item, type):
             print("You can't use this item outside combat.")
         else:
             if original_item == 10:
-                psn_addition = round(1 * ((V.player_poison / 5) + 1))
+                if V.scaling_style == "legacy":
+                    psn_addition = round(1 * ((V.player_poison / 5) + 1))
+                elif V.scaling_style == "V0.3.7":
+                    psn_addition = round(1 * ((V.player_poison / 7.5) + 1))
                 V.player_poison += psn_addition
                 print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
             elif original_item == 11:
-                if V.player_lifesteal < 99:
-                    V.player_lifesteal += round(25 * (100 - V.player_lifesteal) / 100)
+                if V.player_lifesteal < 100:
+                    V.player_lifesteal += round(12.5 * (200 - V.player_lifesteal) / 100)
                 else:
-                    V.player_lifesteal += 1
+                    V.player_lifesteal += 10
                 print("You pour the flask of lifesteal onto your weapon. Your total lifesteal is ", V.player_lifesteal, "% now.", sep = "")
             elif original_item == 12:
                 if V.player_enemy_explotano > 50:

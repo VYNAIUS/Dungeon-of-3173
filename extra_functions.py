@@ -10,7 +10,16 @@ def chance(num = 0):
 def meta_save(V):
     with open(V.meta_save_file_path, 'w') as file:
             for key, value in V.__dict__.items():
-                if not key in ["SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat"]:
+                if not key in ["consume_discovered", "SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "V_gamma", "bestiary_entries",
+                               "enemies_killed", "reaper_enemy_description_unlocks"]:
                     continue
                 file.write(f"{key}: {value}\n")
     print("The game was saved.")
+
+def is_window_active():
+    import ctypes
+    foreground_window = ctypes.windll.user32.GetForegroundWindow()  # Get active window
+    window_title = ctypes.create_unicode_buffer(512)  # Buffer for window title
+    ctypes.windll.user32.GetWindowTextW(foreground_window, window_title, 512)  # Get title
+
+    return "python" in window_title.value.lower() or "cmd" in window_title.value.lower()
