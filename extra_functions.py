@@ -15,11 +15,3 @@ def meta_save(V):
                     continue
                 file.write(f"{key}: {value}\n")
     print("The game was saved.")
-
-def is_window_active():
-    import ctypes
-    foreground_window = ctypes.windll.user32.GetForegroundWindow()  # Get active window
-    window_title = ctypes.create_unicode_buffer(512)  # Buffer for window title
-    ctypes.windll.user32.GetWindowTextW(foreground_window, window_title, 512)  # Get title
-
-    return "python" in window_title.value.lower() or "cmd" in window_title.value.lower()
