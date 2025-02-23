@@ -1,6 +1,6 @@
 
 from random import seed, choice, randint, uniform
-from coloring import enemy_name_color
+from coloring import enemy_name_color, cons_item_name_color
 from extra_functions import chance
 from upgrades_functions import xp_to_lvl_up
 
@@ -9,14 +9,14 @@ def default_enemies(V):
     V.enemys = []
     V.enemy_areas = [[0, 1], [0], [0], [0, 1], [], [0], [1], [1], [1, 5], [1], [2], [2], [2, 4, 6], [6], [2], [3], [3], [3], [3], [3], [4], [2, 4], [4], [4], [4], [5], [5],
                [5], [5], [2, 6], [6], [6], [6], [], [], [0, 1, 3, 5], [1, 2, 3, 6], [1, 4, 5, 6], [], [], [], [], [], [0], [1, 2], [2], [3], [4], [5], [5],
-               [6], [], [], [], [], [6], [], [6], [0], [2], [3], [4], [6], ["drought", 5], [], [], [5], [5], [5], [0], [0], [1], [5], [5]]
+               [6], [], [], [], [], [6], [], [6], [0], [2], [3], [4], [6], ["drought", 5], [], [], [5], [5], [5], [0], [0], [1], [5], [5], []]
     V.enemy_is_boss = [False, False, False, False, False, True, False, False, False, True, False, False, False, False, True, False, False, False, False, True, False,
                  False, False, False, True, False, False, False, True, False, False, False, True, False, False, False, False, False, False, False, False, False,
                  False, False, False, False, False, False, False, False, False, True, True, True, True, False, False, False, True, True, True, True, True, False,
-                 True, False, False, False, False, False, False, True, True, True]
+                 True, False, False, False, False, False, False, True, True, True, True]
     V.enemys_power_level = [1, 0.9, 0.75, 1.35, 1.7, 3, 1.02, 0.95, 1.05, 3, 1.07, 0.95, 1.45, 0.55, 3, 1, 1.05, 0.6, 1.12, 3, 0.85, 1.15, 1, 1.4, 3, 1, 1.1, 1.07,
                       3, 1.15, 1.1, 1.45, 3, 6, 0.1, 1.75, 1.75, 1.75, 1.9, 1.9, 2, 2, 2, 1.1, 1.07, 0.5, 1.45, 1.3, 0.7, 0.8, 1.3, 4.5, 6.9, 3.9, 4.8, 1.02, 0.5,
-                      1.2, 3.3, 3, 3.15, 1.8, 2.7, 0.35, 4.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 3.09, 3, 4.5]
+                      1.2, 3.3, 3, 3.15, 1.8, 2.7, 0.35, 4.5, 1.5, 0.2, 0.9, 2, 1.13, 1.14, 3.09, 3, 4.5, 5]
     V.enemys_name = ["Bush Man", "Weird Plant", "Arachno-flower", "Ent", "Spirit of Fear", "Treant", "Thug", "Bandit", "Dark Mage", "Bandit Chieftain",
                "Skeleton Warrior", "Undead Miner", "Bone Serpent", "Skeleton", "Soul Catcher", "Snowman Knifer", "Ice Elemental", "Snowman", "Snow Mage", "Yeti",
                "Spiderling", "Cave Spider", "Gargoyle", "Matriarch", "Spider Queen", "Cactus", "Desert Spider", "Sandwitch", "Cactus Golem", "Necromancer",
@@ -24,7 +24,7 @@ def default_enemies(V):
                "Spirit of Might", "Spirit of Protection", "Yourself", "Venomous Roser", "Crystal Assassin", "Crystal Shard", "Snowman Shotgunner", "Arachno Mage", "Jerboa", "Tumbleweeder",
                "Dark Knight", "Death", "The 3173rd", "Change", "Cycle", "Amphibian Heretic", "Spectral Frog", "Amphibromancer", "Rose Knight", "Crystal Wizard",
                "Buff Polar Bear", "Spider King", "False Idol", "Wrom", "Insane Alchemist", "Antlion Parasite", "Antlion Larva", "Antlion Larva", "Antlion", "Vine Bookster",
-               "Plant Mage", "Shield Thug", "Jerboa", "Mature Antlion Parasite"]
+               "Plant Mage", "Shield Thug", "Jerboa", "Mature Antlion Parasite", "Seeker"]
     V.enemys_name_colors = [[0, 170, 0], [0, 230, 0], [180, 200, 0], [180, 100, 0], [140, 0, 155], [190, 90, 0], [200, 185, 105], [200, 175, 120], [70, 70, 70],
                       [200, 185, 125], [210, 210, 170], [170, 165, 140], [170, 200, 170], [210, 210, 210], [75, 220, 220], [240, 240, 240], [40, 220, 220],
                       [240, 240, 240], [135, 220, 220], [190, 190, 190], [50, 65, 90], [90, 95, 110], [130, 140, 130], [50, 160, 90], [70, 200, 140],
@@ -33,30 +33,27 @@ def default_enemies(V):
                       [249, 241, 165], [200, 0, 50], [255, 100, 255], [255, 100, 255], [255, 230, 230], [40, 100, 100], [150, 150, 100], [150, 150, 50],
                       [60, 70, 60], [100, 100, 100], [249, 241, 165], [100, 100, 175], [100, 200, 250], [20, 200, 20], [0, 250, 250], [0, 250, 100], [200, 0, 35],
                       [255, 50, 255], [255, 200, 200], [100, 210, 100], [75, 250, 75], [250, 220, 100], [200, 0, 150], [210, 200, 160], [190, 200, 160],
-                      [190, 200, 160], [170, 180, 140], [0, 200, 50], [100, 255, 0], [150, 150, 150], [150, 150, 100], [210, 200, 160]]
+                      [190, 200, 160], [170, 180, 140], [0, 200, 50], [100, 255, 0], [150, 150, 150], [150, 150, 100], [210, 200, 160], [120, 120, 120]]
     V.enemys_elements = [[6], [6], [6], [2, 6], [4, 5], [2, 6], [2], [2], [5], [1, 2], [0], [0], [0, 6], [0], [5, 6], [1], [5], [], [1, 5], [1], [3], [5], [3], [0], [3],
                        [4], [4], [4, 5], [4], [0, 5], [0], [0, 2], [0, 2], [], [3, 5], [2], [1], [], [0, 5], [1, 5], [3, 5], [2, 5], [6], [6], [], [0], [1], [3], [4],
-                       [4], [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1], [4], [4], [4], [4], [5, 6], [5, 6], [2], [4], [4]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
-    V.enemys_charm_immunity = [False, False, False, False, True, True, False, False, False, True, False, False, False, False, True, False, False, False, False, True,
-                               False, False, False, False, True, False, False, False, True, False, False, False, True, True, True, True, True, True, True, True, True,
-                               True, True, False, False, False, False, False, False, False, False, True, True, True, True, False, False, False, True, True, True, True,
-                               True, False, True, False, False, False, False, False, False, True, True, True]
+                       [4], [0, 2], [3], [6, 4, 0, 3, 2, 1], [5], [6], [], [], [], [6], [5], [1], [3], [], [4], [1], [4], [4], [4], [4], [5, 6], [5, 6], [2], [4], [4],
+                       [4]] # 0 - Vitality, 1 - Strength, 2 - Protection, 3 - Might, 4 - Innocence, 5 - Mana, 6 - Magic Protection
     V.enemys_base_hp = [30, 25, 23, 50, 50, 78, 35, 30, 27, 78, 31, 27, 40, 10, 66, 20, 27, 10, 25, 84, 10, 30, 25, 45, 72, 26, 32, 27, 72, 25, 30, 55, 78, 80, 0.5,
                   60, 42, 56, 150, 50, 30, 60, 1, 30, 30, 10, 19, 40, 2, 30, 40, 100, 350, 75, 125, 30, 7, 35, 72, 60, 78, 36, 60, 20, 60, 40, 5, 5, 60, 34, 30, 72,
-                  2, 84]
+                  2, 84, 200]
     V.enemys_base_dmg = [10, 7, 8, 12, 14, 14, 10, 9, 7, 13, 10, 9, 12, 4, 10, 15, 7, 5, 4, 13, 7, 11, 9, 12, 12, 10, 11, 4, 12, 5, 12, 14, 12, 10, 0.5, 10, 25, 12,
-                   20, 60, 30, 17, 1, 10, 14, 4, 40, 9, 0, 7, 15, 1, 50, 20, 30, 10, 0, 9, 10, 12, 20, 15, 10, 7, 12, 19, 1, 1, 22, 10, 9, 7, 0, 20]
+                   20, 60, 30, 17, 1, 10, 14, 4, 40, 9, 0, 7, 15, 1, 50, 20, 30, 10, 0, 9, 10, 12, 20, 15, 10, 7, 12, 19, 1, 1, 22, 10, 9, 7, 0, 20, 20]
     V.enemys_base_def = [0, 0, 0, 0.4, 2, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 7, 0.5, 15, 2, 5, 7, 3, 0, 40, 1, 1, 1, 0, 0, 0,
-                       0.2, 0, 2.5, 4, 150, 3, 15, 0, 0, 0, 1, 1, 0, 0, 2, 0, 2, 0, 0, 0, 0, 1, 0, 5, 0, 3]
+                       0.2, 0, 2.5, 4, 150, 3, 15, 0, 0, 0, 1, 1, 0, 0, 2, 0, 2, 0, 0, 0, 0, 1, 0, 5, 0, 3, 10]
     V.enemys_base_crit = [0.02, 0.01, 0.02, 0.04, 0.12, 0.06, 0.05, 0.05, 0.03, 0.09, 0.07, 0.04, 0.1, 0.01, 0.06, 0.05, 0.04, 0.01, 0.03, 0.11, 0.1, 0.05, 0.15, 0.1, 0.1,
                         0.06, 0.05, 0.03, 0.07, 0.03, 0.06, 0.06, 0.1, 0.35, 0.5, 0.05, 0.4, 0.1, 0.03, 0.2, 0.8, 0.05, 1, 0.04, 0.07, 0.01, 0, 0.03, 0, 0.02, 0.1, 1,
-                        0.4, 0.1, 0.1, 0.04, 0, 0.03, 0.1, 0.06, 0.1, 0.1, 0.07, 0.01, 0.05, 0.02, 0, 0, 0.04, 0.02, 0.02, 0.05, 0, 0.05]
+                        0.4, 0.1, 0.1, 0.04, 0, 0.03, 0.1, 0.06, 0.1, 0.1, 0.07, 0.01, 0.05, 0.02, 0, 0, 0.04, 0.02, 0.02, 0.05, 0, 0.05, 0.1]
     V.enemys_base_spk = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 7, 0, 0, 0, 10, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0,
-                       0, 0.25, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0.25, 0.125, 0.125, 0.5, 0, 0, 0, 0, 0.25]
+                       0, 0.25, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0.25, 0.125, 0.125, 0.5, 0, 0, 0, 0, 0.25, 0.45]
     V.enemys_base_psn = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 2, 3, 0, 2, 0, 0, 0, 4, 0, 0, 7, 0, 0, 0, 10, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-                       0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                       0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.3]
     V.enemys_base_immortality = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0,
-                               0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0.7, 0, 0, 0, 0, 0.07, 0, 0.1, 0, 0]
+                               0, 0, 0, 0, 0.3, 2.5, 1, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0.45, 0, 0.7, 0, 0, 0, 0, 0.07, 0, 0.1, 0, 0, 0]
     V.enemys_descriptions = ["A territorial plant, that is usually kept in the Garden's grounds", "Weak but agile plant, protecting the Garden's grounds at any cost",
                        "Small, nimble, predatory plant, that usually accompanies its siblings", "Moving tree, that attacks any intruder of the Eternal Garden",
                        "This spirit punishes those, who abuse altars' magic of innocence", "Great ent that has dedicated its life to protect the Eternal Garden",
@@ -66,7 +63,7 @@ def default_enemies(V):
                        "Was a warrior before death and still is after death", "A dead resident of the Everchanging Cave and now a resident of the Stale Cave",
                        "An ancient serpent that has died fighting off explorers", "A dead traveller", "Ancient contraption used for fighting souls and spirits",
                        "This snowman appears to be possessed... and has a knife", "Floating icicles that are orbiting some magical light blue sphere",
-                       "This snowman appears to be possessed", "Combining their mana and love for snow, this mage summons snowmen to their aid",
+                       "A construct of strength and fragility, designed to replace bounty hunters", "Combining their mana and love for snow, this mage summons snowmen to their aid",
                        "A descendant of one of Exposure's pets", "Agile and venomous little spider, that scurries in the Infested Canyon",
                        "A lover dark places, this spider is a distant descendant of Spidernach", "Another representation of Death, that mindlessly attacks anything",
                        "Lazy spider, capable of reproducing quickly", "Past matriarch mutated into Spidernach's form",
@@ -97,11 +94,11 @@ def default_enemies(V):
                        "This innocent larva may mature when provoked", "Mature antlion, ready to fight, hunt and kill for its colony",
                        "This mage uses powers of Vine's Book to protect the Garden's grounds", "This mage is obsessed with preserving plant life of the Garden's grounds",
                        "This thug stole the armour from one of the legendary shield men", "Unassuming rodent. What can go wrong?",
-                       "One of the broodmothers of the colony, that forces its own offsprings to mature"]
+                       "One of the broodmothers of the colony, that forces its own offsprings to mature", "Guardian, that seeks out ever-warriors, to avenge Suffering Sands"]
     V.enemys_patterns = [1, 1, 1, 2, 5, 2, 1, 1, 3, 2, 1, 1, 2, 1, 4, 1, 3, 1, 6, 2, 1, 1, 1, 7,
                    7, 1, 1, 9, 2, 6, 8, 2, 5, 2, 5, 13, 1, 2, 10, 5, 5, 5, 15, 2,
                    1, 1, 14, 9, 0, 2, 2, 4, 17, 3, 18, 2, 1, 6, 2, 4, 2, 8,
-                   4, 1, 16, 11, 8, 8, 2, 3, 9, 13, 0, 12] # for reference use start of Dungeon_of_3173.py
+                   4, 1, 16, 11, 8, 8, 2, 3, 9, 13, 0, 12, 1] # for reference use start of Dungeon_of_3173.py
     V.enemy_patterns_names = ["None", "Attack only", "Attack & Defend", "Magic Attack only", "Magic Attack & Defend",
                               "Magic & Physical Attack + Defend", "Magic Attack & Summoner", "Lazy Summoner", "Lazy Attack only", "Magic Attack & Healer",
                               "Magic & Physical Attack + Healer", "Attack & Transformator", "Attack, Defend, Transformator & Summoner", "Defender", "Shotgunner",
@@ -111,9 +108,11 @@ def default_enemies(V):
                        [0, 0, 1, 2, 3, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 33, 43, 44, 45, 46, 47, 48, 49, 50,
                        52, 58, 59, 60, 61, 65, 66, 67, 68, 69, 70, 71],
                        [0], [0], [0], [0], [0], [1, 45], [0], [0], [0, 20, 21, 23, 24, 26, 30, 61], [1, 65], [0], [1, 13], [0], [0], [0], [0, 52], [1, 56],
-                       [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0], [0], [0], [1, 68], [0], [0], [0, 0, 1, 2, 4, 43, 58], [0], [1, 73], [0, 66, 67]]
-    V.enemy_unconsumable = [4, 33, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67]
-    V.enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64]
+                       [0], [1, 56, 56], [0], [0], [0], [0], [1, 56, 56, 56, 56], [0], [0], [0], [0], [1, 68], [0], [0], [0, 0, 1, 2, 4, 43, 58], [0], [1, 73],
+                       [0, 66, 67], [0]]
+    V.enemy_unconsumable = [4, 33, 34, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 67, 74]
+    V.enemys_charm_immunity = [4, 5, 9, 14, 19, 24, 28, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 58, 59, 60, 61, 62, 64, 71, 72, 73, 74]
+    V.enemy_unelite = [4, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 51, 52, 53, 54, 64, 74]
     V.bosses_for_areas = [[5, 58], [9, 71], [14, 59], [19, 60], [24, 61], [28, 72, 73], [32, 62]]
     V.hunters_appeared = [False, False, False]
     V.reaper_included_enemys = [0, 3, 4, 12, 17, 20, 31, 38, 39, 40, 41, 42, 45, 46, 55, 63, 68]
@@ -141,8 +140,17 @@ def default_enemies(V):
                         20, 22, 23, 47, 61, 24,
                         63, 25, 49, 66, 67, 48, 26, 65, 27, 68, 28, 72, 73,
                         56, 30, 55, 57, 50, 31, 32, 62,
-                        34, 33, 64, 35, 36, 37, 42, 51, 53,
+                        34, 33, 64, 35, 36, 37, 42, 51, 53, 74,
                         4, 38, 39, 40, 41, 52, 54]
+
+    # [id, [items], [chances]]
+    V.material_drops = [ [0, [18, 20], [0.1, 0.1]], [1, [18, 20], [0.2, 0.05]], [2, [20], [0.12]], [3, [20], [0.4]], [5, [20], [0.5]],
+                       [10, [27], [0.07]], [11, [27], [0.03]], [12, [27], [0.15]], [13, [27], [0.03]], [20, [30], [0.03]],
+                       [21, [30], [0.08]], [23, [30], [0.11]], [24, [30], [0.4]], [26, [30], [0.07]], [30, [27], [0.08]],
+                       [30, [30], [0.1]], [32, [27], [0.25]], [33, [1, 2, 3, 4, 5, 10, 15], [0.9, 0.85, 0.5, 0.5, 0.65, 1, 0.3]],
+                       [37, [10, 10], [0.9, 0.75]], [43, [24], [0.1]], [44, [25], [0.1]], [45, [25], [0.03]], [46, [29], [0.4]],
+                       [50, [27], [0.15]], [58, [24], [0.4]], [59, [25], [0.4]], [61, [30], [0.2]], [63, [28], [0.15]],
+                       [64, [6, 7, 8, 9, 16], [0.8, 0.8, 1, 0.8, 1]], [69, [22], [0.15]], [70, [20], [0.15]] ]
 
 def default_enemies_credits(V):
     V.enemy_areas = [[0]]
@@ -150,7 +158,7 @@ def default_enemies_credits(V):
     V.enemys_power_level = [[1]]
     V.enemys_name = ["VYNAIUS", "Chat GPT", "Family", "Friends"]
     V.enemys_name_colors = [[230, 230, 230], [60, 60, 160], [0, 240, 160], [0, 240, 240]]
-    V.enemys_charm_immunity = [False, False, False, False]
+    V.enemys_charm_immunity = []
     V.enemys_elements = [[], [], [], []]
     V.enemys_base_hp = [20, 25, 30, 40]
     V.enemys_base_dmg = [2, 3, 4, 5]
@@ -251,19 +259,30 @@ class Enemies:
         self.pattern = V.enemys_patterns[enemy_id]
         self.spawner = V.enemys_spawners[enemy_id].copy()
         if not enemy_id in [4, 34, 38, 39, 40, 41, 42] and not summoned:
-            self.money = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (13 * V.difficulty))
+            self.money = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (15 * V.difficulty))
             self.xp = round((self.hp + (self.dmg * 2) + (self.defense * 3) + (self.spk * 1.5) + (self.psn * 2.5) + (self.imm * 10)) * 55 / (10 * V.difficulty))
         elif enemy_id == 42 and not summoned:
-            self.money = round(V.player_money / (V.player_gold_boost + 100))
+            self.money = round(V.player_money / (V.player_gold_boost + 100) * 100)
             self.xp = V.player_xp
         else:
             self.money = 0
             self.xp = 0
-        self.charm_immune = V.enemys_charm_immunity[enemy_id]
+        if enemy_id in V.enemys_charm_immunity:
+            self.charm_immune = True
+        else:
+            self.charm_immune = False
         if enemy_id != 34:
             self.is_enemy = is_enemy
         else:
             self.is_enemy = True
+        self.item_drops = []
+        if not summoned:
+            for i in V.material_drops:
+                if i[0] == enemy_id:
+                    for r in range(len(i[2])):
+                        if chance(i[2][r]):
+                            self.item_drops.append(i[1][r])
+                    break
 
 
 def enemy_hit(V, attacker = 0):
@@ -1063,6 +1082,7 @@ def fight(V, enemy_ids = [0], ally_ids = []):
     V.lost = 0
     V.money_gain = 0
     V.xp_gain = 0
+    V.items_gain = []
     V.player_current_hp = V.player_max_hp - round(V.player_max_hp * V.player_hp_penalty)
     V.player_hp_penalty = 0
     V.player_extra_def = - V.player_def_penalty
@@ -1317,21 +1337,35 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                     break
                 elif action == '8' or "item" in action.lower():
                     if len(V.player_items) > 0:
+                        page = 0
                         while True:
                             counter = 0
-                            for i in V.player_items:
+                            starting_index = page * 10
+                            index = starting_index
+                            while index < starting_index + 10 and index < len(V.player_items):
                                 counter += 1
-                                print(str(counter) + ".", V.consumable_item_names[i])
+                                print(str(index + 1) + ".", cons_item_name_color(V, V.player_items[index]) + V.consumable_item_names[V.player_items[index]] + "\033[0m")
+                                index += 1
                             if counter == 0:
-                                break
+                                page -= 1
+                                if page < 0:
+                                    break
+                                else:
+                                    continue
+                            if starting_index != 0:
+                                print("A. Previous Page")
+                            if index != len(V.player_items):
+                                print("D. Next Page")
                             print("0. Cancel")
                             print("Choose an item")
                             item_action = input()
+                            print("\n\n")
                             if item_action.isdigit():
                                 item_action = int(item_action)
                                 if item_action > 0 and item_action <= len(V.player_items):
-                                    print("1. Use\n2. Inspect\n0. Cancel")
                                     while True:
+                                        print("Currently selected:", cons_item_name_color(V, V.player_items[item_action - 1]) + V.consumable_item_names[V.player_items[item_action - 1]] + "\033[0m")
+                                        print("1. Use\n2. Inspect\n0. Cancel")
                                         action = input()
                                         if action == '1' or action.lower() == "use":
                                             item_use(V, V.player_items[item_action - 1], "fight")
@@ -1347,6 +1381,11 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                                             break
                                 if item_action == 0:
                                     break
+                            else:
+                                if item_action.lower() in ["a", "previous", "previous page"] and starting_index != 0:
+                                    page -= 1
+                                elif item_action.lower() in ["d", "next", "next page"] and index != len(V.player_items):
+                                    page += 1
                     else:
                         print("You have no items!")
                         print("\033[0m\nType anything to continue...")
@@ -1500,6 +1539,8 @@ def fight(V, enemy_ids = [0], ally_ids = []):
                     V.bestiary_entries.append(34)
             V.money_gain += i.money
             V.xp_gain += i.xp
+            for item in i.item_drops:
+                V.items_gain.append(item)
             if i.en_id == V.bounty_target[0]:
                 V.bounty_target_tracking[0] += 1
                 if V.bounty_target_tracking[0] < 8:
@@ -1550,17 +1591,30 @@ def fight(V, enemy_ids = [0], ally_ids = []):
             break
         V.fight_turn += 1
     if V.lost == 1:
-        print("\033[0mYou have lost!\n\n\n")
+        print("\033[0m\n\n\nYou have lost!")
     elif V.win == 1:
         V.money_gain = round(V.money_gain * (1 + (V.player_gold_boost / 100)))
         V.player_money += V.money_gain
         V.player_xp += V.xp_gain
         V.is_boss_battle = False
-        print("\033[0mYou have won! You have earned \033[38;2;200;200;0m", V.money_gain, " coins!\033[0m Your balance is \033[38;2;200;200;0m", V.player_money, " coins!\033[0m You have collected \033[38;2;100;0;200m", V.xp_gain, " XP!\033[0m Your total experience is \033[38;2;100;0;200m", V.player_xp, "/", xp_to_lvl_up(V), "XP!\033[0m\n\n\n", sep = "")
+        print("\033[0m\n\n\nYou have won! You have earned \033[38;2;200;200;0m", V.money_gain, " coins!\033[0m Your balance is \033[38;2;200;200;0m", V.player_money, " coins!\033[0m You have collected \033[38;2;100;0;200m", V.xp_gain, " XP!\033[0m Your total experience is \033[38;2;100;0;200m", V.player_xp, "/", xp_to_lvl_up(V), "XP!\033[0m", sep = "")
+        if len(V.items_gain) > 0:
+            print("You've also gotten new item(s): ", end = "")
+            counter = 0
+            for i in V.items_gain:
+                if not i in V.encyclopedia_consumable_items_entries:
+                    V.encyclopedia_consumable_items_entries.append(i)
+                if counter > 0:
+                    print(", ", end = "")
+                print(cons_item_name_color(V, i) + V.consumable_item_names[i] + "\033[0m", end = "")
+                counter += 1
+                V.player_items.append(i)
+            print("!")
     else:
-        print("You have encountered a bug! Notify developer!")
+        print("You have encountered a bug! Notify the developer!")
     print("Type anything to continue...")
     action = input()
+    print("\n\n")
 
 def player_hit(V, target = 0):
 
@@ -1625,6 +1679,8 @@ def player_hit(V, target = 0):
                         V.bestiary_entries.append(34)
                 V.money_gain += V.enemys[target].money
                 V.xp_gain += V.enemys[target].xp
+                for item in V.enemys[target].item_drops:
+                    V.items_gain.append(item)
                 if not V.enemys[target].en_id in V.enemy_unconsumable:
                     V.player_max_hp += round((V.player_consume / 100) * V.enemys[target].max_hp)
                     V.player_base_dmg += round((V.player_consume / 100) * V.enemys[target].dmg)
@@ -1657,6 +1713,8 @@ def player_hit(V, target = 0):
                         print(V.enemys[target].name, "exploded and dealt", exploding_damage, "DMG to other enemies!")
                 if not V.enemys[target].en_id in V.bestiary_entries:
                     V.bestiary_entries.append(V.enemys[target].en_id)
+                while len(V.enemies_killed) - 1 < V.enemys[target].en_id:
+                    V.enemies_killed.append(0)
                 V.enemies_killed[V.enemys[target].en_id] += 1
                 V.enemys.remove(V.enemys[target])
 
@@ -1716,6 +1774,8 @@ def player_hit(V, target = 0):
                     V.bestiary_entries.append(34)
             V.money_gain += i.money
             V.xp_gain += i.xp
+            for item in i.item_drops:
+                V.items_gain.append(item)
             if not i.en_id in V.enemy_unconsumable:
                 V.player_max_hp += round((V.player_consume / 100) * i.max_hp)
                 V.player_base_dmg += round((V.player_consume / 100) * i.dmg)
@@ -1762,10 +1822,13 @@ def item_use(V, item, type):
     print("\033[33;1m", end = "")
     original_item = item
     if type == "fight":
-        while original_item == 3 and item in [3, 10, 11, 12, 13, 14]:
+        while original_item == 3 and item in [3, 10, 11, 12, 13, 14, 17, 18, 20, 22, 24, 26, 27, 28]:
             item = randint(0, len(V.consumable_item_names) - 1)
         cancel = False
-        if item == 0:
+        if item in [18, 20, 22, 24, 25, 27, 28, 29, 30]:
+            print("You can't use this item!")
+            cancel = True
+        elif item == 0:
             print("This did absolutely nothing!")
         elif item == 1:
             heal = round(0.2 * V.player_max_hp)
@@ -1868,17 +1931,61 @@ def item_use(V, item, type):
             else:
                 print("You can't use this potion with less than 2 enemies!")
                 cancel = True
+        elif item == 15:
+            V.player_gold_boost += 5
+            V.shopkeeper_sus -= 0.1
+            if V.shopkeeper_sus < 0:
+                V.shopkeeper_sus = 0
+            print("You consumed the part of Midas' power. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+        elif item == 16:
+            V.player_immortality += 1
+            V.player_current_immortality += 1
+            print("You feel impenetrability, coursing through your body. Your total impenetrability is", V.player_immortality)
+        elif item == 17:
+            V.consume_discovered = True
+            from extra_functions import meta_save
+            meta_save(V)
+            if V.player_consume < 7:
+                V.player_consume += 1
+                print("You consume consume. You will absorb ", V.player_consume, "% of enemies' stats on kill", sep = "")
+            else:
+                V.player_gold_boost += 20
+                print("Despite consuimg consume, you feel as if you are becoming richer. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+        elif item == 19:
+            heal = round(0.05 * V.player_max_hp)
+            if heal + V.player_current_hp > V.player_max_hp:
+                heal = V.player_max_hp - V.player_current_hp
+            V.player_current_hp += heal
+            print("You drank tea. You regenerated ", heal, " HP!", sep = "")
+        elif item == 21:
+            extra_def = round(V.player_base_magic_def * 0.25)
+            if extra_def < 10:
+                extra_def = 10
+            V.player_extra_magic_def += extra_def
+            print("You drank magic resistance potion. You have gained", extra_def, "MGCDEF!")
+        elif item == 23:
+            V.player_base_magic_def += round(V.player_base_magic_def * 0.1 + 5)
+            print("You drank potent magic resistance potion. Your magic defense is", V.player_base_magic_def, "MGCDEF!")
+        elif item == 26:
+            V.player_max_hp = 0
+            V.player_current_hp = 0
+            print("You drank mana potion. Your insides rumble until you feel your entire body dissolving. You now have 0 HP and your max health is also 0 HP!")
+        elif item == 31:
+            V.player_crit_chance_buff += 100
+            print("You drank a might potion. Your crit chance is increased by ", V.player_crit_chance_buff, "%!", sep = "")
         if original_item in V.player_items and cancel == False:
             V.player_items.remove(original_item)
     elif type == "map":
-        if original_item in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14]:
+        if original_item in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 19, 31]:
             print("You can't use this item outside combat.")
+        elif original_item in [18, 20, 22, 24, 25, 27, 28, 29, 30]:
+            print("You can't use this item!")
         else:
             if original_item == 10:
                 if V.scaling_style == "legacy":
                     psn_addition = round(1 * ((V.player_poison / 5) + 1))
                 elif V.scaling_style == "V0.3.7":
-                    psn_addition = round(1 * ((V.player_poison / 7.5) + 1))
+                    psn_addition = round(1 * ((V.player_poison / 10) + 1))
                 V.player_poison += psn_addition
                 print("You poured poison onto your weapon, adding", psn_addition, "PSN to it. Total poison that your sword will inflict is now", V.player_poison, "PSN!")
             elif original_item == 11:
@@ -1896,6 +2003,34 @@ def item_use(V, item, type):
             elif original_item == 13:
                 V.player_weapon_wrath += 2
                 print("Your weapon gets enchanted by magic of wrath. You will gain ", V.player_weapon_wrath, "% of DMG and CRT every turn for every enemy!", sep = "")
+            elif original_item == 15:
+                V.player_gold_boost += 5
+                V.shopkeeper_sus -= 0.1
+                if V.shopkeeper_sus < 0:
+                    V.shopkeeper_sus = 0
+                print("You consumed the part of Midas' power. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+            elif original_item == 16:
+                V.player_immortality += 1
+                print("You feel impenetrability, coursing through your body. Your total impenetrability is", V.player_immortality)
+            elif original_item == 17:
+                V.consume_discovered = True
+                from extra_functions import meta_save
+                meta_save(V)
+                if V.player_consume < 7:
+                    V.player_consume += 1
+                    print("You consume consume. You will absorb ", V.player_consume, "% of enemies' stats on kill", sep = "")
+                else:
+                    V.player_gold_boost += 20
+                    print("Despite consuimg consume, you feel as if you are becoming richer. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+            elif original_item == 23:
+                V.player_base_magic_def += round(V.player_base_magic_def * 0.1 + 5)
+                print("You drank potent magic resistance potion. Your magic defense is", V.player_base_magic_def, "MGCDEF!")
+            elif original_item == 26:
+                V.player_max_hp = 0
+                V.player_current_hp = 0
+                print("You drank mana potion. Your insides rumble until you feel your entire body dissolving. You now have 0 HP and your max health is also 0 HP!")
+
+
             if original_item in V.player_items:
                 V.player_items.remove(original_item)
     print("\033[0m", end = "")

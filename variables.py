@@ -14,22 +14,30 @@ class V:
         self.RM_areas_cheat = False
         self.V_gamma = 1
         self.bestiary_entries = []
-        self.enemies_killed = [0] * 74
+        self.enemies_killed = [0] * 75
         self.reaper_enemy_description_unlocks = [False] * 17
+        self.encyclopedia_consumable_items_entries = []
+        self.encyclopedia_recipe_entries = []
         self.version = "blank"
         self.warning = False
 
-        self.dont_save = ["dont_save", "consume_discovered", "SM_completed", "TD_area_unlocks", "TD_max_raids", "SM_skip", "RM_areas_cheat", "V_gamma",
-"bestiary_entries", "enemies_killed", "reaper_enemy_description_unlocks", "warning", "enemy_AIs", "ally_actions", "map_show_UI", "bounty_hunter_name_0",
-"bounty_hunter_name_1", "enemys", "enemy_areas", "enemy_is_boss", "enemys_power_level", "enemys_name", "nemys_name_colors", "enemys_elements",
+        self.dont_save = ["dont_save", "meta_save_file_path", "run_save_file_path", "consume_discovered", "SM_completed", "TD_area_unlocks", "TD_max_raids",
+"SM_skip", "RM_areas_cheat", "V_gamma", "bestiary_entries", "bestiary_order", "enemies_killed", "reaper_enemy_description_unlocks", "encyclopedia_recipe_entries",
+"encyclopedia_consumable_items_entries", "warning",
+
+"enemy_AIs", "ally_actions", "show_map_UI", "enemys", "enemy_areas", "enemy_is_boss", "enemys_power_level", "enemys_name", "enemys_name_colors", "enemys_elements",
 "enemys_charm_immunity", "enemys_base_hp", "enemys_base_dmg", "enemys_base_def", "enemys_base_crit", "enemys_base_spk", "enemys_base_psn",
 "enemys_base_immortality", "enemys_descriptions", "enemys_patterns", "enemys_spawners", "enemy_unconsumable", "enemy_unelite", "bosses_for_areas",
-"reaper_included_enemys", "reaper_enemy_descriptions", "areas", "areas_colors", "water_colors_0", "water_colors_1", "path_lengths", "height_variaty",
-"wall_min_thickness", "turn_right_prob", "turn_down_prob", "turn_left_prob", "turn_up_prob", "area_max_x", "area_max_y", "start_positions",
-"area_patterns", "area_pattern_chances", "remnants_spawns", "snow_pile_spawns", "river_prob", "river_thickness", "escape_river_prob", "pond_prob",
-"pond_radius", "weathers", "weather_chances", "weathers_durations", "base_vision_ranges", "benefitial_events", "hurtful_events", "neutral_events",
-"item_names", "item_base_costs", "item_descriptions", "item_descriptions_mimic", "consumable_item_names", "consumable_item_desc", "weapon_names",
-"weapon_damage_ranges", "weapon_descriptions", "weapon_poison_factor", "weapon_crowd_factor"]
+"reaper_included_enemys", "reaper_enemy_descriptions", "enemy_patterns_names", "material_drops", "areas", "areas_colors", "water_colors_0", "water_colors_1",
+"path_lengths", "height_variaty", "wall_min_thickness", "turn_right_prob", "turn_down_prob", "turn_left_prob", "turn_up_prob", "area_max_x", "area_max_y",
+"start_positions", "area_patterns", "area_pattern_chances", "remnants_spawns", "snow_pile_spawns", "river_prob", "river_thickness", "escape_river_prob",
+"pond_prob", "pond_radius", "weathers", "weather_chances", "weathers_durations", "base_vision_ranges", "benefitial_events", "hurtful_events", "neutral_events", 
+"generation_area_pattern", "item_names", "item_base_costs", "item_descriptions", "item_descriptions_mimic", "consumable_item_names", "consumable_item_colors",
+"consumable_item_desc", "consumable_item_sell_costs", "encyclopedia_consumable_items_order", "weapon_names", "weapon_damage_ranges", "weapon_descriptions",
+"weapon_poison_factor", "weapon_crowd_factor", "recipes",
+"leave", "money_gain", "xp_gain", "items_gain", "player_damage_buff", "player_crit_chance_buff", "player_dealt_damage", "fight_turn", "player_current_immortality",
+"player_current_regen", "player_stunned", "player_poisoned", "player_extra_def", "player_extra_magic_def", "player_current_hp", "queue_amount", "queue_action",
+"queue_action_enemy"]
 
         self.show_map_UI = True
         self.game_mode = "story"
@@ -45,6 +53,7 @@ class V:
         self.win = 0
         self.lost = 0
         self.forest_enemy_spawn = 0
+        self.seeker_spawned = False
         self.enough_destroyed = False
         self.is_boss_battle = False
         self.final_area = False
@@ -124,7 +133,8 @@ class V:
         self.player_has_boat = False
         self.player_boat_hp = 0
         self.player_items = [0] # 1 - cookie, 2 - antidote, 3 - gambler's drink, 4 - cooked meat, 5 - winter tea, 6 - heal potion, 7 - berserk's potion,
-        #8 - stun potion, 9 - regeneration potion, 10 - poison flask, 11 - lifesteal flask, 12 - flask of enemy explotano
+        #8 - stun potion, 9 - regeneration potion, 10 - poison flask, 11 - lifesteal flask, 12 - flask of enemy explotano, 13 - wrath potion,
+        #14 - charm potion, 15 - bottle of midas' power, 16 - bottle of impenetrability, 17 - consume essence, 18 - fresh leaf
         self.player_inventory_weapons = []
         self.player_inventory_weapons_psn = []
         self.player_inventory_weapons_explotano = []
@@ -139,6 +149,7 @@ class V:
         self.alchemist_anger = 0 # in decimals
         self.alchemist_defeated = 0
         self.alchemist_visited = False
+        self.alchemist_brewing_first_time = True
         self.bought_from_alchemist = False
         self.cur_shopkeeper_dead = False
         self.death_encounters = 0
@@ -156,6 +167,7 @@ class V:
         self.bounty_target = []
         self.bounty_target_tracking = []
         self.bounty_target_goal = []
+        self.herbalist_encounters = 0
 
         self.said_dialogue_shopkeeper = []
         self.said_dialogue_gamble_mimic = []
@@ -164,6 +176,7 @@ class V:
         self.said_dialogue_alchemist = []
         self.said_dialogue_change = []
         self.said_dialogue_reaper = []
+        self.said_dialogue_herbalist = []
 
         self.vitality_anger = 0 # in decimals
         self.strength_anger = 0 # in decimals
@@ -174,15 +187,16 @@ class V:
         # PLAYER STATS END
 
         # SHOP ITEMS START
-        self.item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Flask of Lifesteal", "Bottle of Midas' power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
+        self.item_names = ["Nothing", "Poison Flask", "Armor Spikes", "Flask of Lifesteal", "Bottle of Midas' Power", "Bottle of Impenetrability", "Mark of the Undead", "Consume",
                       "Traveller's Hallow", "Flask of Enemy Explotano", "Life's Gift", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Band of Agility",
                       "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion", "Trusty Sword", "Magic Wand", "Double Daggers", "Great Hammer", "Syringe",
                       "Flask of Wrath", "Charming Potion", "Reaper's Scythe", "Shield"]
-        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 42, 52, 58, 45, 20, 60, 55, 75, 30, 50, 75, 40]
+        self.item_base_costs = [0, 20, 20, 40, 30, 70, 60, 100, 25, 40, 100, 23, 27, 30, 30, 25, 40, 50, 50, 52, 58, 45, 20, 60, 55, 75, 30, 50, 75, 40]
         self.item_bought = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.item_descriptions = ["It is literally nothing", "Allows sharp weapons to inflict poison onto your enemies (weapon upgrade)", "Enemies will get damaged when hit you",
-                             "Dealing damage will heal you (weapon upgrade)", "More coins will be dropped", "You will be immortal for a turn", "You will regenerate health every turn",
-                             "Kill to grow", "You will get experience for entering a new area", "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
+                             "Dealing damage will heal you (weapon upgrade)", "More coins will be dropped (permament consumable)", "You will be immortal for a turn (permament consumable)",
+                             "You will regenerate health every turn", "Kill to grow (permament consumable)", "You will get experience for entering a new area",
+                             "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
                              "If you die, you will be revived with no money or experience", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                              "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                              "Heals 50% HP on use (consumable)", "Increases damage by 50% if snow-related enemies are present (consumable)", "Grants chance to dodge physical attacks",
@@ -212,8 +226,20 @@ class V:
                                    "This thing makes some bad guys like you, and forces them to help you. Neat",
                                    "Pal, I'll be honest. I have no idea how this weapon, that can reap souls got in my possesion",
                                    "This legendary weapon is able to use your defense as offense! Ain't that cool?"]
-        self.consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat", "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion",
-                                 "Regeneration Potion", "Poison Flask", "FLask of Lifesteal", "Flask of Enemy Explotano", "Flask of Wrath", "Charming Potion"]
+        self.consumable_item_names = ["Nothing", "Cookie", "Antidote", "Gambler's Drink", "Cooked Meat",
+                                      "Winter Tea", "Heal Potion", "Berserk's Potion", "Stun Potion", "Regeneration Potion",
+                                      "Poison Flask", "FLask of Lifesteal", "Flask of Enemy Explotano", "Flask of Wrath", "Charming Potion",
+                                      "Bottle of Midas' Power", "Bottle of Impenetrability", "Consume", "Fresh Leaf", "Tea",
+                                      "Magic Leaf", "Magic Resistance Potion", "Magic Vine", "Potent Magic Resistance Potion", "Venom Sting",
+                                      "Crystal of Change", "Mana Potion", "Bone Shard", "Wrom's Tooth", "Gunpowder",
+                                      "Venom Fang", "Might Potion"]
+        self.consumable_item_colors = [[210, 210, 210], [160, 60, 0], [55, 130, 70], [200, 75, 160], [155, 70, 50],
+                                       [130, 100, 90], [240, 0, 75], [240, 70, 25], [175, 175, 175], [100, 240, 0],
+                                       [0, 255, 75], [150, 0, 45], [255, 100, 100], [190, 0, 0], [0, 180, 180],
+                                       [255, 180, 0], [0, 215, 255], [180, 0, 190], [0, 190, 25], [120, 35, 0],
+                                       [0, 215, 0], [0, 250, 255], [0, 160, 70], [0, 140, 255], [255, 0, 80],
+                                       [255, 80, 255], [255, 255, 0], [255, 200, 160], [105, 80, 65], [100, 70, 50],
+                                       [50, 120, 0], [255, 128, 0]]
         self.consumable_item_desc = ["How in the world do you have a Nothing in your inventory?", "Heals 20% HP and adds 20% of base DEF on use (consumable)",
                                 "Clears any poison applied to you on use (consumable)", "Shapeshifts into a random consumable object on use (consumable)",
                                 "Heals 50% HP on use (consumable)", "Increases damage if snow-related enemies are present", "Heals 100% HP (consumable)",
@@ -221,7 +247,29 @@ class V:
                                 "Adds 5% REG on use (consumable)", "Allows sharp weapons to inflict poison onto your enemies (weapon upgrade)",
                                 "Dealing damage will heal you (weapon upgrade)", "Enemies explode on death, dealing damage to other enemies (weapon upgrade)",
                                 "Increases the damage and critical chance with the amount of enemies (weapon upgrade)",
-                                "Makes an enemy fight for you for a battle (consumable)"]
+                                "Makes an enemy fight for you for a battle (consumable)", "More coins will be dropped (permament consumable)",
+                                "You will be immortal for a turn (permament consumable)", "Kill to grow (permament consumable)",
+                                "A recently fallen off leaf of a plant (material)", "Heals 5% HP (consumable)",
+                                "A fallen off leaf given eternal freshness by magic protection (material)", "Grants 25% MGCDEF for a fight (consumable)",
+                                "A part of Vine's book magic given form (material)", "Increases MGCDEF (permament consumable)",
+                                "A sting of a plant filled with venom (material)", "Ever shifting crystal that is usually found in the Stale Cave (material)",
+                                "Dissolves your skin and insides on use. Please don't use it (consumable)",
+                                "Bone piece that appears to be alive and moving (material)", "A tooth of Suffering's favourite pest (material)",
+                                "Some form of mana used to power magic wands called 'shotguns' (material)",
+                                "A fang of a mighty spider that is filled with venom (material)", "Doubles crit chance (consumables)"]
+        self.consumable_item_sell_costs = [0, 20, 25, 27, 25, 20, 40, 40, 40, 45, 20, 35, 35, 30, 45, 27, 45, 70, 3, 10, 5, 20, 6, 25, 9, 4, 25, 6, 9, 6, 5, 27]
+
+        self.consumable_obtainment_methods = [["none"], ["shopkeeper", "remnants"], ["shopkeeper", "brewing"], ["shopkeeper", "alchemist", "brewing"],
+                                              ["shopkeeper"], ["shopkeeper", "alchemist", "brewing", "remnants"], ["alchemist", "brewing"], ["alchemist", "brewing"],
+                                              ["alchemist"], ["alchemist", "brewing"], ["shopkeeper", "brewing", "remnants", "enemy drop"], ["mimic"],
+                                              ["mimic", "brewing"], ["reaper", "brewing"], ["reaper", "brewing"], ["shopkeeper", "mimic", "remnants", "brewing"],
+                                              ["mimic", "brewing"], ["mimic", "brewing"], ["brewing", "enemy drop"], ["brewing"], ["brewing", "enemy drop"],
+                                              ["brewing"], ["enemy drop"], ["brewing"], ["enemy drop"], ["enemy drop"], ["brewing"], ["enemy drop"], ["enemy drop"],
+                                              ["enemy drop"], ["enemy drop"], ["brewing"]]
+        self.encyclopedia_consumable_items_order = [18, 20, 24, 22, 25, 30, 27, 29, 28,
+                                                    10, 11, 12, 13,
+                                                    15, 23, 16, 17,
+                                                    19, 1, 4, 3, 21, 26, 2, 5, 31, 9, 7, 6, 8, 14]
         # SHOP ITEMS END
 
         # WEAPONS START
@@ -237,6 +285,15 @@ class V:
         self.weapon_poison_factor = [1, 0.2, 1, 0.2, 4, 0.95, 0.2]
         self.weapon_crowd_factor = [1, 1, 0.5, 3, 0.1, 0.6, 0.9]
         # WEAPONS END
+
+        # RECIPES START
+        # [[ingredient(s)], [outcome(s)]]
+        self.recipes = [ [[18], [19]], [[20], [21]], [[22], [21]], [[20, 22], [23]], [[24], [10]], [[22, 25], [3]], [[18, 26], [20, 26]], [[25], [26]],
+                       [[27], [9]], [[27, 28], [6]], [[9, 28], [6]], [[28, 28], [17]], [[18, 24], [2]], [[10, 28], [2]], [[29], [12]], [[19, 29], [5]],
+                       [[18, 29], [5]], [[], []], [[30], [10]], [[26, 30], [31]], [[29, 31], [7]], [[26, 29, 30], [7]], [[5, 30], [7]], [[5, 31], [7]],
+                       [[18, 28], [16]], [[26, 28], [17]], [[20, 26], [18, 26]], [[28, 29], [13]], [[13, 26], [14, 26]], [[14, 26], [13, 26]],
+                       [[25, 27], [15]] ]
+        # RECIPES END
 
         # AREA STATS START
         self.areas = []
@@ -272,9 +329,9 @@ class V:
         self.current_weather_duration = []
         self.events = [] # 0 - path, 1 - fight, 2 - altar, 3 - shop, 4 - bossfight, 5 - mimic gamble, 6 - muddy path, 7 - small snow pile, 8 - big snow pile,
         # 9 - non-existent snow pile, 10 - deep water, 11 - boat person, 12 - extra exit, 13 - weird story mode man, 14 - remnants, 15 - crystal path,
-        # 16 - main exit, 17 - crystal fight, 18 - crystal altar, 19 - mimic bank, 20 - stalker, 21 - hole down, 22 - hole up, 23 - bounty hunting guy, 
+        # 16 - main exit, 17 - crystal fight, 18 - crystal altar, 19 - mimic bank, 20 - stalker, 21 - hole down, 22 - hole up, 23 - bounty chieftain, 
         # 24 - alchemist's brewery, 25 - raid deactivated fight, 26 - raid deactivated altar, 27 - raid deactivated crystal fight, 
-        # 28 - raid deactivated crystal altar
+        # 28 - raid deactivated crystal altar, 29 - herbalist, 30 - seeker
         self.benefitial_events = []
         self.hurtful_events = []
         self.neutral_events = []
@@ -479,8 +536,8 @@ bestiary_entires: []''')
             while len(self.item_bought) < len(self.item_names):
                 self.item_bought.append(0)
 
-            if self.version != "V0.3.7":
-                if not self.version in ["blank", "V0.3.6", "V0.3.6.1", "V0.3.7"]:
+            if self.version != "V0.3.8":
+                if not self.version in ["blank", "V0.3.6", "V0.3.6.1", "V0.3.7", "V0.3.8"]:
                     self.warning = True
                 if self.version in ["blank", "V0.3.6", "V0.3.6.1"]:
                     self.scaling_style = "legacy"
@@ -508,7 +565,7 @@ bestiary_entires: []''')
                         self.item_bought.append(0)
 
         self.saved = False
-        self.version = "V0.3.7"
+        self.version = "V0.3.8"
 
         import subprocess
         def enable_ansi_escape_codes():

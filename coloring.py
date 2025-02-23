@@ -13,6 +13,16 @@ def enemy_name_color(V, enemy_id = 0):
     string = string + "m"
     return string
 
+def cons_item_name_color(V, enemy_id = 0):
+    string = "\033[38;2"
+    for i in range(3):
+        try:
+            string = string + ";" + str(V.consumable_item_colors[enemy_id][i])
+        except:
+            string = string + ";255"
+    string = string + "m"
+    return string
+
 def area_color(V, height = 5, affected_by_weather = False, affected_by_time = False):
     string = "\033[38;2"
     weather_colors = []

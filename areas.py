@@ -1,12 +1,12 @@
 ﻿
-from random import seed, shuffle, randint, choice, choices
-from extra_functions import chance, is_window_active
+from random import seed, randint, choice, choices
+from extra_functions import chance, meta_options
 from upgrades_functions import level_up, stats_altar, player_remnants
 from coloring import area_color, water_color
-from misc_functions import lost_check, time_events, map_inventory, escape, change_interaction
+from misc_functions import lost_check, time_events, map_inventory, escape, change_interaction, herbalist_interaction
 from enemies_and_fighting import fight, fight_choose, bossfight_choose, ally_choose
 from shops import shop, alchemist_shop, mimic_gamble, mimic_bank, death_boat, reaper_bounty
-from circular_avoidance import max_x, max_y, min_x, min_y, stalker_AI
+from circular_avoidance import max_x, max_y, min_x, min_y, stalker_AI, seeker_AI, extras
 import keyboard
 
 def default_areas(V):
@@ -54,11 +54,12 @@ def default_areas(V):
     V.weather_chances = [[1], [7, 4, 3, 3, 1, 1], [10, 4, 6], [7, 3, 4, 4, 1], [7, 4, 2, 1, 3, 1], [12, 2, 7, 1, 6], [5, 1, 4, 4, 1]]
     V.weathers_durations = [[0, 5], [10, 30], [6, 12], [5, 7], [8, 16], [6, 24], [4, 12], [6, 18], [4, 8], [7, 14]]
     V.base_vision_ranges = [-1, 12, 6, 16, 14, 18, 8]
+    V.seeker_spawn_chances = [0, 0.1, 0.15, 0.25, 0.4, 0.5, 0.4]
     V.current_weather = [0]
     V.current_weather_duration = [0]
     V.events = []
-    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 16, 18, 19, 23, 24]
-    V.hurtful_events = [1, 4, 7, 8, 17, 20]
+    V.benefitial_events = [2, 3, 5, 11, 12, 13, 14, 16, 18, 19, 23, 24, 29]
+    V.hurtful_events = [1, 4, 7, 8, 17, 20, 30]
     V.neutral_events = [0, 6, 9, 10, 15, 21, 22, 25, 26, 27, 28]
     V.events_coordinates = []
     V.events_heights = []
@@ -142,13 +143,16 @@ def map_print(V):
         print("-", end = "")
     print()
     l = V.player_coordinates[2]
+    current_vision_range = V.vision_range + 0.25 + l * 1.5
+    if current_vision_range < 1:
+        current_vision_range = 1
     for y in range(min_y(V), max_y(V) + 1):
         for x in range(min_x(V), max_x(V) + 1):
             if [x, y, l] == V.player_coordinates and V.player_boat == False:
                 print("\033[33;1mP" + area_color(V), end = "")
             elif [x, y, l] == V.player_coordinates and V.player_boat == True:
                 print("\033[33;1mb" + area_color(V), end = "")
-            elif not [x, y, l] in V.events_coordinates or (V.vision_range != -1 and (((V.player_coordinates[0] - x) ** 2 + (V.player_coordinates[1] - y) ** 2) ** 0.5) > V.vision_range + 0.25 + l * 1.5):
+            elif not [x, y, l] in V.events_coordinates or (V.vision_range != -1 and (((V.player_coordinates[0] - x) ** 2 + (V.player_coordinates[1] - y) ** 2) ** 0.5) > current_vision_range):
                 print(" ", end = "")
             else:
                 event = V.events[V.events_coordinates.index([x, y, l])]
@@ -259,6 +263,13 @@ def map_print(V):
                         print(water_color(V, 0, True) + "a", end = "")
                     else:
                         print(area_color(V, event_height, True, True) + "a", end = "")
+                elif event == 29:
+                    if V.water_level > event_height:
+                        print(water_color(V, 0, True) + "h", end = "")
+                    else:
+                        print(area_color(V, event_height, True, True) + "h", end = "")
+                elif event == 30:
+                    print("\033[38;2;100;100;100mS", end = "")
                 else:
                     print(event)
 
@@ -300,6 +311,8 @@ def map_generation(V):
             good_events.append(19)
     if V.game_mode == "story" and (V.area_id == 2 or (V.area_id == 0 and V.change_recruited == True)):
         good_events.append(13)
+    if V.area_id == 0:
+        good_events.append(29)
     min_remnant, max_remnant, avg_remnant = V.remnants_spawns[V.area_id][0], V.remnants_spawns[V.area_id][1], V.remnants_spawns[V.area_id][2]
     remnant_events, remnant_weights = [], []
     for i in range(min_remnant, max_remnant + 1):
@@ -336,8 +349,7 @@ def map_generation(V):
         rate -= 0.125
         if rate < 1:
             rate = 1
-
-    #print(len(bad_events))
+            
     V.score_increase = 0.75 * len(bad_events)
 
     turns = [] # [x, y, rotation ("r"/"d"/"l"/"u"), event/tile id, height, layer]
@@ -394,6 +406,8 @@ def map_generation(V):
                 iteration += 1
                 bad_path = False
                 if iteration > 10000:
+                    break
+                if len(turns) == 0:
                     break
                 path = choice(turns)
                 x = path[0]
@@ -576,7 +590,7 @@ def map_generation(V):
                         else:
                             if x + (V.path_lengths[V.area_id][1] + 1) <= 0 and chance(V.turn_right_prob[V.area_id]):
                                 turns.append([x, y, "r", event, h, l])
-                    if start[0] == "u" or start[1] == "m":
+                    if start[0] == "u" or start[0] == "m":
                         if y + (V.path_lengths[V.area_id][1] + 1) <= V.area_max_y[V.area_id] and chance(V.turn_down_prob[V.area_id]):
                             turns.append([x, y, "d", event, h, l])
                     else:
@@ -974,6 +988,8 @@ def map_generation(V):
                 bad_path = False
                 if iteration > 1000:
                     break
+                if len(turns) == 0:
+                    break
                 path = choice(turns)
                 x = path[0]
                 y = path[1]
@@ -990,6 +1006,20 @@ def map_generation(V):
                                 break
                         if bad_path:
                             break
+                    if bad_path:
+                        x += 1
+                        bad_path = False
+                        for x1 in range(5):
+                            for y1 in range(5):
+                                if [x + x1, y - 2 + y1, l] in V.events_coordinates and not [x + x1, y - 2 + y1, l] in [[x, y, l], [x + 2, y - 2, l], [x + 4, y, l], [x + 2, y + 2, l]]:
+                                    bad_path = True
+                                    break
+                            if bad_path:
+                                break
+                        if bad_path == False:
+                            V.events.append(0)
+                            V.events_heights.append(h)
+                            V.events_coordinates.append([x, y, l])
                     if bad_path:
                         continue
                     V.events_heights = V.events_heights + [0, h, h, h, h, h, h, h, h]
@@ -1140,6 +1170,20 @@ def map_generation(V):
                         if bad_path:
                             break
                     if bad_path:
+                        y += 1
+                        bad_path = False
+                        for x1 in range(5):
+                            for y1 in range(5):
+                                if [x + x1 - 2, y + y1, l] in V.events_coordinates and not [x + x1 - 2, y + y1, l] in [[x, y, l], [x - 2, y + 2, l], [x + 2, y + 2, l], [x, y + 4, l]]:
+                                    bad_path = True
+                                    break
+                            if bad_path:
+                                break
+                        if bad_path == False:
+                            V.events.append(0)
+                            V.events_heights.append(h)
+                            V.events_coordinates.append([x, y, l])
+                    if bad_path:
                         continue
                     V.events_heights = V.events_heights + [0, h, h, h, h, h, h, h, h]
                     V.events_coordinates = V.events_coordinates + [[x, y + 2, l], [x - 1, y + 1, l], [x, y + 1, l], [x + 1, y + 1, l]]
@@ -1262,7 +1306,7 @@ def map_generation(V):
                                 else:
                                     event = 0
                         V.events.append(event)
-                    if start[0] == "r" or start[0] == "m":
+                    if start[1] == "r" or start[1] == "m":
                         if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_y[V.area_id] and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x - 2, y + 2, "l", event, h, l])
                     else:
@@ -1288,6 +1332,20 @@ def map_generation(V):
                                 break
                         if bad_path:
                             break
+                    if bad_path:
+                        x -= 1
+                        bad_path = False
+                        for x1 in range(5):
+                            for y1 in range(5):
+                                if [x + x1 - 4, y - 2 + y1, l] in V.events_coordinates and not [x + x1 - 4, y - 2 + y1, l] in [[x, y, l], [x - 2, y - 2, l], [x - 2, y + 2, l], [x - 4, y, l]]:
+                                    bad_path = True
+                                    break
+                            if bad_path:
+                                break
+                        if bad_path == False:
+                            V.events.append(0)
+                            V.events_heights.append(h)
+                            V.events_coordinates.append([x, y, l])
                     if bad_path:
                         continue
                     V.events_heights = V.events_heights + [0, h, h, h, h, h, h, h, h]
@@ -1417,7 +1475,7 @@ def map_generation(V):
                     else:
                         if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= 0 and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x - 2, y - 2, "u", event, h, l])
-                    if start[1] == "r" or start[1] == "m":
+                    if start[0] == "r" or start[0] == "m":
                         if x + 4 + (V.path_lengths[V.area_id][1] + 1) <= V.area_max_x[V.area_id] and chance(V.turn_right_prob[V.area_id]):
                             turns.append([x - 4, y, "l", event, h, l])
                     else:
@@ -1437,6 +1495,20 @@ def map_generation(V):
                                 break
                         if bad_path:
                             break
+                    if bad_path:
+                        y -= 1
+                        bad_path = False
+                        for x1 in range(5):
+                            for y1 in range(5):
+                                if [x + x1 - 2, y + y1 - 4, l] in V.events_coordinates and not [x + x1 - 2, y + y1 - 4, l] in [[x, y, l], [x - 2, y - 2, l], [x + 2, y - 2, l], [x, y - 4, l]]:
+                                    bad_path = True
+                                    break
+                            if bad_path:
+                                break
+                        if bad_path == False:
+                            V.events.append(0)
+                            V.events_heights.append(h)
+                            V.events_coordinates.append([x, y, l])
                     if bad_path:
                         continue
                     V.events_heights = V.events_heights + [0, h, h, h, h, h, h, h, h]
@@ -1560,11 +1632,11 @@ def map_generation(V):
                                 else:
                                     event = 0
                         V.events.append(event)
-                    if start[0] == "r" or start[0] == "m":
-                        if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_y[V.area_id] and chance(V.turn_up_prob[V.area_id]):
+                    if start[1] == "r" or start[1] == "m":
+                        if x - 2 - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_x[V.area_id] and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x - 2, y - 2, "l", event, h, l])
                     else:
-                        if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= 0 and chance(V.turn_up_prob[V.area_id]):
+                        if x - 2 - (V.path_lengths[V.area_id][1] + 1) >= 0 and chance(V.turn_up_prob[V.area_id]):
                             turns.append([x - 2, y - 2, "l", event, h, l])
                     if start[1] == "l" or start[1] == "m":
                         if x + 4 + (V.path_lengths[V.area_id][1] + 1) <= V.area_max_x[V.area_id] and chance(V.turn_right_prob[V.area_id]):
@@ -1573,10 +1645,10 @@ def map_generation(V):
                         if x + (V.path_lengths[V.area_id][1] + 1) <= 0 and chance(V.turn_right_prob[V.area_id]):
                             turns.append([x + 2, y - 2, "r", event, h, l])
                     if start[0] == "d" or start[0] == "m":
-                        if y + 2 + (V.path_lengths[V.area_id][1] + 1) <= V.area_max_y[V.area_id] and chance(V.turn_down_prob[V.area_id]):
+                        if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= - V.area_max_y[V.area_id] and chance(V.turn_down_prob[V.area_id]):
                             turns.append([x, y - 4, "u", event, h, l])
                     else:
-                        if y + 2 + (V.path_lengths[V.area_id][1] + 1) <= 0 and chance(V.turn_down_prob[V.area_id]):
+                        if y - 2 - (V.path_lengths[V.area_id][1] + 1) >= 0 and chance(V.turn_down_prob[V.area_id]):
                             turns.append([x, y - 4, "u", event, h, l])
                 turns.remove(path)
 
@@ -1617,6 +1689,8 @@ def map_generation(V):
                 iteration += 1
                 bad_path = False
                 if iteration > 1000:
+                    break
+                if len(turns) == 0:
                     break
                 path = choice(turns)
                 x = path[0]
@@ -1831,6 +1905,8 @@ def map_generation(V):
                 bad_path = False
                 if iteration > 1000:
                     break
+                if len(turns) == 0:
+                    break
                 path = choice(turns)
                 x = path[0]
                 y = path[1]
@@ -1923,7 +1999,7 @@ def map_generation(V):
                         else:
                             if x + (V.path_lengths[V.area_id][1] + 1) <= 0 and chance(V.turn_right_prob[V.area_id]):
                                 turns.append([x, y, "r", event, h, l])
-                    if start[0] == "u" or start[1] == "m":
+                    if start[0] == "u" or start[0] == "m":
                         if y + (V.path_lengths[V.area_id][1] + 1) <= V.area_max_y[V.area_id] and chance(V.turn_down_prob[V.area_id]):
                             turns.append([x, y, "d", event, h, l])
                     else:
@@ -2025,6 +2101,8 @@ def map_generation(V):
             for i in range(int(len(turns) * generation_percentage) + 1):
                 if len(turns) == 0:
                     break
+                if len(turns) == 0:
+                    break
                 path = choice(turns)
                 x = path[0]
                 y = path[1]
@@ -2044,10 +2122,12 @@ def map_generation(V):
                 event = 21
                 if not [x, y, l - 1] in V.events_coordinates:
                     if [x, y, l + 1] in V.events_coordinates:
-                        if V.events[V.events_coordinates.index([x, y, l + 1])] == 21:
+                        if not V.events[V.events_coordinates.index([x, y, l + 1])] in [0, 9]:
                             continue
                     turns.remove(path)
                     if [x, y, l] in V.events_coordinates:
+                        if V.events[V.events_coordinates.index([x, y, l])] in [0, 9, 2]:
+                            continue
                         V.events[V.events_coordinates.index([x, y, l])] = 21
                         V.events_heights[V.events_coordinates.index([x, y, l])] = 0
                     else:
@@ -2087,6 +2167,8 @@ def map_generation(V):
             for i in range(int(len(turns) * generation_percentage) + 1):
                 if len(turns) == 0:
                     break
+                if len(turns) == 0:
+                    break
                 path = choice(turns)
                 x = path[0]
                 y = path[1]
@@ -2096,10 +2178,12 @@ def map_generation(V):
                 event = 22
                 if not [x, y, l + 1] in V.events_coordinates:
                     if [x, y, l - 1] in V.events_coordinates:
-                        if V.events[V.events_coordinates.index([x, y, l - 1])] == 22:
+                        if not V.events[V.events_coordinates.index([x, y, l - 1])] in [0, 9]:
                             continue
                     turns.remove(path)
                     if [x, y, l] in V.events_coordinates:
+                        if V.events[V.events_coordinates.index([x, y, l])] in [0, 9, 2]:
+                            continue
                         V.events[V.events_coordinates.index([x, y, l])] = 22
                         V.events_heights[V.events_coordinates.index([x, y, l])] = 5
                     else:
@@ -2180,152 +2264,155 @@ def map_generation(V):
                 furthest_turn_index = turns.index(i)
             elif start[1] == "r" and turns[furthest_turn_index][2] != "l":
                 furthest_turn_index = turns.index(i)
-    path = turns[furthest_turn_index]
-    if start == "mm":
-        if path[0] < 0 and abs(path[0]) > abs(path[1]):
-            path = [path[0], path[1], "l", path[3], path[4], path[5]]
-        elif path[0] > 0 and abs(path[0]) > abs(path[1]):
-            path = [path[0], path[1], "r", path[3], path[4], path[5]]
-        elif path[1] < 0 and abs(path[0]) < abs(path[1]):
-            path = [path[0], path[1], "u", path[3], path[4], path[5]]
-        elif path[1] > 0 and abs(path[0]) < abs(path[1]):
-            path = [path[0], path[1], "d", path[3], path[4], path[5]]
-    x = path[0]
-    y = path[1]
-    h = path[4]
-    l = path[5]
-    if path[2] == "r":
-        for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+    if len(turns) == 0:
+        V.events[V.events.index(1)] = 4
+    else:
+        path = turns[furthest_turn_index]
+        if start == "mm":
+            if path[0] < 0 and abs(path[0]) > abs(path[1]):
+                path = [path[0], path[1], "l", path[3], path[4], path[5]]
+            elif path[0] > 0 and abs(path[0]) > abs(path[1]):
+                path = [path[0], path[1], "r", path[3], path[4], path[5]]
+            elif path[1] < 0 and abs(path[0]) < abs(path[1]):
+                path = [path[0], path[1], "u", path[3], path[4], path[5]]
+            elif path[1] > 0 and abs(path[0]) < abs(path[1]):
+                path = [path[0], path[1], "d", path[3], path[4], path[5]]
+        x = path[0]
+        y = path[1]
+        h = path[4]
+        l = path[5]
+        if path[2] == "r":
+            for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+                x += 1
+                h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
+                if h > 5:
+                    h = 5
+                elif h < 0:
+                    h = 0
+                if [x, y, l] in V.events_coordinates:
+                    if V.events[V.events_coordinates.index([x, y, l])] != 10:
+                        continue
+                    else:
+                        if chance(V.snow_pile_spawns[V.area_id]):
+                            V.events[V.events_coordinates.index([x, y, l])] = 9
+                        else:
+                            V.events[V.events_coordinates.index([x, y, l])] = 0
+                if chance(V.snow_pile_spawns[V.area_id]):
+                    V.events.append(9)
+                else:
+                    V.events.append(0)
+                V.events_coordinates.append([x, y, l])
+                V.events_heights.append(h)
             x += 1
-            h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
-            if h > 5:
-                h = 5
-            elif h < 0:
-                h = 0
             if [x, y, l] in V.events_coordinates:
-                if V.events[V.events_coordinates.index([x, y, l])] != 10:
-                    continue
-                else:
-                    if chance(V.snow_pile_spawns[V.area_id]):
-                        V.events[V.events_coordinates.index([x, y, l])] = 9
-                    else:
-                        V.events[V.events_coordinates.index([x, y, l])] = 0
-            if chance(V.snow_pile_spawns[V.area_id]):
-                V.events.append(9)
+                V.events[V.events_coordinates.index([x, y, l])] = 4
+                try:
+                    V.events_heights[V.events_coordinates.index([x, y, l])] = h
+                except:
+                    V.events_heights.append(h)
             else:
-                V.events.append(0)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-        x += 1
-        if [x, y, l] in V.events_coordinates:
-            V.events[V.events_coordinates.index([x, y, l])] = 4
-            try:
-                V.events_heights[V.events_coordinates.index([x, y, l])] = h
-            except:
+                V.events.append(4)
+                V.events_coordinates.append([x, y, l])
                 V.events_heights.append(h)
-        else:
-            V.events.append(4)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-    elif path[2] == "d":
-        for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+        elif path[2] == "d":
+            for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+                y += 1
+                h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
+                if h > 5:
+                    h = 5
+                elif h < 0:
+                    h = 0
+                if [x, y, l] in V.events_coordinates:
+                    if V.events[V.events_coordinates.index([x, y, l])] != 10:
+                        continue
+                    else:
+                        if chance(V.snow_pile_spawns[V.area_id]):
+                            V.events[V.events_coordinates.index([x, y, l])] = 9
+                        else:
+                            V.events[V.events_coordinates.index([x, y, l])] = 0
+                if chance(V.snow_pile_spawns[V.area_id]):
+                    V.events.append(9)
+                else:
+                    V.events.append(0)
+                V.events_coordinates.append([x, y, l])
+                V.events_heights.append(h)
             y += 1
-            h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
-            if h > 5:
-                h = 5
-            elif h < 0:
-                h = 0
             if [x, y, l] in V.events_coordinates:
-                if V.events[V.events_coordinates.index([x, y, l])] != 10:
-                    continue
-                else:
-                    if chance(V.snow_pile_spawns[V.area_id]):
-                        V.events[V.events_coordinates.index([x, y, l])] = 9
-                    else:
-                        V.events[V.events_coordinates.index([x, y, l])] = 0
-            if chance(V.snow_pile_spawns[V.area_id]):
-                V.events.append(9)
+                V.events[V.events_coordinates.index([x, y, l])] = 4
+                try:
+                    V.events_heights[V.events_coordinates.index([x, y, l])] = h
+                except:
+                    V.events_heights.append(h)
             else:
-                V.events.append(0)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-        y += 1
-        if [x, y, l] in V.events_coordinates:
-            V.events[V.events_coordinates.index([x, y, l])] = 4
-            try:
-                V.events_heights[V.events_coordinates.index([x, y, l])] = h
-            except:
+                V.events.append(4)
+                V.events_coordinates.append([x, y, l])
                 V.events_heights.append(h)
-        else:
-            V.events.append(4)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-    elif path[2] == "l":
-        for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+        elif path[2] == "l":
+            for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+                x -= 1
+                h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
+                if h > 5:
+                    h = 5
+                elif h < 0:
+                    h = 0
+                if [x, y, l] in V.events_coordinates:
+                    if V.events[V.events_coordinates.index([x, y, l])] != 10:
+                        continue
+                    else:
+                        if chance(V.snow_pile_spawns[V.area_id]):
+                            V.events[V.events_coordinates.index([x, y, l])] = 9
+                        else:
+                            V.events[V.events_coordinates.index([x, y, l])] = 0
+                if chance(V.snow_pile_spawns[V.area_id]):
+                    V.events.append(9)
+                else:
+                    V.events.append(0)
+                V.events_coordinates.append([x, y, l])
+                V.events_heights.append(h)
             x -= 1
-            h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
-            if h > 5:
-                h = 5
-            elif h < 0:
-                h = 0
             if [x, y, l] in V.events_coordinates:
-                if V.events[V.events_coordinates.index([x, y, l])] != 10:
-                    continue
-                else:
-                    if chance(V.snow_pile_spawns[V.area_id]):
-                        V.events[V.events_coordinates.index([x, y, l])] = 9
-                    else:
-                        V.events[V.events_coordinates.index([x, y, l])] = 0
-            if chance(V.snow_pile_spawns[V.area_id]):
-                V.events.append(9)
+                V.events[V.events_coordinates.index([x, y, l])] = 4
+                try:
+                    V.events_heights[V.events_coordinates.index([x, y, l])] = h
+                except:
+                    V.events_heights.append(h)
             else:
-                V.events.append(0)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-        x -= 1
-        if [x, y, l] in V.events_coordinates:
-            V.events[V.events_coordinates.index([x, y, l])] = 4
-            try:
-                V.events_heights[V.events_coordinates.index([x, y, l])] = h
-            except:
+                V.events.append(4)
+                V.events_coordinates.append([x, y, l])
                 V.events_heights.append(h)
-        else:
-            V.events.append(4)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-    elif path[2] == "u":
-        for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+        elif path[2] == "u":
+            for i in range(randint(V.path_lengths[V.area_id][1], V.path_lengths[V.area_id][1])):
+                y -= 1
+                h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
+                if h > 5:
+                    h = 5
+                elif h < 0:
+                    h = 0
+                if [x, y, l] in V.events_coordinates:
+                    if V.events[V.events_coordinates.index([x, y, l])] != 10:
+                        continue
+                    else:
+                        if chance(V.snow_pile_spawns[V.area_id]):
+                            V.events[V.events_coordinates.index([x, y, l])] = 9
+                        else:
+                            V.events[V.events_coordinates.index([x, y, l])] = 0
+                if chance(V.snow_pile_spawns[V.area_id]):
+                    V.events.append(9)
+                else:
+                    V.events.append(0)
+                V.events_coordinates.append([x, y, l])
+                V.events_heights.append(h)
             y -= 1
-            h += randint(V.height_variaty[V.area_id][0], V.height_variaty[V.area_id][1])
-            if h > 5:
-                h = 5
-            elif h < 0:
-                h = 0
             if [x, y, l] in V.events_coordinates:
-                if V.events[V.events_coordinates.index([x, y, l])] != 10:
-                    continue
-                else:
-                    if chance(V.snow_pile_spawns[V.area_id]):
-                        V.events[V.events_coordinates.index([x, y, l])] = 9
-                    else:
-                        V.events[V.events_coordinates.index([x, y, l])] = 0
-            if chance(V.snow_pile_spawns[V.area_id]):
-                V.events.append(9)
+                V.events[V.events_coordinates.index([x, y, l])] = 4
+                try:
+                    V.events_heights[V.events_coordinates.index([x, y, l])] = h
+                except:
+                    V.events_heights.append(h)
             else:
-                V.events.append(0)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
-        y -= 1
-        if [x, y, l] in V.events_coordinates:
-            V.events[V.events_coordinates.index([x, y, l])] = 4
-            try:
-                V.events_heights[V.events_coordinates.index([x, y, l])] = h
-            except:
+                V.events.append(4)
+                V.events_coordinates.append([x, y, l])
                 V.events_heights.append(h)
-        else:
-            V.events.append(4)
-            V.events_coordinates.append([x, y, l])
-            V.events_heights.append(h)
     
     while V.events.count(14) > V.remnants_spawns[V.area_id][1]:
         V.events[V.events.index(14)] = 2
@@ -2362,6 +2449,10 @@ def map_movement(V):
                             V.stalker_stealth -= 13
                         if V.stalker_stealth <= 0:
                             V.events[V.events.index(20)] = 0
+            if V.events[event] == 30:
+                seeker_coords = V.events_coordinates[event]
+                if not seeker_coords in V.no_update_coordinates:
+                    seeker_AI(V, seeker_coords)
         V.no_update_coordinates = []
         if V.player_coordinates in V.events_coordinates:
             event = V.events[V.events_coordinates.index(V.player_coordinates)]
@@ -2511,7 +2602,7 @@ Type anything to continue''')
 \033[38;2;100;100;100m"Your kind is so persistent. They keep continuing the cycle. But I feel that you are attempting to change that."\033[0m
 She pauses for a moment, \033[38;2;100;100;100m"Perhaps, we are in the same \033[38;2;100;100;100;3mboat\033[0m\033[38;2;100;100;100m? Meet me later."\033[0m
 The creature crawls away. You decide to continue your journey...
-Type anything to continue''')
+Type anything to continue...''')
                     action = input()
             else:
                 death_boat(V)
@@ -2575,6 +2666,13 @@ Type anything to continue''')
             reaper_bounty(V)
         elif event == 24:
             alchemist_shop(V)
+        elif event == 29:
+            herbalist_interaction(V)
+        elif event == 30:
+            fight(V, [74])
+            if lost_check(V):
+                break
+            V.events[V.events_coordinates.index(V.player_coordinates)] = 0
         map_print(V)
         if V.show_map_UI:
             if V.player_has_boat == False:
@@ -2600,9 +2698,6 @@ G. - Map Help''')
             print("H. - Show Map UI")
         while True:
             while True:
-                if is_window_active() == False:
-                    action.name = "esc"
-                    break
                 action = keyboard.read_event(suppress=True)
                 if action.event_type == keyboard.KEY_DOWN:
                     break
@@ -2655,7 +2750,7 @@ G. - Map Help''')
                     V.show_map_UI = True
                 map_print_update(V)
             if action.name.lower() == "g":
-                if V.player_boat == False and V.player_has_boat == False:
+                if V.player_boat == False:
                     print('''Yellow \033[33;1mP\033[0m is you. You can move freely on circles.
 Other symbols act differently when stepped on. Note that when you leave the area, you cannot come back...
 Pressing H will result in hiding map UI. Pressing Escape will result in pausing the game(use this when alt tabbing)''')
@@ -2670,20 +2765,13 @@ Pressing H will result in hiding map UI. Pressing Escape will result in pausing 
                     print('''You are in a kind of pause menu. What do you need to do?
 1. Continue
 2. Save
-3. Restart''')
+3. Restart
+8. Extras
+9. Options''')
                     other_action = input()
                     if other_action == "1" or "cont" in other_action.lower():
                         map_print_update(V)
                         break
-                    if other_action == "3" or "restart" in other_action.lower():
-                        print('''Are you sure you want to restart? You will not be able to continue this run.
-Type in the action
-1. No
-2. Yes''')
-                        other_action = input()
-                        if other_action == "2" or other_action.lower() == "yes":
-                            V.lost = 1
-                            break
                     if other_action == "2" or other_action.lower() == "save":
                         if V.meta_game_mode != "daily":
                             print('''Are you sure you want to save this run and continue later? The game will be closed.
@@ -2699,6 +2787,19 @@ Type in the action
                             print('''You cannot save in daily run...
 Type anything to continue...''')
                             other_action = input()
+                    if other_action == "3" or "restart" in other_action.lower():
+                        print('''Are you sure you want to restart? You will not be able to continue this run.
+Type in the action
+1. No
+2. Yes''')
+                        other_action = input()
+                        if other_action == "2" or other_action.lower() == "yes":
+                            V.lost = 1
+                            break
+                    if other_action == "8" or "extra" in other_action.lower():
+                        extras(V)
+                    if other_action == "9" or "option" in other_action.lower():
+                        meta_options(V)
                 if V.lost == 1:
                     break
         if V.lost == 1:

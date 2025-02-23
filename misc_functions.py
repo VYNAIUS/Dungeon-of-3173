@@ -2,7 +2,7 @@
 from random import seed, randint, choice, choices
 from extra_functions import chance, meta_save
 from circular_avoidance import max_x, max_y, min_x, min_y, map_tile_move, npc_talk
-from coloring import represented_area_color
+from coloring import represented_area_color, cons_item_name_color
 from upgrades_functions import level_up, xp_to_lvl_up, boss_upgrade
 from shops import shop_items_define
 from enemies_and_fighting import item_use
@@ -32,9 +32,9 @@ def final_statistics(V):
     if V.player_lifesteal > 0:
         print("Lifesteal: ", V.player_lifesteal, "%", sep = "")
     if V.player_weapon_wrath > 0:
-        print("Wrath: ", V.player_weapon_wrath, "% WRT", sep = "", end = "")
+        print("Wrath: ", V.player_weapon_wrath, "% WRT", sep = "")
     if V.player_enemy_explotano > 0:
-        print("Enemy Explotano: ", V.player_enemy_explotano, "%", sep = "", end = "")
+        print("Enemy Explotano: ", V.player_enemy_explotano, "%", sep = "")
     if V.player_immortality > 0:
         print("Immortal for ", V.player_immortality, " turns", sep = "")
     if V.player_regen > 0:
@@ -149,6 +149,22 @@ def time_events(V, num = 0):
                 V.forest_enemy_spawn += 1
         else:
             break
+    seed(V.weather_seed + 3)
+    if V.game_time >= 18:
+        if chance(V.seeker_spawn_chances[V.area_id]) and V.seeker_spawned == False:
+            attempts = 0
+            while True:
+                node = randint(0, len(V.events) - 1)
+                if (V.events[node] == 0 or V.events[node] == 6) and V.events_coordinates[node] != V.player_coordinates:
+                    V.events[node] = 30
+                    V.seeker_spawned = True
+                    break
+                else:
+                    attempts += 1
+                if attempts >= 20:
+                    break
+        else:
+            V.seeker_spawned = True
 
     V.no_update_coordinates = []
     if 15 in V.events or 17 in V.events or 18 in V.events or 27 in V.events or 28 in V.events:
@@ -239,8 +255,11 @@ def time_events(V, num = 0):
                         V.events[stalker_node] = 20
                         break
                     epic_nodes.remove(stalker_node)
+        if 30 in V.events:
+            V.events[V.events.index(30)] = 0
         V.bank_money += round(V.bank_money * 0.5)
         V.forest_enemy_spawn = 0
+        V.seeker_spawned = False
         shop_items_define(V)
         if V.area_id == 4 and V.enough_destroyed == False:
             V.player_coord_y = V.player_coordinates[1]
@@ -882,6 +901,9 @@ def map_inventory(V):
             print("Consumables:")
             for i in V.player_items:
                 counter += 1
+                if counter == 8:
+                    print("And", len(V.player_items) - 7, "more.")
+                    break
                 print(str(counter) + ".", V.consumable_item_names[i])
         inventory_statistics(V)
         print("\033[0m", end = "")
@@ -945,21 +967,35 @@ def map_inventory(V):
                                 break
                 elif action == "2" or "consumable" in action.lower():
                     if len(V.player_items) > 0:
+                        page = 0
                         while True:
                             counter = 0
-                            for i in V.player_items:
+                            starting_index = page * 10
+                            index = starting_index
+                            while index < starting_index + 10 and index < len(V.player_items):
                                 counter += 1
-                                print(str(counter) + ".", V.consumable_item_names[i])
+                                print(str(index + 1) + ".", cons_item_name_color(V, V.player_items[index]) + V.consumable_item_names[V.player_items[index]] + "\033[0m")
+                                index += 1
                             if counter == 0:
-                                break
+                                page -= 1
+                                if page < 0:
+                                    break
+                                else:
+                                    continue
+                            if starting_index != 0:
+                                print("A. Previous Page")
+                            if index != len(V.player_items):
+                                print("D. Next Page")
                             print("0. Cancel")
                             print("Choose an item")
                             item_action = input()
+                            print("\n\n")
                             if item_action.isdigit():
                                 item_action = int(item_action)
                                 if item_action > 0 and item_action <= len(V.player_items):
-                                    print("1. Use\n2. Inspect\n0. Cancel")
                                     while True:
+                                        print("Currently selected:", cons_item_name_color(V, V.player_items[item_action - 1]) + V.consumable_item_names[V.player_items[item_action - 1]] + "\033[0m")
+                                        print("1. Use\n2. Inspect\n0. Cancel")
                                         action = input()
                                         if action == '1' or action.lower() == "use":
                                             item_use(V, V.player_items[item_action - 1], "map")
@@ -970,11 +1006,16 @@ def map_inventory(V):
                                             print(V.consumable_item_desc[V.player_items[item_action-1]])
                                             print("\033[0m\nType anything to continue...")
                                             action = input()
-                                            break
                                         elif action == '0' or action.lower() == "cancel":
                                             break
+                                        print("\n\n")
                                 if item_action == 0:
                                     break
+                            else:
+                                if item_action.lower() in ["a", "previous", "previous page"] and starting_index != 0:
+                                    page -= 1
+                                elif item_action.lower() in ["d", "next", "next page"] and index != len(V.player_items):
+                                    page += 1
                     else:
                         print("You have no consumable items!\nType anything to continue...")
                         action = input()
@@ -982,3 +1023,41 @@ def map_inventory(V):
                     break
         elif action == "2" or action.lower() == "no":
             break
+
+def herbalist_interaction(V):
+    if V.herbalist_encounters == 0 and V.final_area == False:
+        print('''You come across a plant mage. He seems to tutor three small arachno-flowers.
+He turns to you and begins to speak, \033[38;2;0;0;255m"Oh! Hello there! Don't introduce yourself, I already know who you are."
+"I am the herbalist. And as you can tell, I take care of my three little flowers. Aren't they adorable?"\033[0m
+The herbalist looks back and continues playing with them.
+\033[38;2;0;0;255m"Let me know, if you want to hear a story."\033[0m''')
+    elif V.herbalist_encounters > 0 and V.final_area == False:
+        print('''You come across the herbalist. He as usual plays with his three small arachno-flowers.
+\033[38;2;0;0;255m"Oh! It's you again. So soon. I will continue playing with my adorable flowers. If you want to hear a story, let me know."\033[0m''')
+    elif V.herbalist_encounters == -1 and V.final_area:
+        print('''You come across a plant mage. He seems to tutor three small arachno-flowers.
+He turns to you and shudders for a moment, then proceeds to speak,
+\033[38;2;0;0;255m"You scared me! Oh Cycle, why make them so scary, when they are powerful? Sorry."
+"Anyway, I know, who you are. But I am the herbalist. As you can see, I take care of my three adorable arachno-flowers."\033[0m
+The herbalist looks back and continues playing with them.
+\033[38;2;0;0;255m"Let me know, if you want to hear a story."\033[0m''')
+        V.herbalist_encounters += 1
+    elif V.herbalist_encounters == 0 and V.final_area:
+        print('''You come across the herbalist. He as usual plays with his three small arachno-flowers.
+\033[38;2;0;0;255m"Oh Cycle. Look at how you've grown! If I was your parent, I would be more than proud of you!"\033[0m''')
+    elif V.herbalist_encounters > 0 and V.final_area:
+        print('''You come across the herbalist. He as usual plays with his three small arachno-flowers.
+\033[38;2;0;0;255m"Hello. Did you come to visit me? Or are you passing by?"\033[0m''')
+    V.herbalist_encounters += 1
+    while True:
+        print('''1. Talk
+2. Leave
+Type in the number of action or the action itself''')
+        action = input()
+        if action.lower() in ["1", "talk"]:
+            npc_talk(V, "herbalist")
+        elif action.lower() in ["2", "leave"]:
+            break
+    print('''You turn around and decide to continue your journey.
+Type anything to continue...''')
+    action = input()

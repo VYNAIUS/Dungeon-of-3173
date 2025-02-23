@@ -16,62 +16,77 @@ def stats_altar(V):
     V.altar_seed = randint(0, 10000)
 
     while True:
-        possible_upgrades = ["\033[38;2;0;255;0mVitality", "\033[38;2;255;0;0mStrength", "\033[38;2;255;128;0mMight", "\033[38;2;0;200;255mProtection", "\033[38;2;190;0;205mInnocence", "\033[38;2;0;255;255mMagic Protection"]
-        item1 = choice(possible_upgrades)
-        possible_upgrades.remove(item1)
-        item2 = choice(possible_upgrades)
-        possible_upgrades.remove(item2)
-        item3 = choice(possible_upgrades)
-        possible_upgrades.remove(item3)
-        if not (item1 in V.last_altar and item2 in V.last_altar and item3 in V.last_altar):
+        possible_upgrades = ["V", "S", "M", "P", "I", "MP"]
+        new_upgrades = []
+        for i in range(3):
+            if possible_upgrades == []:
+                break
+            item = choice(possible_upgrades)
+            possible_upgrades.remove(item)
+            new_upgrades.append(item)
+        if sorted(new_upgrades) != sorted(V.last_altar):
             break
-    current_upgrades = [item1, item2, item3]
-    V.last_altar = current_upgrades.copy()
-    print("1.", item1, "\033[0m\n2.", item2, "\033[0m\n3.", item3, "\033[0m\n4. Self Inspect")
+    V.last_altar = new_upgrades.copy()
+    counter = 0
+    for i in new_upgrades:
+        counter += 1
+        print(str(counter) + ". ", end = "")
+        if i == "V":
+            print("\033[38;2;0;255;0mVitality", end = "")
+        elif i == "S":
+            print("\033[38;2;255;0;0mStrength", end = "")
+        elif i == "M":
+            print("\033[38;2;255;128;0mMight", end = "")
+        elif i == "P":
+            print("\033[38;2;0;200;255mProtection", end = "")
+        elif i == "I":
+            print("\033[38;2;190;0;205mInnocence", end = "")
+        elif i == "MP":
+            print("\033[38;2;0;255;255mMagic Protection", end = "")
+        print("\033[0m")
+    print(str(counter + 1) + ". Self Inspect")
     while True:
         print("Type in the number of upgrade")
         action = input()
-        if action == "1":
-            altar_grant(V, item1)
-            break
-        elif action == "2":
-            altar_grant(V, item2)
-            break
-        elif action == "3":
-            altar_grant(V, item3)
-            break
-        elif action == "4" or "insepct" in action.lower() or "self" in action.lower():
+        if action.isdigit():
+            action = int(action) - 1
+            if action >= 0 and action < len(new_upgrades):
+                altar_grant(V, new_upgrades[action])
+                break
+            elif action == len(new_upgrades):
+                print("\033[38;2;0;255;0mMax HP -", V.player_max_hp, "\033[38;2;255;0;0m\nBase DMG -", V.player_base_dmg, "\033[38;2;0;200;255m\nBase DEF -", V.player_base_def, "\033[38;2;0;255;255m\nBase MGCDEF -", V.player_base_magic_def, "\033[38;2;255;128;0m\nCrit chance -", V.player_crit_chance, "\033[38;2;190;0;205m\nPower level -", V.max_power_level, "\033[0m")
+        elif "inspect" in action.lower() or "self" in action.lower():
             print("\033[38;2;0;255;0mMax HP -", V.player_max_hp, "\033[38;2;255;0;0m\nBase DMG -", V.player_base_dmg, "\033[38;2;0;200;255m\nBase DEF -", V.player_base_def, "\033[38;2;0;255;255m\nBase MGCDEF -", V.player_base_magic_def, "\033[38;2;255;128;0m\nCrit chance -", V.player_crit_chance, "\033[38;2;190;0;205m\nPower level -", V.max_power_level, "\033[0m")
-        elif (action.lower() == "vitality" or action.lower() == "life") and "\033[38;2;0;255;0mVitality" in current_upgrades:
-            altar_grant(V, "\033[38;2;0;255;0mVitality")
+        elif (action.lower() == "vitality" or action.lower() == "life") and "V" in new_upgrades:
+            altar_grant(V, "V")
             break
-        elif action.lower() == "strength" and "\033[38;2;255;0;0mStrength" in current_upgrades:
-            altar_grant(V, "\033[38;2;255;0;0mStrength")
+        elif action.lower() == "strength" and "S" in new_upgrades:
+            altar_grant(V, "S")
             break
-        elif action.lower() == "might" and "\033[38;2;255;128;0mMight" in current_upgrades:
-            altar_grant(V, "\033[38;2;255;128;0mMight")
+        elif action.lower() == "might" and "M" in new_upgrades:
+            altar_grant(V, "M")
             break
-        elif action.lower() == "protection" and "\033[38;2;0;200;255mProtection" in current_upgrades:
-            altar_grant(V, "\033[38;2;0;200;255mProtection")
+        elif action.lower() == "protection" and "P" in new_upgrades:
+            altar_grant(V, "P")
             break
-        elif (action.lower() == "innocence" or action.lower() == "fear") and "\033[38;2;190;0;205mInnocence" in current_upgrades:
-            altar_grant(V, "\033[38;2;190;0;205mInnocence")
+        elif (action.lower() == "innocence" or action.lower() == "fear") and "I" in new_upgrades:
+            altar_grant(V, "I")
             break
-        elif action.lower() == "magic protection" and "\033[38;2;0;255;255mMagic Protection" in current_upgrades:
-            altar_grant(V, "\033[38;2;0;255;255mMagic Protection")
+        elif action.lower() == "magic protection" and "MP" in new_upgrades:
+            altar_grant(V, "MP")
             break
     print("Type anything to continue...")
     action = input()
     print("\n\n\n")
 
 def altar_grant(V, item):
-    if item == "\033[38;2;0;255;0mVitality":
+    if item == "V":
         if V.scaling_style == "legacy":
             V.player_max_hp = round(V.player_max_hp * 1.15)
         elif V.scaling_style == "V0.3.7":
             V.player_max_hp = round(V.player_max_hp * 1.075)
         print("\033[38;2;0;255;0mYour max health is now", V.player_max_hp, "HP!")
-    elif item == "\033[38;2;255;0;0mStrength":
+    elif item == "S":
         if V.scaling_style == "legacy":
             if V.player_base_dmg < 20:
                 V.player_base_dmg = round(V.player_base_dmg * 1.2)
@@ -83,7 +98,7 @@ def altar_grant(V, item):
             else:
                 V.player_base_dmg = round(V.player_base_dmg * 1.075)
         print("\033[38;2;255;0;0mYour damage is now", V.player_base_dmg, "DMG!")
-    elif item == "\033[38;2;255;128;0mMight":
+    elif item == "M":
         if V.player_crit_chance > 300:
             V.player_crit_chance += 1
         elif V.player_crit_chance > 100:
@@ -91,17 +106,17 @@ def altar_grant(V, item):
         else:
             V.player_crit_chance += 5
         print("\033[38;2;255;128;0mYour chance to get critical hit is now ", V.player_crit_chance, "%!", sep = "")
-    elif item == "\033[38;2;0;200;255mProtection":
+    elif item == "P":
         if V.scaling_style == "legacy":
             def_multiplier = (V.player_base_def / 60) + 1
         elif V.scaling_style == "V0.3.7":
             def_multiplier = (V.player_base_def / 120) + 1
         V.player_base_def = round(V.player_base_def + def_multiplier * 3)
         print("\033[38;2;0;200;255mYour defense is now", V.player_base_def, "DEF!")
-    elif item == "\033[38;2;190;0;205mInnocence":
+    elif item == "I":
         V.max_power_level -= round(V.max_power_level * 0.1, 2)
-        print("\033[38;2;190;0;205mLess enemies will consider you a threat.")
-    elif item == "\033[38;2;0;255;255mMagic Protection":
+        print("\033[38;2;190;0;205mLess enemies will consider you a threat. Your power level is", str(V.max_power_level) + "!")
+    elif item == "MP":
         if V.scaling_style == "legacy":
             def_multiplier = (V.player_base_magic_def / 50) + 1
         elif V.scaling_style == "V0.3.7":
@@ -291,6 +306,8 @@ def shop_grant(V, item):
         print("You bought nothing! Good job")
     elif item == 1:
         V.player_items.append(10)
+        if not 10 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(10)
         print("You got a poison flask! You can apply it to your weapon at any time!")
     elif item == 2:
         if V.scaling_style == "legacy":
@@ -301,16 +318,19 @@ def shop_grant(V, item):
         print("You attached the spikes to your armor, adding", spk_addition, "SPK to it. Enemies will get hit for", V.player_spikes, "DMG when hit you.")
     elif item == 3:
         V.player_items.append(11)
+        if not 11 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(11)
         print("You got a flask of lifesteal! You can apply it to your weapon at any time!")
     elif item == 4:
-        V.player_gold_boost += 5
-        V.shopkeeper_sus -= 0.1
-        if V.shopkeeper_sus < 0:
-            V.shopkeeper_sus = 0
-        print("You consumed the part of Midas' power. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+        V.player_items.append(15)
+        if not 15 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(15)
+        print("You got a bottle of Midas' power! You can apply it at any time!")
     elif item == 5:
-        V.player_immortality += 1
-        print("You feel impenetrability, coursing through your body. Your total impenetrability is", V.player_immortality)
+        V.player_items.append(16)
+        if not 16 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(16)
+        print("You got a bottle of impenetrability! You can apply it at any time!")
     elif item == 6:
         if V.player_regen < 10:
             V.player_regen += 2
@@ -321,17 +341,14 @@ def shop_grant(V, item):
         else:
             V.player_items.append(11)
             V.player_items.append(11)
+            if not 11 in V.encyclopedia_consumable_items_entries:
+                V.encyclopedia_consumable_items_entries.append(11)
             print("Despite consuming mark of the undead, you feel the essence of lifesteal. You notice that you for some reason got 2 new lifesteal flasks.")
     elif item == 7:
-        V.consume_discovered = True
-        from extra_functions import meta_save
-        meta_save(V)
-        if V.player_consume < 7:
-            V.player_consume += 1
-            print("You consume consume. You will absorb ", V.player_consume, "% of enemies' stats on kill", sep = "")
-        else:
-            V.player_gold_boost += 20
-            print("Despite consuimg consume, you feel as if you are becoming richer. Your money boost is ", V.player_gold_boost, "% now.", sep = "")
+        V.player_items.append(17)
+        if not 17 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(17)
+        print("You got a bottle of consume! You can apply it at any time!")
     elif item == 8:
         if V.player_travel < 100:
             V.player_travel += round(15 * (200 - V.player_travel) / 100)
@@ -340,6 +357,8 @@ def shop_grant(V, item):
         print("You feel strength in your legs. Total experience gained for entering new area is ", V.player_travel, "%", sep = "")
     elif item == 9:
         V.player_items.append(12)
+        if not 12 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(12)
         print("You got a flask of enemy explotano! You can apply it to your weapon at any time!")
     elif item == 10:
         if V.player_extra_life == False:
@@ -348,21 +367,33 @@ def shop_grant(V, item):
         else:
             V.player_items.append(11)
             V.player_items.append(11)
+            if not 11 in V.encyclopedia_consumable_items_entries:
+                V.encyclopedia_consumable_items_entries.append(11)
             print("Despite consuming Life's gift, you feel the essence of lifesteal. You notice that you for some reason got 2 new lifesteal flasks.")
     elif item == 11:
         V.player_items.append(1)
+        if not 1 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(1)
         print("You got a cookie!")
     elif item == 12:
         V.player_items.append(2)
+        if not 2 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(2)
         print("You got an antidote!")
     elif item == 13:
         V.player_items.append(3)
+        if not 3 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(3)
         print("You got a gambler's drink!")
     elif item == 14:
         V.player_items.append(4)
+        if not 4 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(4)
         print("You got cooked meat!")
     elif item == 15:
         V.player_items.append(5)
+        if not 5 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(5)
         print("You got winter tea!")
     elif item == 16:
         if V.player_dodge_chance < 25:
@@ -373,15 +404,23 @@ def shop_grant(V, item):
             print("Despite having additional band of agility, you feel impenetrability, coursing through you. Your total impenetrability is", V.player_immortality)
     elif item == 17:
         V.player_items.append(6)
+        if not 6 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(6)
         print("You got a heal potion!")
     elif item == 18:
         V.player_items.append(7)
+        if not 7 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(7)
         print("You got a berserk's potion!")
     elif item == 19:
         V.player_items.append(8)
+        if not 8 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(8)
         print("You got a stun potion!")
     elif item == 20:
         V.player_items.append(9)
+        if not 9 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(9)
         print("You got a regeneration potion!")
     elif item == 21:
         V.player_inventory_weapons.append(0)
@@ -420,9 +459,13 @@ def shop_grant(V, item):
         print("You got a syringe! You can equip it outside of combat!")
     elif item == 26:
         V.player_items.append(13)
+        if not 13 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(13)
         print("You got a flask of wrath! You can apply it to your weapon at any time!")
     elif item == 27:
         V.player_items.append(14)
+        if not 14 in V.encyclopedia_consumable_items_entries:
+            V.encyclopedia_consumable_items_entries.append(14)
         print("You got a charming potion!")
     elif item == 28:
         V.player_inventory_weapons.append(5)

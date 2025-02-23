@@ -20,7 +20,7 @@ from upgrades_functions import *
 #        break
 
 V = variables.V()
-print("V0.3.7")
+print("V0.3.8")
 V.enemy_AIs = [fight_AI_basic_0, fight_AI_basic_1, fight_AI_basic_2, fight_AI_magic_1, fight_AI_magic_2,
                fight_AI_magic_basic_2, fight_AI_summoner_magic_1, fight_AI_summoner_basic_lazy_1, fight_AI_basic_lazy_1, fight_AI_healer_magic_1,
                fight_AI_healer_magic_basic_1, fight_AI_transform_basic_1, fight_AI_transform_summoner_basic_2, fight_AI_basic_defend, fight_AI_basic_shotgunner,
@@ -66,6 +66,7 @@ Type anything to continue...''')
             V.bank_first_time = True
             V.bank_money += round(V.bank_money * 0.5)
             V.forest_enemy_spawn = 0
+            V.seeker_spawned = False
             V.enough_destroyed = False
             V.water_level = V.default_water_levels[V.area_id]
             map_generation(V)
@@ -124,6 +125,7 @@ Type anything to continue...''')
             V.bank_first_time = True
             V.bank_money += round(V.bank_money * 0.5)
             V.forest_enemy_spawn = 0
+            V.seeker_spawned = False
             V.enough_destroyed = False
             V.water_level = V.default_water_levels[V.area_id]
             map_generation(V)
@@ -140,6 +142,10 @@ Type anything to continue...''')
         if V.area_id >= len(V.areas):
             V.area_id = 0
             V.final_area = True
+            if V.herbalist_encounters == 0:
+                V.herbalist_encounters = -1
+            else:
+                V.herbalist_encounters = 0
             print('''\033[38;2;100;200;250m"My child, you have come back. Prepare yourself for the final battle."\033[0m
 Type anything to continue...''')
             action = input()
@@ -408,85 +414,10 @@ def mutators_choose():
                 V.original_difficulty = V.difficulty
                 break
 
-def meta_options():
-    global crash
-    while True:
-        if crash:
-            break
-        print('''1. Gameplay
-2. Visuals
-9. Quit to title
-Type in the number or the action itself...''')
-        action = input()
-        if action.lower() in ["1", "gameplay"]:
-            while True:
-                print("1. Skip Story Mode requirements -", V.SM_skip)
-                if V.SM_completed or V.SM_skip:
-                    print("2. Unlock all Raid Mode areas -", V.RM_areas_cheat)
-                else:
-                    print("2. Locked")
-                print("9. Back")
-                print("Type in the number or the action itself...")
-                action = input()
-                if action.lower() in ["1", "skip story mode requirements"] or "skip" in action.lower() or "story mode" in action.lower():
-                    if V.SM_skip:
-                        V.SM_skip = False
-                        if V.SM_completed == False:
-                            V.RM_areas_cheat = False
-                    else:
-                        V.SM_skip = True
-                elif (action.lower() in ["2", "unlock all raid mode areas"] or "raid" in action.lower()) and (V.SM_completed or V.SM_skip):
-                    if V.RM_areas_cheat:
-                        V.RM_areas_cheat = False
-                    else:
-                        V.RM_areas_cheat = True
-                elif action.lower() in ["9", "back"]:
-                    break
-        elif action.lower() in ["2", "visuals"]:
-            while True:
-                print("1. Map Gamma/Brightness -", V.V_gamma)
-                print("2. Graphics Quality - Low")
-                print("9. Back")
-                print("Type in the number or the action itself...")
-                action = input()
-                if action.lower() in ["1", "map", "gamma", "brightness"] or "gamma" in action.lower() or "bright" in action.lower():
-                    print("Please insert a float value between 0 and 2. Leave blank if you want to reset it.")
-                    action = input()
-                    try:
-                        action = float(action)
-                        V.V_gamma = action
-                    except:
-                        V.V_gamma = 1
-                elif action.lower() in ["2", "graphics", "quality"] or "graphics" in action.lower() or "quality" in action.lower():
-                    crash = True
-                    print('''An error has occured: your device cannot render higher quality graphics!
-The game will be closed to reset the settings!
-Type anything to continue...''')
-                    action = input()
-                    break
-                elif action.lower() in ["9", "back"]:
-                    break
-        elif action == "9" or "quit" in action.lower() or "title" in action.lower():
-            break
-    meta_save(V)
-
-def extras():
-    while True:
-        print('''1. Bestiary
-9. Quit to title''')
-        action = input()
-        if action.lower() in ["1", "bestiary"]:
-            bestiary(V)
-        elif action == "9" or "quit" in action.lower() or "title" in action.lower():
-            break
-
 def game():
-    global crash
     retry = 0
     option_moment = 0
     while True:
-        if crash:
-            break
         if V.continue_run:
             print("\n\n")
             if V.warning == True:
@@ -557,11 +488,11 @@ Type in the gamemode you want to play...''')
                     V.game_mode = "credits"
                     break
                 elif (action == "8" or "extras" in action.lower()):
-                    extras()
+                    extras(V)
                     option_moment = 1
                     break
                 elif (action == "9" or "options" in action.lower()):
-                    meta_options()
+                    meta_options(V)
                     option_moment = 1
                     break
             if option_moment == 1:
@@ -612,6 +543,10 @@ Type in the action...''')
         else:
             break
 
-crash = False
 meta_save(V)
-game()
+try:
+    game()
+except:
+    print("THE GAME HAS CRASHED AND WILL SAVE THE RUN! NOTIFY THE DEVELOPER ABOUT THE ISSUE!!\nType anything to continue...")
+    V.save_run()
+    action = input()

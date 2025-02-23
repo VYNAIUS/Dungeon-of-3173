@@ -4,8 +4,8 @@ from extra_functions import chance
 from reset_functions import reset_player
 from enemies_and_fighting import fight
 from upgrades_functions import shop_grant
-from circular_avoidance import npc_talk
-from coloring import enemy_name_color
+from circular_avoidance import npc_talk, brewing
+from coloring import enemy_name_color, cons_item_name_color
 
 def shop_items_define(V):
     seed(V.shop_seed)
@@ -47,8 +47,9 @@ def peaceful_shop(V):
             print(counter, ". ", V.item_names[i], " - \033[38;2;200;200;0m", cost(V, i), " coins\033[0m", sep = "")
         counter += 1
         print(counter, ". Inspect", sep = "")
-        print(counter + 1, ". Talk", sep = "")
-        print(counter + 2, ". Leave", sep = "")
+        print(counter + 1, ". Sell", sep = "")
+        print(counter + 2, ". Talk", sep = "")
+        print(counter + 3, ". Leave", sep = "")
         while True:
             print("Which one do you want to buy?")
             action = input()
@@ -61,16 +62,113 @@ def peaceful_shop(V):
                     item_info(V, "shop")
                     break
                 elif action - 2 == len(V.current_shop_items):
+                    shopkeeper_sell_material(V)
+                    break
+                elif action - 3 == len(V.current_shop_items):
                     npc_talk(V, "shopkeeper")
                     break
-                elif action - 3 >= len(V.current_shop_items):
+                elif action - 4 >= len(V.current_shop_items):
                     V.leave = 1
                     break
+            elif action.lower() == "inspect":
+                item_info(V, "shop")
+                break
+            elif action.lower() == "sell":
+                shopkeeper_sell_material(V)
+                break
+            elif action.lower() == "talk":
+                npc_talk(V, "shopkeeper")
+                break
+            elif action.lower() == "leave":
+                V.leave = 1
+                break
             else:
-                print("Type in the correct action")
+                incorrect = True
+                for i in V.current_shop_items:
+                    if action.lower() in V.item_names[i].lower():
+                        incorrect = False
+                        shop_buy(V, V.current_shop_items.index(i), "shop")
+                        break
+                if incorrect:
+                    print("Type in the correct action")
+                else:
+                    break
         if V.leave == 1:
             break
     print("You left the shop and continued your journey...\n\n\n")
+
+def shopkeeper_sell_material(V):
+    if len(V.player_items) > 0:
+        print('''\033[38;2;100;220;100mThe shopkeeper\033[0m notices you pulling out items of your own and comes to selling stand. He says,
+    \033[38;2;100;220;100m"Offer item. I name the price."\033[0m''')
+    else:
+        print('''You don't have any items to sell!''')
+    print("Type anything to continue...")
+    action = input()
+    page = 0
+    while True:
+        counter = 0
+        starting_index = page * 10
+        index = starting_index
+        while index < starting_index + 10 and index < len(V.player_items):
+            counter += 1
+            print(str(index + 1) + ".", cons_item_name_color(V, V.player_items[index]) + V.consumable_item_names[V.player_items[index]], "-\033[38;2;200;200;0m", sell_cost(V, V.player_items[index], 0), "coins\033[0m")
+            index += 1
+        if counter == 0:
+            page -= 1
+            if page < 0:
+                break
+            else:
+                continue
+        if starting_index != 0:
+            print("A. Previous Page")
+        if index != len(V.player_items):
+            print("D. Next Page")
+        print("0. Cancel")
+        print("Choose an item")
+        action = input()
+        if action.lower() in ["0", "cancel"]:
+            break
+        elif action.lower() in ["a", "previous", "previous page"] and starting_index != 0:
+            page -= 1
+        elif action.lower() in ["d", "next", "next page"] and index != len(V.player_items):
+            page += 1
+        elif action.isdigit():
+            action = int(action) - 1
+            if action >= 0 and action < len(V.player_items):
+                item = V.player_items[action]
+                while True:
+                    print("Currently selected:", cons_item_name_color(V, item) + V.consumable_item_names[item], "-\033[38;2;200;200;0m", sell_cost(V, item, 0), "coins\033[0m")
+                    print("1. Sell\n2. Inspect\n0. Cancel")
+                    action = input()
+                    if action == '1' or action.lower() == "sell":
+                        V.player_money += sell_cost(V, item, 0)
+                        print("You gave", cons_item_name_color(V, item) + V.consumable_item_names[item], "\033[0mto \033[38;2;100;220;100mthe shopkeeper\033[0m. He handed over\033[38;2;200;200;0m", sell_cost(V, item, 0), "coins!\033[0m\nYour balance is\033[38;2;200;200;0m", V.player_money, "coins!\033[0m")
+                        print("\033[0m\nType anything to continue...")
+                        V.player_items.remove(item)
+                        action = input()
+                        break
+                    elif action == '2' or action.lower() == "inspect":
+                        print(V.consumable_item_desc[item])
+                        print("\033[0m\nType anything to continue...")
+                        action = input()
+                    elif action == '0' or action.lower() == "cancel":
+                        break
+                    print("\n\n")
+
+def sell_cost(V, item, type):
+    if type == 0:
+        cost = V.consumable_item_sell_costs[item]
+        for i in range(V.score):
+            if cost < 170000000000000000000000:
+                if V.scaling_style == "legacy":
+                    cost *= 1.1
+                elif V.scaling_style == "V0.3.7":
+                    cost *= 1.05
+                cost = round(cost)
+            else:
+                cost += cost // 10000000000000
+    return cost
 
 def cost(V, item, type = 0):
     if type == 0:
@@ -119,20 +217,23 @@ def shop_buy(V, item, shop_type = "shop"):
     if shop_type == "shop":
         item_id = V.current_shop_items[item]
         if V.player_money >= cost(V, item_id):
-            V.player_money -= cost(V, item_id)
-            print("\n\n\n")
-            shop_grant(V, item_id)
-            print("Type anything to continue...")
+            print("Are you sure you want to buy", V.item_names[item_id] + "?\n1. Yes\n2. No")
             action = input()
-            print("\n\n\n")
-            V.item_bought[item_id] += 1
-            V.current_shop_items[item] = 0
-            V.shopkeeper_sus -= 0.05
-            if V.shopkeeper_sus <= 0:
-                V.shopkeeper_sus = 0
-                V.debt = 0
+            if action == "1" or action.lower() == "yes":
+                V.player_money -= cost(V, item_id)
+                print("\n\n\n")
+                shop_grant(V, item_id)
+                print("Type anything to continue...")
+                action = input()
+                print("\n\n\n")
+                V.item_bought[item_id] += 1
+                V.current_shop_items[item] = 0
+                V.shopkeeper_sus -= 0.05
+                if V.shopkeeper_sus <= 0:
+                    V.shopkeeper_sus = 0
+                    V.debt = 0
         else:
-            print('''You don't have enough money to buy this item!
+            print("You don't have enough money to buy", V.item_names[item_id] + '''!
 But you could try stealing it...
 What will you do?
 1. Steal
@@ -154,49 +255,26 @@ What will you do?
     elif shop_type == "alchemist":
         item_id = V.current_alchemist_items[item]
         if V.player_money >= cost(V, item_id):
-            V.bought_from_alchemist = True
-            V.alchemist_anger -= 0.25
-            if V.alchemist_anger < 0:
-                V.alchemist_anger = 0
-            V.player_money -= cost(V, item_id)
-            print("\n\n\n")
-            shop_grant(V, item_id)
-            print("Type anything to continue...")
+            print("Are you sure you want to buy", V.item_names[item_id] + "?\n1. Yes\n2. No")
             action = input()
-            print("\n\n\n")
-            V.item_bought[item_id] += 1
-            V.current_alchemist_items[item] = 0
+            if action == "1" or action.lower() == "yes":
+                V.bought_from_alchemist = True
+                V.alchemist_anger -= 0.25
+                if V.alchemist_anger < 0:
+                    V.alchemist_anger = 0
+                V.player_money -= cost(V, item_id)
+                print("\n\n\n")
+                shop_grant(V, item_id)
+                print("Type anything to continue...")
+                action = input()
+                print("\n\n\n")
+                V.item_bought[item_id] += 1
+                V.current_alchemist_items[item] = 0
         else:
-            print('''You don't have enough money to buy this item!''')
-
-def shop_weapon_buy(V, weapon):
-    if cost(V, weapon, 1) <= V.player_money:
-        V.player_money -= cost(V, weapon, 1)
-        V.player_weapon = weapon
-        if weapon == 1:
-            V.player_extra_magic_def_buff = 1.5
-        else:
-            V.player_extra_magic_def_buff = 0
-        print("You bought", V.weapon_names[weapon])
-    else:
-        print('''You don't have enough money to buy this item!
-But you could try stealing it...
-What will you do?
-1. Steal
-2. Not Steal''')
-        action = input()
-        if action == "1":
-            print("You stole", V.weapon_names[weapon])
-            V.debt += cost(V, weapon, 1)
-            V.player_weapon = weapon
-            if weapon == 1:
-                V.player_extra_magic_def_buff = 1.5
-            else:
-                V.player_extra_magic_def_buff = 0
-            V.shopkeeper_sus += 0.5
-            V.leave = 1
-        elif action == "2":
-            print("You put the item back down and continued shopping...")
+            print("You don't have enough money to buy", V.item_names[item_id] + '''!
+And the gaze of \033[38;2;200;0;150mthe alchemist\033[0m is too keen...
+Type anything to continue...''')
+            action = input()
 
 def shop(V):
     if V.game_time < 18:
@@ -303,8 +381,9 @@ He presents you the goods.''')
                 print(counter, ". ", V.item_names[i], " - \033[38;2;200;200;0m", cost(V, i), " coins\033[0m", sep = "")
             counter += 1
             print(counter, ". Inspect", sep = "")
-            print(counter + 1, ". Talk", sep = "")
-            print(counter + 2, ". Leave", sep = "")
+            print(counter + 1, ". Brew", sep = "")
+            print(counter + 2, ". Talk", sep = "")
+            print(counter + 3, ". Leave", sep = "")
             while True:
                 print("Which one do you want to buy?")
                 action = input()
@@ -317,13 +396,37 @@ He presents you the goods.''')
                         item_info(V, "alchemist")
                         break
                     elif action - 2 == len(V.current_alchemist_items):
+                        brewing(V)
+                        break
+                    elif action - 3 == len(V.current_alchemist_items):
                         npc_talk(V, "alchemist")
                         break
-                    elif action - 3 >= len(V.current_alchemist_items):
+                    elif action - 4 >= len(V.current_alchemist_items):
                         V.leave = 1
                         break
+                elif "inspect" in action.lower():
+                    item_info(V, "alchemist")
+                    break
+                elif "brew" in action.lower():
+                    brewing(V)
+                    break
+                elif "talk" in action.lower():
+                    npc_talk(V, "alchemist")
+                    break
+                elif "leave" in action.lower():
+                    V.leave = 1
+                    break
                 else:
-                    print("Type in the correct action")
+                    incorrect = True
+                    for i in V.current_alchemist_items:
+                        if action.lower() in V.item_names[i].lower():
+                            incorrect = False
+                            shop_buy(V, V.current_alchemist_items.index(i), "alchemist")
+                            break
+                    if incorrect:
+                        print("Type in the correct action")
+                    else:
+                        break
             if V.leave == 1:
                 break
         print('''You left the brewery and continued your journey...''')
@@ -792,6 +895,8 @@ Type anything to continue...''')
                 money = round((V.score + V.score_increase) * 10)
             elif V.scaling_style == "V0.3.7":
                 money = round((V.score + V.score_increase) * 6)
+            else:
+                money = 0
             V.player_money += money
             reaper_bounty_define(V, 1)
             print('''The man comes up to you and says,
@@ -805,7 +910,7 @@ He hands you a small bag with coins inside. You got''', money, "coins! Your curr
 \033[38;2;230;50;0m"Good job. You have killed quite formidable beasts. That is more than enough for a reward. Take this instead."\033[0m''')
             seed(V.reaper_reward_seed)
             V.reaper_reward_seed = randint(0, 1000)
-            shop_grant(V, choice(26, 27))
+            shop_grant(V, choice([26, 27]))
             print("Type anything to continue...")
             action = input()
         if V.bounty_target_tracking[2] >= V.bounty_target_goal[2]:
